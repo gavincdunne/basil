@@ -15,7 +15,7 @@ We’re just getting started. Here’s what’s on the roadmap:
 - 📓 **Context-aware journaling** for meals, stress, sleep
 - 🤖 **LLM-based assistant** trained to speak fluent T1D
 
-## 🌱 Why Basil?
+## 🌱 Why Basil (Basal)?
 
 Because living with T1D is hard enough—you deserve tools that *get it*.  
 Not medical, not preachy—just helpful, beautiful, and on your side.
