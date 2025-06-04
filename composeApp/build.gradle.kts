@@ -51,6 +51,16 @@ kotlin {
             implementation(compose.components.uiToolingPreview)
             implementation(libs.androidx.lifecycle.viewmodel)
             implementation(libs.androidx.lifecycle.runtimeCompose)
+
+            // Voyager core navigation
+            implementation(libs.voyager.navigator)
+            implementation(libs.voyager.core)
+
+            // Optional: Material3 integration
+            implementation(libs.voyager.tab.navigator)
+            implementation(libs.voyager.bottom.sheet.navigator)
+
+            implementation(libs.androidx.material.icons.extended)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
