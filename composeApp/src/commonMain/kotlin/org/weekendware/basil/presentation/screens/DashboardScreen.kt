@@ -1,6 +1,6 @@
 @file:OptIn(ExperimentalMaterial3Api::class)
 
-package org.weekendware.basil.screens
+package org.weekendware.basil.presentation.screens
 
 import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons

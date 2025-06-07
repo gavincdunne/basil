@@ -1,4 +1,4 @@
-package org.weekendware.basil.screens
+package org.weekendware.basil.presentation.screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*

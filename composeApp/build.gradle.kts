@@ -1,86 +1,100 @@
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
-import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.composeMultiplatform)
-    alias(libs.plugins.composeCompiler)
     alias(libs.plugins.composeHotReload)
+    alias(libs.plugins.sqldelight)
+    alias(libs.plugins.compose.compiler)
 }
 
 kotlin {
-    androidTarget {
-        @OptIn(ExperimentalKotlinGradlePluginApi::class)
-        compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_11)
-        }
-    }
+    kotlin.mpp.applyDefaultHierarchyTemplate=false
 
-    // ✅ iOS Framework targets
-    val iosTargets = listOf(
-        iosX64(),
-        iosArm64(),
-        iosSimulatorArm64()
-    )
-
-    iosTargets.forEach { target ->
-        target.binaries.framework {
-            baseName = "ComposeApp"
-            isStatic = true
+    androidTarget() {
+        compilations.all {
+            kotlinOptions.jvmTarget = "11"
         }
     }
 
     jvm("desktop")
+    iosX64()
+    iosArm64()
+    iosSimulatorArm64()
 
     sourceSets {
-        val desktopMain by getting
+        val commonMain by getting {
+            dependencies {
+                implementation(compose.runtime)
+                implementation(compose.foundation)
+                implementation(compose.material3)
+                implementation(compose.ui)
+                implementation(compose.components.resources)
+                implementation(compose.components.uiToolingPreview)
+                implementation(libs.androidx.lifecycle.viewmodel)
+                implementation(libs.androidx.lifecycle.runtimeCompose)
 
-        androidMain.dependencies {
-            implementation(compose.preview)
-            implementation(libs.androidx.activity.compose)
+                // Voyager core navigation
+                implementation(libs.voyager.navigator)
+                implementation(libs.voyager.core)
+
+                // Optional: Material3 integration
+                implementation(libs.voyager.tab.navigator)
+                implementation(libs.voyager.bottom.sheet.navigator)
+
+                implementation(libs.androidx.material.icons.extended)
+            }
         }
-        commonMain.dependencies {
-            implementation(compose.runtime)
-            implementation(compose.foundation)
-            implementation(compose.material3)
-            implementation(compose.ui)
-            implementation(compose.components.resources)
-            implementation(compose.components.uiToolingPreview)
-            implementation(libs.androidx.lifecycle.viewmodel)
-            implementation(libs.androidx.lifecycle.runtimeCompose)
+        val androidMain by getting {
+            kotlin.srcDirs("src/androidMain/kotlin")
 
-            // Voyager core navigation
-            implementation(libs.voyager.navigator)
-            implementation(libs.voyager.core)
-
-            // Optional: Material3 integration
-            implementation(libs.voyager.tab.navigator)
-            implementation(libs.voyager.bottom.sheet.navigator)
-
-            implementation(libs.androidx.material.icons.extended)
+            dependencies {
+                implementation(compose.preview)
+                implementation(libs.androidx.activity.compose)
+                implementation(libs.sqldelight.runtime)
+                implementation(libs.sqldelight.androidDriver)
+                implementation(libs.sqldelight.coroutines)
+            }
         }
-        commonTest.dependencies {
-            implementation(libs.kotlin.test)
+
+        val desktopMain by getting {
+            dependencies {
+                implementation(compose.desktop.currentOs)
+                implementation(libs.kotlinx.coroutinesSwing)
+//                implementation(libs.sqldelight.sqlite.driver)
+            }
         }
-        desktopMain.dependencies {
-            implementation(compose.desktop.currentOs)
-            implementation(libs.kotlinx.coroutinesSwing)
+
+        val iosX64Main by getting {
+            kotlin.srcDir("src/iosX64Main/kotlin")
+        }
+
+        val iosArm64Main by getting {
+            kotlin.srcDir("src/iosArm64Main/kotlin")
+        }
+
+        val iosSimulatorArm64Main by getting {
+            kotlin.srcDir("src/iosSimulatorArm64Main/kotlin")
+        }
+
+        val iosMain by creating {
+            dependsOn(commonMain)
+            iosX64Main.dependsOn(this)
+            iosArm64Main.dependsOn(this)
+            iosSimulatorArm64Main.dependsOn(this)
+
+            dependencies {
+//                implementation(libs.sqldelight.native.driver)
+            }
+        }
+
+        val commonTest by getting {
+            dependencies {
+                implementation(libs.kotlin.test)
+            }
         }
     }
-}
-
-// ✅ Define syncFramework task for iOS linking
-tasks.register<Sync>("syncFramework") {
-    val frameworkDir = buildDir.resolve("bin/iosSimulatorArm64/DebugFramework/ComposeApp.framework")
-    val targetDir = rootProject.layout.buildDirectory.dir("XCFrameworks/debug")
-
-    dependsOn("linkDebugFrameworkIosSimulatorArm64")
-
-    from(frameworkDir)
-    into(targetDir)
 }
 
 android {
@@ -125,3 +139,14 @@ compose.desktop {
         }
     }
 }
+
+sqldelight {
+    databases {
+        create("BasilDatabase") {
+            packageName.set("org.weekendware.basil.database")
+        }
+    }
+}
+
+
+

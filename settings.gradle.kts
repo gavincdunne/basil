@@ -33,3 +33,4 @@ plugins {
 }
 
 include(":composeApp")
+project(":composeApp").projectDir = file("composeApp")
