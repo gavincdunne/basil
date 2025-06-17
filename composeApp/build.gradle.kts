@@ -1,7 +1,4 @@
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
-import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -9,38 +6,38 @@ plugins {
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.composeHotReload)
+    alias(libs.plugins.sqldelight)
 }
 
 kotlin {
-    androidTarget {
-        @OptIn(ExperimentalKotlinGradlePluginApi::class)
-        compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_11)
+    androidTarget() {
+        compilations.all {
+            kotlinOptions.jvmTarget = "11"
         }
     }
-
-    // ✅ iOS Framework targets
-    val iosTargets = listOf(
+    
+    listOf(
         iosX64(),
         iosArm64(),
         iosSimulatorArm64()
-    )
-
-    iosTargets.forEach { target ->
-        target.binaries.framework {
+    ).forEach { iosTarget ->
+        iosTarget.binaries.framework {
             baseName = "ComposeApp"
             isStatic = true
         }
     }
-
+    
     jvm("desktop")
-
+    
     sourceSets {
         val desktopMain by getting
-
+        
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
+            implementation(libs.sqldelight.runtime)
+            implementation(libs.sqldelight.androidDriver)
+            implementation(libs.sqldelight.coroutines)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -58,19 +55,13 @@ kotlin {
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutinesSwing)
+            implementation("app.cash.sqldelight:sqlite-driver:2.0.1")
         }
+        iosMain.dependencies {
+            implementation("app.cash.sqldelight:native-driver:2.0.1")
+        }
+
     }
-}
-
-// ✅ Define syncFramework task for iOS linking
-tasks.register<Sync>("syncFramework") {
-    val frameworkDir = buildDir.resolve("bin/iosSimulatorArm64/DebugFramework/ComposeApp.framework")
-    val targetDir = rootProject.layout.buildDirectory.dir("XCFrameworks/debug")
-
-    dependsOn("linkDebugFrameworkIosSimulatorArm64")
-
-    from(frameworkDir)
-    into(targetDir)
 }
 
 android {
@@ -115,3 +106,12 @@ compose.desktop {
         }
     }
 }
+
+sqldelight {
+    databases {
+        create("BasilDatabase") {
+            packageName.set("org.weekendware.basil.database")
+        }
+    }
+}
+
