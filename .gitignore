@@ -1,18 +1,65 @@
+# ---------------------------
+# IDE and Tooling Junk
+# ---------------------------
+
+# IntelliJ / Android Studio / Xcode project files
 *.iml
-.kotlin
-.gradle
-**/build/
-xcuserdata
-!src/**/build/
-local.properties
-.idea
+.idea/
 .DS_Store
-captures
-.externalNativeBuild
-.cxx
+xcuserdata/
+
+# Gradle and Kotlin build metadata
+.gradle/
+.kotlin/
+
+# External Native Build artifacts
+.externalNativeBuild/
+.cxx/
+
+# Local configuration not meant for sharing
+local.properties
+
+# ---------------------------
+# Build Artifacts
+# ---------------------------
+
+# Common build folders (KMP, Android, iOS, Desktop)
+**/build/
+# Exception: keep actual source build folders if needed
+!src/**/build/
+
+# ---------------------------
+# Xcode Noise
+# ---------------------------
+
+# Ignore entire .xcodeproj contents except for what’s versionable
 *.xcodeproj/*
 !*.xcodeproj/project.pbxproj
 !*.xcodeproj/xcshareddata/
 !*.xcodeproj/project.xcworkspace/
+
+# Keep workspace metadata
 !*.xcworkspace/contents.xcworkspacedata
 **/xcshareddata/WorkspaceSettings.xcsettings
+
+# ---------------------------
+# Assets and Generated Files
+# ---------------------------
+
+# Android auto-generated icons
+**/res/mipmap-*/
+**/res/drawable/ic_launcher_*
+
+# iOS auto-generated/placeholder assets
+**/*.appiconset/*
+**/Preview Content/
+**/Configuration/
+
+# Unnecessary binaries
+*.png
+
+# ---------------------------
+# Debug and Capture Files
+# ---------------------------
+
+captures/
