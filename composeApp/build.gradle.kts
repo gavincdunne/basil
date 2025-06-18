@@ -50,8 +50,8 @@ kotlin {
             implementation(libs.androidx.lifecycle.runtimeCompose)
             implementation(libs.material.icons.extended)
 
-            implementation("io.insert-koin:koin-core:3.5.3")
-            implementation("io.insert-koin:koin-compose:1.0.4")
+            implementation(libs.koin.core)
+            implementation(libs.koin.compose)
 
             implementation(libs.voyager.navigator)
             implementation(libs.voyager.tab.navigator)
@@ -64,10 +64,10 @@ kotlin {
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutinesSwing)
-            implementation("app.cash.sqldelight:sqlite-driver:2.0.1")
+            implementation(libs.sqlite.driver)
         }
         iosMain.dependencies {
-            implementation("app.cash.sqldelight:native-driver:2.0.1")
+            implementation(libs.sqldelight.nativeDriver)
         }
 
     }
