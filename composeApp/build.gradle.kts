@@ -48,8 +48,10 @@ kotlin {
             implementation(compose.components.uiToolingPreview)
             implementation(libs.androidx.lifecycle.viewmodel)
             implementation(libs.androidx.lifecycle.runtimeCompose)
+            implementation(libs.material.icons.extended)
 
-            implementation("org.jetbrains.compose.material:material-icons-extended:1.7.3")
+            implementation("io.insert-koin:koin-core:3.5.3")
+            implementation("io.insert-koin:koin-compose:1.0.4")
 
             implementation(libs.voyager.navigator)
             implementation(libs.voyager.tab.navigator)
