@@ -37,7 +37,6 @@ fun App() {
                 }
             }
         ) { innerPadding ->
-            // 🔧 Apply padding so screen content isn't covered by nav bar
             Surface(modifier = Modifier.padding(innerPadding)) {
                 CurrentTab()
             }
