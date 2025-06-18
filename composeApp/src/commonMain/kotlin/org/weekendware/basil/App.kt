@@ -1,46 +1,44 @@
 package org.weekendware.basil
 
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.*
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import cafe.adriel.voyager.navigator.tab.*
+import cafe.adriel.voyager.navigator.CurrentScreen
+import cafe.adriel.voyager.navigator.Navigator
+import cafe.adriel.voyager.navigator.tab.Tab
+import cafe.adriel.voyager.navigator.tab.TabNavigator
+import org.weekendware.basil.presentation.chat.ChatTab
+import org.weekendware.basil.presentation.components.BasilBottomBar
+import org.weekendware.basil.presentation.components.BasilTopAppBar
 import org.weekendware.basil.presentation.dashboard.DashboardTab
 import org.weekendware.basil.presentation.profile.ProfileTab
-import org.weekendware.basil.presentation.settings.SettingsTab
 
 @Composable
 fun App() {
-    val tabs = listOf(DashboardTab, ProfileTab, SettingsTab)
+    val tabs = listOf(DashboardTab, ProfileTab, ChatTab)
 
-    TabNavigator(DashboardTab) { tabNavigator ->
-        Scaffold(
-            bottomBar = {
-                NavigationBar {
-                    tabs.forEach { tab ->
-                        val isSelected = tabNavigator.current == tab
-
-                        NavigationBarItem(
-                            selected = isSelected,
-                            onClick = { tabNavigator.current = tab },
-                            icon = {
-                                tab.options.icon?.let { icon ->
-                                    Icon(
-                                        painter = icon,
-                                        contentDescription = tab.options.title
-                                    )
-                                }
-                            },
-                            label = { Text(tab.options.title) }
-                        )
+    Navigator(DashboardTab) { rootNavigator ->
+        TabNavigator(DashboardTab) { tabNavigator ->
+            Scaffold(
+                topBar = {
+                    BasilTopAppBar(
+                        rootNavigator = rootNavigator,
+                        currentScreen = rootNavigator.lastItem
+                    )
+                },
+                bottomBar = {
+                    if (rootNavigator.lastItem is Tab) {
+                        BasilBottomBar(tabNavigator = tabNavigator, tabs = tabs)
                     }
                 }
-            }
-        ) { innerPadding ->
-            // 🔧 Apply padding so screen content isn't covered by nav bar
-            Surface(modifier = Modifier.padding(innerPadding)) {
-                CurrentTab()
+            ) { innerPadding ->
+                Surface(modifier = Modifier.padding(innerPadding)) {
+                    CurrentScreen()
+                }
             }
         }
     }
 }
+
