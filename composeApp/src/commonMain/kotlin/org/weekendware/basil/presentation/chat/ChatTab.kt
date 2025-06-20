@@ -2,6 +2,7 @@ package org.weekendware.basil.presentation.chat
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChatBubble
+import androidx.compose.material.icons.filled.EnergySavingsLeaf
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import cafe.adriel.voyager.navigator.tab.Tab
@@ -13,8 +14,8 @@ object ChatTab : Tab {
         @Composable get() {
             return TabOptions(
                 index = 0u,
-                title = "Chat",
-                icon = rememberVectorPainter(Icons.Default.ChatBubble)
+                title = "Basil",
+                icon = rememberVectorPainter(Icons.Default.EnergySavingsLeaf)
             )
         }
 

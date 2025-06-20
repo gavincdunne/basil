@@ -9,6 +9,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.tab.Tab
 import org.weekendware.basil.presentation.settings.SettingsScreen
@@ -17,9 +18,9 @@ import org.weekendware.basil.presentation.settings.SettingsScreen
 @Composable
 fun BasilTopAppBar(
     rootNavigator: Navigator,
-    currentScreen: cafe.adriel.voyager.core.screen.Screen
+    currentScreen: Screen
 ) {
-    val isRootScreen = currentScreen is Tab
+    val isTab = currentScreen is Tab
     val title = when (currentScreen) {
         is SettingsScreen -> "Settings"
         else -> ""
@@ -28,14 +29,14 @@ fun BasilTopAppBar(
     CenterAlignedTopAppBar(
         title = { Text(title) },
         navigationIcon = {
-            if (!isRootScreen) {
+            if (!isTab) {
                 IconButton(onClick = { rootNavigator.pop() }) {
                     Icon(Icons.Default.Close, contentDescription = "Close")
                 }
             }
         },
         actions = {
-            if (isRootScreen) {
+            if (isTab) {
                 IconButton(onClick = {
                     rootNavigator.push(SettingsScreen)
                 }) {
