@@ -5,7 +5,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import cafe.adriel.voyager.navigator.CurrentScreen
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.tab.Tab
 import cafe.adriel.voyager.navigator.tab.TabNavigator
@@ -21,24 +20,33 @@ fun App() {
 
     Navigator(DashboardTab) { rootNavigator ->
         TabNavigator(DashboardTab) { tabNavigator ->
+            val currentScreen = rootNavigator.lastItem
+
             Scaffold(
                 topBar = {
                     BasilTopAppBar(
                         rootNavigator = rootNavigator,
-                        currentScreen = rootNavigator.lastItem
+                        currentScreen = currentScreen
                     )
                 },
                 bottomBar = {
-                    if (rootNavigator.lastItem is Tab) {
+                    if (currentScreen is Tab) {
                         BasilBottomBar(tabNavigator = tabNavigator, tabs = tabs)
                     }
                 }
             ) { innerPadding ->
                 Surface(modifier = Modifier.padding(innerPadding)) {
-                    CurrentScreen()
+                    when (currentScreen) {
+                        is Tab -> {
+                            tabNavigator.current.Content()
+                        }
+
+                        else -> {
+                            currentScreen.Content()
+                        }
+                    }
                 }
             }
         }
     }
 }
-
