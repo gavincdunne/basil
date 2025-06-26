@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "254943451176",
+    "project_id": "basil-a1b16",
+    "storage_bucket": "basil-a1b16.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:254943451176:android:15768b685914a1d5febd1d",
+        "android_client_info": {
+          "package_name": "org.weekendware.basil"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyALC2mAyQ_EfP8_FD712NL-7H_kbWbwCWw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
