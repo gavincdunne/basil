@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
+import com.google.firebase.FirebaseApp
 import org.koin.dsl.module
 import org.weekendware.basil.di.initKoin
 
@@ -16,6 +17,7 @@ import org.weekendware.basil.di.initKoin
  * - Enables edge-to-edge display so content draws behind system bars.
  * - Initialises Koin, passing `applicationContext` as a Koin singleton so
  *   that [DatabaseDriverFactory] can receive it via `get<Context>()`.
+ * - Initialises Firebase.
  * - Sets the Compose content root to [App].
  */
 class MainActivity : ComponentActivity() {
@@ -27,6 +29,7 @@ class MainActivity : ComponentActivity() {
         initKoin {
             modules(module { single<android.content.Context> { applicationContext } })
         }
+        FirebaseApp.initializeApp(this)
 
         setContent {
             App()

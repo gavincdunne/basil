@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.composeHotReload)
     alias(libs.plugins.sqldelight)
+    alias(libs.plugins.google.services)
 }
 
 kotlin {
@@ -17,8 +18,8 @@ kotlin {
     }
     
     listOf(
-        iosX64(),
-        iosArm64(),
+//        iosX64(),
+//        iosArm64(),
         iosSimulatorArm64()
     ).forEach { iosTarget ->
         iosTarget.binaries.framework {
@@ -27,15 +28,14 @@ kotlin {
         }
     }
     
-    jvm("desktop")
+//    jvm("desktop")
     
     sourceSets {
-        val desktopMain by getting
-        
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
             implementation(libs.sqldelight.androidDriver)
+            implementation(libs.firebase.auth.ktx)
         }
         commonMain.dependencies {
             implementation(libs.sqldelight.runtime)
@@ -58,15 +58,17 @@ kotlin {
             implementation(libs.voyager.tab.navigator)
             implementation(libs.voyager.bottom.sheet.navigator)
             implementation(libs.voyager.transitions)
+
+            implementation(libs.firebase.auth)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
         }
-        desktopMain.dependencies {
-            implementation(compose.desktop.currentOs)
-            implementation(libs.kotlinx.coroutinesSwing)
-            implementation(libs.sqlite.driver)
-        }
+//        desktopMain.dependencies {
+//            implementation(compose.desktop.currentOs)
+//            implementation(libs.kotlinx.coroutinesSwing)
+//            implementation(libs.sqlite.driver)
+//        }
         iosMain.dependencies {
             implementation(libs.sqldelight.nativeDriver)
         }
@@ -105,22 +107,23 @@ dependencies {
     debugImplementation(compose.uiTooling)
 }
 
-compose.desktop {
-    application {
-        mainClass = "org.weekendware.basil.MainKt"
-
-        nativeDistributions {
-            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "org.weekendware.basil"
-            packageVersion = "1.0.0"
-        }
-    }
-}
+//compose.desktop {
+//    application {
+//        mainClass = "org.weekendware.basil.MainKt"
+//
+//        nativeDistributions {
+//            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
+//            packageName = "org.weekendware.basil"
+//            packageVersion = "1.0.0"
+//        }
+//    }
+//}
 
 sqldelight {
     databases {
         create("BasilDatabase") {
             packageName.set("org.weekendware.basil.database")
+            verifyMigrations.set(false)
         }
     }
 }
