@@ -4,8 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.tooling.preview.Preview
+import com.google.firebase.FirebaseApp
 import org.weekendware.basil.di.initKoin
 
 class MainActivity : ComponentActivity() {
@@ -14,6 +13,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         initKoin()
+        FirebaseApp.initializeApp(this)
 
         setContent {
             App()
