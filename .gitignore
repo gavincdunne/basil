@@ -63,3 +63,10 @@ local.properties
 # ---------------------------
 
 captures/
+
+
+# ---------------------------
+# Firebase Config
+# ---------------------------
+**/google-services.json
+**/GoogleService-Info.plist
