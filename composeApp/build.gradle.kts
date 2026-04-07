@@ -35,11 +35,11 @@ kotlin {
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
-            implementation(libs.sqldelight.runtime)
             implementation(libs.sqldelight.androidDriver)
-            implementation(libs.sqldelight.coroutines)
         }
         commonMain.dependencies {
+            implementation(libs.sqldelight.runtime)
+            implementation(libs.sqldelight.coroutines)
             implementation(compose.runtime)
             implementation(compose.foundation)
             implementation(compose.material3)
