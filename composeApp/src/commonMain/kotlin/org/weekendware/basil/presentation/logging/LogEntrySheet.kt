@@ -20,9 +20,26 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.unit.dp
 import org.weekendware.basil.domain.model.BgUnit
+import org.weekendware.basil.presentation.theme.BasilTokens
+import org.weekendware.basil.presentation.theme.basilSpacing
 
+/**
+ * A [ModalBottomSheet] for recording a new log entry.
+ *
+ * Presents three optional fields — blood glucose, insulin units, and
+ * carbohydrates — any combination of which can be filled in per entry.
+ * The Save button is enabled as soon as at least one field has a value.
+ *
+ * ### BG unit toggle
+ * The blood glucose row includes a pair of buttons to switch between
+ * mg/dL and mmol/L. The selected unit is visually filled; the inactive unit
+ * is outlined. Tapping a unit persists the preference via [LoggingViewModel]
+ * so the same unit is pre-selected the next time the sheet opens.
+ *
+ * @param viewModel The [LoggingViewModel] managing form state and save logic.
+ * @param onDismiss Called when the user dismisses the sheet or after a successful save.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LogEntrySheet(
@@ -30,75 +47,130 @@ fun LogEntrySheet(
     onDismiss: () -> Unit
 ) {
     val state by viewModel.state.collectAsState()
+    val spacing = MaterialTheme.basilSpacing
 
     ModalBottomSheet(onDismissRequest = onDismiss) {
         Column(
             modifier = Modifier
-                .padding(horizontal = 24.dp)
-                .padding(bottom = 32.dp),
-            verticalArrangement = Arrangement.spacedBy(20.dp)
+                .padding(horizontal = BasilTokens.SheetHorizontalPadding)
+                .padding(bottom = BasilTokens.SheetBottomPadding),
+            verticalArrangement = Arrangement.spacedBy(BasilTokens.FormFieldGap)
         ) {
-            Text("Log Entry", style = MaterialTheme.typography.titleLarge)
+            Text(
+                text  = "Log Entry",
+                style = MaterialTheme.typography.titleLarge
+            )
 
-            // Blood glucose
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text("Blood Glucose", style = MaterialTheme.typography.labelLarge)
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            // ── Blood Glucose ────────────────────────────────────
+            LogFieldSection(label = "Blood Glucose") {
+                Row(horizontalArrangement = Arrangement.spacedBy(spacing.sm)) {
                     OutlinedTextField(
-                        value = state.bgValue,
+                        value         = state.bgValue,
                         onValueChange = viewModel::onBgValueChange,
-                        modifier = Modifier.weight(1f),
-                        placeholder = { Text("0") },
+                        modifier      = Modifier.weight(1f),
+                        placeholder   = { Text("0") },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                        singleLine = true
+                        singleLine    = true
                     )
-                    BgUnit.entries.forEach { unit ->
-                        if (state.bgUnit == unit) {
-                            Button(onClick = {}) { Text(unit.label) }
-                        } else {
-                            OutlinedButton(onClick = { viewModel.onBgUnitChange(unit) }) {
-                                Text(unit.label)
-                            }
-                        }
-                    }
+                    BgUnitToggle(
+                        selected  = state.bgUnit,
+                        onSelect  = viewModel::onBgUnitChange
+                    )
                 }
             }
 
-            // Insulin
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text("Insulin", style = MaterialTheme.typography.labelLarge)
+            // ── Insulin ──────────────────────────────────────────
+            LogFieldSection(label = "Insulin") {
                 OutlinedTextField(
-                    value = state.insulinUnits,
+                    value         = state.insulinUnits,
                     onValueChange = viewModel::onInsulinChange,
-                    modifier = Modifier.fillMaxWidth(),
-                    placeholder = { Text("Units") },
+                    modifier      = Modifier.fillMaxWidth(),
+                    placeholder   = { Text("Units") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                    singleLine = true
+                    singleLine    = true
                 )
             }
 
-            // Carbs
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text("Carbs", style = MaterialTheme.typography.labelLarge)
+            // ── Carbohydrates ────────────────────────────────────
+            LogFieldSection(label = "Carbs") {
                 OutlinedTextField(
-                    value = state.carbsGrams,
+                    value         = state.carbsGrams,
                     onValueChange = viewModel::onCarbsChange,
-                    modifier = Modifier.fillMaxWidth(),
-                    placeholder = { Text("Grams") },
+                    modifier      = Modifier.fillMaxWidth(),
+                    placeholder   = { Text("Grams") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                    singleLine = true
+                    singleLine    = true
                 )
             }
 
+            // ── Save ─────────────────────────────────────────────
             Button(
-                onClick = { viewModel.save(onDismiss) },
+                onClick  = { viewModel.save(onDismiss) },
                 modifier = Modifier.fillMaxWidth(),
-                enabled = state.hasAnyValue
+                enabled  = state.hasAnyValue
             ) {
                 Text("Save")
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(spacing.sm))
+        }
+    }
+}
+
+// ─────────────────────────────────────────────────────────────
+// Private sub-composables
+// ─────────────────────────────────────────────────────────────
+
+/**
+ * A labeled wrapper for a single log input section.
+ *
+ * Renders [label] in [MaterialTheme.typography.labelLarge] above the
+ * provided [content] composable, with consistent vertical spacing.
+ *
+ * @param label   The section label shown above the input field(s).
+ * @param content The input field(s) for this section.
+ */
+@Composable
+private fun LogFieldSection(
+    label:   String,
+    content: @Composable () -> Unit
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(MaterialTheme.basilSpacing.xs)) {
+        Text(
+            text  = label,
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        content()
+    }
+}
+
+/**
+ * A two-button toggle for selecting between [BgUnit.MGDL] and [BgUnit.MMOLL].
+ *
+ * The currently-selected unit uses a filled [Button]; the inactive unit
+ * uses an [OutlinedButton], making the selection immediately obvious without
+ * requiring an experimental Compose API.
+ *
+ * @param selected The currently-active [BgUnit].
+ * @param onSelect Callback invoked when the user taps a unit button.
+ */
+@Composable
+private fun BgUnitToggle(
+    selected: BgUnit,
+    onSelect: (BgUnit) -> Unit
+) {
+    Row(horizontalArrangement = Arrangement.spacedBy(MaterialTheme.basilSpacing.xs)) {
+        BgUnit.entries.forEach { unit ->
+            if (unit == selected) {
+                Button(onClick = {}) {
+                    Text(unit.label)
+                }
+            } else {
+                OutlinedButton(onClick = { onSelect(unit) }) {
+                    Text(unit.label)
+                }
+            }
         }
     }
 }

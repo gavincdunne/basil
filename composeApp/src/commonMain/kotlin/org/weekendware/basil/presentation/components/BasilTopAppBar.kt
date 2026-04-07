@@ -14,6 +14,23 @@ import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.tab.Tab
 import org.weekendware.basil.presentation.settings.SettingsScreen
 
+/**
+ * The top app bar used across all Basil screens.
+ *
+ * Behaviour adapts based on the currently-displayed screen:
+ * - **Tab screens** (e.g. Dashboard, Profile, Chat): shows a settings gear
+ *   icon in the trailing actions area. Tapping it pushes [SettingsScreen]
+ *   onto [rootNavigator].
+ * - **Stack screens** (e.g. Settings): shows a close icon in the leading
+ *   navigation slot. Tapping it pops the current screen.
+ *
+ * The title slot is populated for named stack screens (currently [SettingsScreen]);
+ * tab screens leave it empty to keep the top bar clean.
+ *
+ * @param rootNavigator The root Voyager [Navigator] used for push/pop operations.
+ * @param currentScreen The screen that is currently visible, used to determine
+ *   which icons and title to display.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BasilTopAppBar(
@@ -23,7 +40,7 @@ fun BasilTopAppBar(
     val isTab = currentScreen is Tab
     val title = when (currentScreen) {
         is SettingsScreen -> "Settings"
-        else -> ""
+        else              -> ""
     }
 
     CenterAlignedTopAppBar(
@@ -37,9 +54,7 @@ fun BasilTopAppBar(
         },
         actions = {
             if (isTab) {
-                IconButton(onClick = {
-                    rootNavigator.push(SettingsScreen)
-                }) {
+                IconButton(onClick = { rootNavigator.push(SettingsScreen) }) {
                     Icon(Icons.Default.Settings, contentDescription = "Settings")
                 }
             }
