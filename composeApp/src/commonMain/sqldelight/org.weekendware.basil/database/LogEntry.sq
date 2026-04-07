@@ -1,0 +1,18 @@
+CREATE TABLE LogEntry(
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    timestamp INTEGER NOT NULL,
+    bg_value REAL,
+    bg_unit TEXT,
+    insulin_units REAL,
+    carbs_grams REAL
+);
+
+selectRecent:
+SELECT * FROM LogEntry ORDER BY timestamp DESC LIMIT ?;
+
+insertEntry:
+INSERT INTO LogEntry(timestamp, bg_value, bg_unit, insulin_units, carbs_grams)
+VALUES (?, ?, ?, ?, ?);
+
+deleteEntry:
+DELETE FROM LogEntry WHERE id = ?;
