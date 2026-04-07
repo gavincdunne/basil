@@ -13,36 +13,48 @@ import org.weekendware.basil.presentation.components.BasilBottomBar
 import org.weekendware.basil.presentation.components.BasilTopAppBar
 import org.weekendware.basil.presentation.dashboard.DashboardTab
 import org.weekendware.basil.presentation.profile.ProfileTab
+import org.weekendware.basil.presentation.theme.BasilTheme
 
+/**
+ * Root composable for the Basil application.
+ *
+ * Sets up the top-level navigation structure:
+ * - A Voyager [Navigator] acts as the root stack, enabling push/pop navigation
+ *   for full-screen destinations such as [SettingsScreen].
+ * - A [TabNavigator] nested inside manages the three main tabs:
+ *   [DashboardTab], [ProfileTab], and [ChatTab].
+ * - A [Scaffold] wraps the content with [BasilTopAppBar] and [BasilBottomBar],
+ *   hiding the bottom bar on non-tab screens.
+ *
+ * All UI is wrapped in [BasilTheme] so every composable in the tree has access
+ * to the Basil color, typography, shape, and spacing tokens.
+ */
 @Composable
 fun App() {
-    val tabs = listOf(DashboardTab, ProfileTab, ChatTab)
+    BasilTheme {
+        val tabs = listOf(DashboardTab, ProfileTab, ChatTab)
 
-    Navigator(DashboardTab) { rootNavigator ->
-        TabNavigator(DashboardTab) { tabNavigator ->
-            val currentScreen = rootNavigator.lastItem
+        Navigator(DashboardTab) { rootNavigator ->
+            TabNavigator(DashboardTab) { tabNavigator ->
+                val currentScreen = rootNavigator.lastItem
 
-            Scaffold(
-                topBar = {
-                    BasilTopAppBar(
-                        rootNavigator = rootNavigator,
-                        currentScreen = currentScreen
-                    )
-                },
-                bottomBar = {
-                    if (currentScreen is Tab) {
-                        BasilBottomBar(tabNavigator = tabNavigator, tabs = tabs)
-                    }
-                }
-            ) { innerPadding ->
-                Surface(modifier = Modifier.padding(innerPadding)) {
-                    when (currentScreen) {
-                        is Tab -> {
-                            tabNavigator.current.Content()
+                Scaffold(
+                    topBar = {
+                        BasilTopAppBar(
+                            rootNavigator = rootNavigator,
+                            currentScreen = currentScreen
+                        )
+                    },
+                    bottomBar = {
+                        if (currentScreen is Tab) {
+                            BasilBottomBar(tabNavigator = tabNavigator, tabs = tabs)
                         }
-
-                        else -> {
-                            currentScreen.Content()
+                    }
+                ) { innerPadding ->
+                    Surface(modifier = Modifier.padding(innerPadding)) {
+                        when (currentScreen) {
+                            is Tab -> tabNavigator.current.Content()
+                            else   -> currentScreen.Content()
                         }
                     }
                 }
