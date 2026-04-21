@@ -1,5 +1,6 @@
 package org.weekendware.basil.data.repository
 
+import kotlinx.datetime.Clock
 import org.weekendware.basil.database.BasilDatabase
 import org.weekendware.basil.domain.model.BgUnit
 import org.weekendware.basil.domain.model.LogEntry
@@ -25,7 +26,7 @@ class SqlDelightLogRepository(private val database: BasilDatabase) : LogReposito
         carbsGrams: Double?
     ) {
         database.logEntryQueries.insertEntry(
-            timestamp = System.currentTimeMillis(),
+            timestamp = Clock.System.now().toEpochMilliseconds(),
             bg_value = bgValue,
             bg_unit = bgUnit?.name,
             insulin_units = insulinUnits,
