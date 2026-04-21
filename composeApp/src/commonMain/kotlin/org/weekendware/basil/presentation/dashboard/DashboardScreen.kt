@@ -30,7 +30,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import org.koin.compose.koinInject
-import org.weekendware.basil.domain.model.BgUnit
 import org.weekendware.basil.domain.model.LogEntry
 import org.weekendware.basil.presentation.logging.LogEntrySheet
 import org.weekendware.basil.presentation.logging.LoggingViewModel
@@ -59,7 +58,6 @@ object DashboardScreen : Screen {
         val spacing = MaterialTheme.basilSpacing
 
         Box(modifier = Modifier.fillMaxSize()) {
-
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(
