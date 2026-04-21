@@ -1,6 +1,7 @@
 package org.weekendware.basil.data.repository
 
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
+import org.weekendware.basil.data.repository.SqlDelightPreferencesRepository
 import org.weekendware.basil.database.BasilDatabase
 import org.weekendware.basil.domain.model.BgUnit
 import kotlin.test.BeforeTest
@@ -9,13 +10,13 @@ import kotlin.test.assertEquals
 
 class PreferencesRepositoryTest {
 
-    private lateinit var repository: PreferencesRepository
+    private lateinit var repository: SqlDelightPreferencesRepository
 
     @BeforeTest
     fun setup() {
         val driver = JdbcSqliteDriver(JdbcSqliteDriver.IN_MEMORY)
         BasilDatabase.Schema.create(driver)
-        repository = PreferencesRepository(BasilDatabase(driver))
+        repository = SqlDelightPreferencesRepository(BasilDatabase(driver))
     }
 
     // ── getBgUnit ─────────────────────────────────────────────
