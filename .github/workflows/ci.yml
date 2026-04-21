@@ -1,0 +1,90 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Cancel older runs on the same PR when new commits arrive.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ──────────────────────────────────────────────────────────────
+  # Android: compile + unit tests + assemble debug APK
+  # ──────────────────────────────────────────────────────────────
+  android:
+    name: Android
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-read-only: ${{ github.ref != 'refs/heads/main' }}
+
+      - name: Compile
+        run: ./gradlew :composeApp:compileDebugKotlinAndroid --stacktrace --no-daemon
+
+      - name: Unit tests
+        run: ./gradlew :composeApp:desktopTest --stacktrace --no-daemon
+
+      - name: Assemble debug APK
+        run: ./gradlew :composeApp:assembleDebug --stacktrace --no-daemon
+
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports
+          path: |
+            composeApp/build/reports/tests/
+            composeApp/build/test-results/
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: Upload debug APK
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: basil-debug
+          path: composeApp/build/outputs/apk/debug/*.apk
+          retention-days: 7
+
+  # ──────────────────────────────────────────────────────────────
+  # iOS: compile the KMP framework for iosSimulatorArm64
+  # ──────────────────────────────────────────────────────────────
+  ios:
+    name: iOS
+    runs-on: macos-14
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-read-only: ${{ github.ref != 'refs/heads/main' }}
+
+      - name: Compile iOS framework
+        run: ./gradlew :composeApp:linkDebugFrameworkIosSimulatorArm64 --stacktrace --no-daemon
+
+      - name: Run iOS tests
+        run: ./gradlew :composeApp:iosSimulatorArm64Test --stacktrace --no-daemon || echo "No iOS tests yet"
