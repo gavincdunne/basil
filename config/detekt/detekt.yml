@@ -1,0 +1,203 @@
+build:
+  maxIssues: 0
+
+config:
+  validation: true
+  warningsAsErrors: false
+
+# ─────────────────────────────────────────────────────────────
+# Formatting (ktlint rules via detekt-formatting)
+# ─────────────────────────────────────────────────────────────
+formatting:
+  active: true
+  android: false
+  autoCorrect: false
+
+  AnnotationOnSeparateLine:
+    active: false
+  ChainWrapping:
+    active: true
+  EnumEntryNameCase:
+    active: true
+  Filename:
+    active: false  # main.kt is the Compose Desktop convention; we use multi-declaration files
+  FinalNewline:
+    active: true
+  ImportOrdering:
+    active: false   # Android Studio manages imports
+  Indentation:
+    active: true
+    indentSize: 4
+  MaximumLineLength:
+    active: true
+    maxLineLength: 140
+  ModifierOrdering:
+    active: true
+  NoBlankLineBeforeRbrace:
+    active: true
+  NoConsecutiveBlankLines:
+    active: true
+  NoEmptyClassBody:
+    active: true
+  NoLineBreakAfterElse:
+    active: true
+  NoLineBreakBeforeAssignment:
+    active: true
+  NoMultipleSpaces:
+    active: false  # intentional alignment style used throughout
+  NoSemicolons:
+    active: true
+  NoTrailingSpaces:
+    active: true
+  NoUnitReturn:
+    active: true
+  NoUnusedImports:
+    active: true
+  NoWildcardImports:
+    active: true
+  SpacingAroundColon:
+    active: true
+  SpacingAroundComma:
+    active: true
+  SpacingAroundCurly:
+    active: true
+  SpacingAroundKeyword:
+    active: true
+  SpacingAroundOperators:
+    active: true
+  SpacingAroundParens:
+    active: true
+  SpacingAroundRangeOperator:
+    active: true
+  SpacingBetweenDeclarationsWithComments:
+    active: false  # too noisy with section separator comments
+  StringTemplate:
+    active: true
+
+# ─────────────────────────────────────────────────────────────
+# Code smell / complexity
+# ─────────────────────────────────────────────────────────────
+complexity:
+  active: true
+  LongParameterList:
+    active: true
+    functionThreshold: 7
+    constructorThreshold: 7
+  TooManyFunctions:
+    active: true
+    thresholdInFiles: 20
+    thresholdInClasses: 15
+    thresholdInObjects: 15
+    thresholdInInterfaces: 10
+    ignorePrivate: true
+    ignoreOverridden: true
+  LongMethod:
+    active: true
+    threshold: 100  # Composable UI functions are legitimately long
+  CyclomaticComplexMethod:
+    active: true
+    threshold: 15
+  LargeClass:
+    active: true
+    threshold: 300
+  NestedBlockDepth:
+    active: true
+    threshold: 4
+
+# ─────────────────────────────────────────────────────────────
+# Naming
+# ─────────────────────────────────────────────────────────────
+naming:
+  active: true
+  ClassNaming:
+    active: true
+    classPattern: '[A-Z][a-zA-Z0-9]*'
+  FunctionNaming:
+    active: true
+    functionPattern: '([a-zA-Z][a-zA-Z0-9]*)|(`.*`)'  # allow PascalCase for iOS ObjC exports + backtick test names
+    ignoreAnnotated:
+      - 'Composable'
+  VariableNaming:
+    active: true
+    variablePattern: '[a-z][A-Za-z0-9]*'
+  PackageNaming:
+    active: true
+    packagePattern: '[a-z]+(\.[a-z][A-Za-z0-9]*)*'
+  TopLevelPropertyNaming:
+    active: true
+    constantPattern: '[A-Z][_A-Z0-9]*'
+    propertyPattern: '[a-z][A-Za-z0-9]*|Local[A-Z][A-Za-z0-9]*'  # allow Compose CompositionLocals
+    privatePropertyPattern: '_?[a-z][A-Za-z0-9]*'
+  BooleanPropertyNaming:
+    active: false  # conflicts with Compose state names like showSheet
+  MatchingDeclarationName:
+    active: false  # we use utility/formatter files with multiple related declarations
+
+# ─────────────────────────────────────────────────────────────
+# Potential bugs
+# ─────────────────────────────────────────────────────────────
+potential-bugs:
+  active: true
+  EqualsAlwaysReturnsTrueOrFalse:
+    active: true
+  EqualsWithHashCodeExist:
+    active: true
+  ExplicitGarbageCollectionCall:
+    active: true
+  IteratorHasNextCallsNextMethod:
+    active: true
+  IteratorNotThrowingNoSuchElementException:
+    active: true
+  NullableToStringCall:
+    active: true
+  UnreachableCode:
+    active: true
+  UnsafeCallOnNullableType:
+    active: true
+  UnsafeCast:
+    active: true
+  UselessPostfixExpression:
+    active: true
+
+# ─────────────────────────────────────────────────────────────
+# Style
+# ─────────────────────────────────────────────────────────────
+style:
+  active: true
+  MagicNumber:
+    active: false   # health values and thresholds are self-documenting
+  WildcardImport:
+    active: true
+  UnusedPrivateMember:
+    active: true
+  ReturnCount:
+    active: true
+    max: 4
+  ThrowsCount:
+    active: true
+    max: 3
+  ForbiddenComment:
+    active: true
+    comments:
+      - reason: 'Ship blocker — must be resolved before merging'
+        value: 'STOPSHIP'
+      - reason: 'Unfinished fix — address before merging'
+        value: 'FIXME'
+  UnnecessaryAbstractClass:
+    active: true
+  UseDataClass:
+    active: false  # too aggressive for ViewModels and state holders
+  MaxLineLength:
+    active: false  # handled by formatting rules above
+
+# ─────────────────────────────────────────────────────────────
+# Coroutines
+# ─────────────────────────────────────────────────────────────
+coroutines:
+  active: true
+  GlobalCoroutineUsage:
+    active: true
+  RedundantSuspendModifier:
+    active: true
+  SuspendFunWithFlowReturnType:
+    active: true
