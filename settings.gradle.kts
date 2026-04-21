@@ -26,12 +26,12 @@ dependencyResolutionManagement {
         }
         mavenCentral()
 
-        maven("https://maven.pkg.github.com/GitLiveApp/firebase-kotlin-sdk") {
-            credentials {
-                username = "GitHub"
-                password = System.getenv("GITHUB_TOKEN") ?: error("GITHUB_TOKEN is not set")
-            }
-        }
+//        maven("https://maven.pkg.github.com/GitLiveApp/firebase-kotlin-sdk") {
+//            credentials {
+//                username = "GitHub"
+//                password = System.getenv("GITHUB_TOKEN") ?: error("GITHUB_TOKEN is not set")
+//            }
+//        }
     }
 }
 

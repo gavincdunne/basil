@@ -16,7 +16,7 @@ kotlin {
             kotlinOptions.jvmTarget = "11"
         }
     }
-    
+
     listOf(
 //        iosX64(),
 //        iosArm64(),
@@ -27,15 +27,19 @@ kotlin {
             isStatic = true
         }
     }
-    
-//    jvm("desktop")
-    
+
+    jvm("desktop")
+
     sourceSets {
+        val desktopMain by getting
+        val desktopTest by getting
+
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
             implementation(libs.sqldelight.androidDriver)
             implementation(libs.firebase.auth.ktx)
+            implementation(libs.firebase.auth)
         }
         commonMain.dependencies {
             implementation(libs.sqldelight.runtime)
@@ -50,29 +54,32 @@ kotlin {
             implementation(libs.androidx.lifecycle.viewmodel)
             implementation(libs.androidx.lifecycle.runtimeCompose)
             implementation(libs.material.icons.extended)
-
             implementation(libs.koin.core)
             implementation(libs.koin.compose)
-
             implementation(libs.voyager.navigator)
             implementation(libs.voyager.tab.navigator)
             implementation(libs.voyager.bottom.sheet.navigator)
             implementation(libs.voyager.transitions)
-
-            implementation(libs.firebase.auth)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
+            implementation(libs.kotlinx.datetime)
         }
-//        desktopMain.dependencies {
-//            implementation(compose.desktop.currentOs)
-//            implementation(libs.kotlinx.coroutinesSwing)
-//            implementation(libs.sqlite.driver)
-//        }
+        desktopMain.dependencies {
+            implementation(compose.desktop.currentOs)
+            implementation(libs.kotlinx.coroutinesSwing)
+            implementation(libs.sqlite.driver)
+        }
+        desktopTest.dependencies {
+            implementation(libs.kotlin.testJunit)
+            implementation(libs.sqlite.driver)
+            implementation(libs.mockito.kotlin)
+            implementation(libs.kotlinx.coroutinesTest)
+        }
         iosMain.dependencies {
             implementation(libs.sqldelight.nativeDriver)
+            implementation(libs.firebase.auth)
         }
-
     }
 }
 
@@ -107,17 +114,17 @@ dependencies {
     debugImplementation(compose.uiTooling)
 }
 
-//compose.desktop {
-//    application {
-//        mainClass = "org.weekendware.basil.MainKt"
-//
-//        nativeDistributions {
-//            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-//            packageName = "org.weekendware.basil"
-//            packageVersion = "1.0.0"
-//        }
-//    }
-//}
+compose.desktop {
+    application {
+        mainClass = "org.weekendware.basil.MainKt"
+
+        nativeDistributions {
+            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
+            packageName = "org.weekendware.basil"
+            packageVersion = "1.0.0"
+        }
+    }
+}
 
 sqldelight {
     databases {
@@ -127,4 +134,3 @@ sqldelight {
         }
     }
 }
-
