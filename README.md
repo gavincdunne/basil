@@ -1,26 +1,98 @@
-# 🧬 Basil – Type 1 Diabetes, Simplified
-*Built with ❤️ by WeekendWare*
+# Basil – Type 1 Diabetes Management
+*Built by WeekendWare*
 
-Basil is a Kotlin Multiplatform app designed to make life with Type 1 diabetes a little easier—and a lot smarter. It’s not just another glucose log; it’s your co-pilot in the daily grind of chronic illness, built with empathy, intelligence, and an eye for good UX.
+Basil is a Kotlin Multiplatform app for managing life with Type 1 diabetes. One codebase, three targets — Android, iOS, and desktop — built with Compose Multiplatform, a clean layered architecture, and an emphasis on correctness.
 
 ---
 
-## 🔮 What’s Coming
+## Targets
 
-We’re just getting started. Here’s what’s on the roadmap:
+| Platform | Status |
+|---|---|
+| Android | Running |
+| iOS (Simulator) | Running |
+| Desktop (JVM) | Running |
 
-- 📊 **Insulin + carb logging** with intuitive inputs
-- 🕰 **Automated trend analysis** (CGM-style without the CGM)
-- 💡 **Smart suggestions** based on your patterns
-- 📓 **Context-aware journaling** for meals, stress, sleep
-- 🤖 **LLM-based assistant** trained to speak fluent T1D
+---
 
-## 🌱 Why Basil (Basal)?
+## Architecture
 
-Because living with T1D is hard enough—you deserve tools that *get it*.  
-Not medical, not preachy—just helpful, beautiful, and on your side.
+```
+presentation/          Compose UI + ViewModels (MVVM)
+domain/model/          Pure Kotlin domain models — no framework dependencies
+data/repository/       Repository interfaces + SQLDelight implementations
+data/local/database/   SQLDelight schema, generated queries, DatabaseDriverFactory
+di/                    Koin modules — shared + platform-specific
+```
 
-## 🧼 License
+Each layer depends only on the layer below it. ViewModels and use cases depend on repository *interfaces*, not the SQLDelight implementations — keeping them testable without a real database.
 
-**MIT License**  
-Built with code, care, and the quiet belief that tech can be both powerful and kind.
+---
+
+## Stack
+
+| Concern | Library |
+|---|---|
+| UI | Compose Multiplatform 1.8.1 |
+| Navigation | Voyager 1.0.0 |
+| DI | Koin 4.0.4 |
+| Database | SQLDelight 2.0.1 |
+| Date/Time | kotlinx-datetime 0.6.0 |
+| Static analysis | Detekt 1.23.7 + detekt-formatting (ktlint) |
+| Testing | kotlin-test + Mockito-Kotlin 5.4.0 |
+
+---
+
+## What's Built
+
+- **Dashboard** — last BG reading summary card with glucose status colouring, today's entry timeline, empty states
+- **Log entry sheet** — bottom sheet for logging BG, insulin, and carbs; validates and persists via `LogRepository`
+- **Preferences** — persisted BG unit preference (mg/dL or mmol/L) via `PreferencesRepository`
+- **Theme system** — custom `BasilColors`, `BasilSpacing`, `BasilTypography`, `BasilShapes` wired into MaterialTheme
+- **Repository layer** — `LogRepository`, `PreferencesRepository`, `UserRepository` interfaces with SQLDelight-backed implementations
+- **CI/CD** — GitHub Actions running Detekt, Android compile + test, and iOS framework build on every push
+
+---
+
+## What's Next
+
+- Flow-based SQLDelight queries (live UI updates)
+- Coroutine-scoped ViewModels
+- Use case layer
+- `Result<T>` error handling
+- Migrate to Compose Multiplatform Navigation
+- Build flavors (dev / staging / prod)
+- Supabase auth + user session
+- Sentry crash reporting
+
+---
+
+## Running Locally
+
+**Android**
+```
+./gradlew :composeApp:assembleDebug
+```
+
+**Desktop**
+```
+./gradlew :composeApp:run
+```
+
+**iOS** — open `iosApp/iosApp.xcodeproj` in Xcode and run on any iOS 16+ simulator.
+
+**Tests**
+```
+./gradlew desktopTest
+```
+
+**Static analysis**
+```
+./gradlew detekt
+```
+
+---
+
+## License
+
+MIT
