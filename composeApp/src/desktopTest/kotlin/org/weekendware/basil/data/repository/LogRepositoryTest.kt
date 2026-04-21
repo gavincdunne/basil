@@ -3,6 +3,7 @@ package org.weekendware.basil.data.repository
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import org.weekendware.basil.database.BasilDatabase
 import org.weekendware.basil.domain.model.BgUnit
+import org.weekendware.basil.data.repository.SqlDelightLogRepository
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -12,13 +13,13 @@ import kotlin.test.assertTrue
 
 class LogRepositoryTest {
 
-    private lateinit var repository: LogRepository
+    private lateinit var repository: SqlDelightLogRepository
 
     @BeforeTest
     fun setup() {
         val driver = JdbcSqliteDriver(JdbcSqliteDriver.IN_MEMORY)
         BasilDatabase.Schema.create(driver)
-        repository = LogRepository(BasilDatabase(driver))
+        repository = SqlDelightLogRepository(BasilDatabase(driver))
     }
 
     // ── getRecent ─────────────────────────────────────────────

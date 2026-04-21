@@ -4,6 +4,9 @@ import org.koin.dsl.module
 import org.weekendware.basil.data.local.database.DatabaseProvider
 import org.weekendware.basil.data.repository.LogRepository
 import org.weekendware.basil.data.repository.PreferencesRepository
+import org.weekendware.basil.data.repository.SqlDelightLogRepository
+import org.weekendware.basil.data.repository.SqlDelightPreferencesRepository
+import org.weekendware.basil.data.repository.SqlDelightUserRepository
 import org.weekendware.basil.data.repository.UserRepository
 import org.weekendware.basil.presentation.chat.ChatViewModel
 import org.weekendware.basil.presentation.dashboard.DashboardViewModel
@@ -20,9 +23,9 @@ import org.weekendware.basil.presentation.settings.SettingsViewModel
  */
 val databaseModule = module {
     single { DatabaseProvider.getDatabase(get()) }
-    single { UserRepository(get()) }
-    single { LogRepository(get()) }
-    single { PreferencesRepository(get()) }
+    single<UserRepository> { SqlDelightUserRepository(get()) }
+    single<LogRepository> { SqlDelightLogRepository(get()) }
+    single<PreferencesRepository> { SqlDelightPreferencesRepository(get()) }
 }
 
 /**
