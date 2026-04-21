@@ -50,10 +50,14 @@ local.properties
 **/res/mipmap-*/
 **/res/drawable/ic_launcher_*
 
-# iOS auto-generated/placeholder assets
-**/*.appiconset/*
+# iOS auto-generated/placeholder assets (image files only)
+**/*.appiconset/*.png
+**/*.appiconset/*.jpg
 **/Preview Content/
-**/Configuration/
+# Ignore personal/sensitive xcconfig overrides but keep the shared template
+**/Configuration/**
+!iosApp/Configuration/
+!iosApp/Configuration/Config.xcconfig
 
 # Unnecessary binaries
 *.png
@@ -70,3 +74,9 @@ captures/
 # ---------------------------
 **/google-services.json
 **/GoogleService-Info.plist
+
+# ---------------------------
+# Out-of-repo workspace (business / strategy / investor / legal)
+# Not for the engineering repo. Move /basil-ops to your own machine.
+# ---------------------------
+/basil-ops/

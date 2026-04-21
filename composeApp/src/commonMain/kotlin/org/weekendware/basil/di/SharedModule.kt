@@ -34,7 +34,7 @@ val databaseModule = module {
  * instead of `koinViewModel`.
  */
 val sharedModule = module {
-    single { DashboardViewModel() }
+    single { DashboardViewModel(get()) }
     single { ProfileViewModel() }
     single { ChatViewModel() }
     single { SettingsViewModel() }

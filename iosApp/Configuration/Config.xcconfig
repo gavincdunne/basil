@@ -1,0 +1,5 @@
+TEAM_ID =
+APP_NAME = Basil
+PRODUCT_NAME = Basil
+PRODUCT_BUNDLE_IDENTIFIER = org.weekendware.basil
+OTHER_LDFLAGS = -lsqlite3
