@@ -7,7 +7,6 @@ plugins {
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.composeHotReload)
     alias(libs.plugins.sqldelight)
-    alias(libs.plugins.google.services)
 }
 
 kotlin {
@@ -38,8 +37,6 @@ kotlin {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
             implementation(libs.sqldelight.androidDriver)
-            implementation(libs.firebase.auth.ktx)
-            implementation(libs.firebase.auth)
         }
         commonMain.dependencies {
             implementation(libs.sqldelight.runtime)
@@ -78,7 +75,6 @@ kotlin {
         }
         iosMain.dependencies {
             implementation(libs.sqldelight.nativeDriver)
-            implementation(libs.firebase.auth)
         }
     }
 }
