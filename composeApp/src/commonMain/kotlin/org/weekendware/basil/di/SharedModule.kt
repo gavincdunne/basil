@@ -1,5 +1,6 @@
 package org.weekendware.basil.di
 
+import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 import org.weekendware.basil.data.local.database.DatabaseProvider
 import org.weekendware.basil.data.repository.LogRepository
@@ -48,9 +49,9 @@ val useCaseModule = module {
  * Koin module that provides all shared ViewModels as singletons.
  */
 val sharedModule = module {
-    single { DashboardViewModel(get(), get(), get()) }
-    single { ProfileViewModel() }
-    single { ChatViewModel() }
-    single { SettingsViewModel() }
-    single { LoggingViewModel(get(), get(), get()) }
+    viewModel { DashboardViewModel(get(), get(), get()) }
+    viewModel { ProfileViewModel() }
+    viewModel { ChatViewModel() }
+    viewModel { SettingsViewModel() }
+    viewModel { LoggingViewModel(get(), get(), get()) }
 }

@@ -8,7 +8,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
-import org.koin.compose.koinInject
+import org.koin.compose.viewmodel.koinViewModel
 import org.weekendware.basil.presentation.theme.basilColors
 import org.weekendware.basil.presentation.theme.basilSpacing
 
@@ -21,7 +21,7 @@ import org.weekendware.basil.presentation.theme.basilSpacing
  */
 @Composable
 fun SettingsScreen() {
-    val viewModel = koinInject<SettingsViewModel>()
+    val viewModel = koinViewModel<SettingsViewModel>()
     val title = viewModel.title.collectAsState()
 
     Surface(
