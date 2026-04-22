@@ -1,5 +1,12 @@
 package org.weekendware.basil.presentation.dashboard
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.Clock
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
@@ -24,111 +31,127 @@ class DashboardViewModelTest {
         carbsGrams: Double? = null,
         timestampOffset: Long = 0L
     ) = LogEntry(
-        id           = id,
-        timestamp    = Clock.System.now().toEpochMilliseconds() - timestampOffset,
-        bgValue      = bgValue,
-        bgUnit       = bgUnit,
+        id = id,
+        timestamp = Clock.System.now().toEpochMilliseconds() - timestampOffset,
+        bgValue = bgValue,
+        bgUnit = bgUnit,
         insulinUnits = insulinUnits,
-        carbsGrams   = carbsGrams
+        carbsGrams = carbsGrams
     )
 
     // ── initial state ─────────────────────────────────────────
 
     @Test
-    fun `initial state is empty when repository returns no entries`() {
-        whenever(logRepository.getRecent(100)).thenReturn(emptyList())
-        val vm = DashboardViewModel(logRepository)
+    fun `initial state is empty when repository returns no entries`() = runTest {
+        whenever(logRepository.getRecent(100)).thenReturn(flowOf(emptyList()))
+        val vm = DashboardViewModel(logRepository, this)
+        advanceUntilIdle()
 
         assertTrue(vm.state.value.todayEntries.isEmpty())
         assertNull(vm.state.value.lastBgEntry)
     }
 
-    // ── refresh ───────────────────────────────────────────────
+    // ── todayEntries ──────────────────────────────────────────
 
     @Test
-    fun `refresh populates todayEntries with entries from today`() {
+    fun `state populates todayEntries with entries from today`() = runTest {
         val todayEntry = makeEntry(id = 1L, bgValue = 100.0, bgUnit = BgUnit.MGDL)
-        whenever(logRepository.getRecent(100)).thenReturn(listOf(todayEntry))
-
-        val vm = DashboardViewModel(logRepository)
+        whenever(logRepository.getRecent(100)).thenReturn(flowOf(listOf(todayEntry)))
+        val vm = DashboardViewModel(logRepository, this)
+        advanceUntilIdle()
 
         assertEquals(1, vm.state.value.todayEntries.size)
         assertEquals(1L, vm.state.value.todayEntries.first().id)
     }
 
     @Test
-    fun `refresh filters out entries from previous days`() {
-        val yesterday = makeEntry(id = 1L, bgValue = 100.0, bgUnit = BgUnit.MGDL,
-            timestampOffset = 25 * 60 * 60 * 1000L)  // 25 hours ago
-        whenever(logRepository.getRecent(100)).thenReturn(listOf(yesterday))
-
-        val vm = DashboardViewModel(logRepository)
+    fun `state filters out entries from previous days`() = runTest {
+        val yesterday = makeEntry(
+            id = 1L,
+            bgValue = 100.0,
+            bgUnit = BgUnit.MGDL,
+            timestampOffset = 25 * 60 * 60 * 1000L
+        )
+        whenever(logRepository.getRecent(100)).thenReturn(flowOf(listOf(yesterday)))
+        val vm = DashboardViewModel(logRepository, this)
+        advanceUntilIdle()
 
         assertTrue(vm.state.value.todayEntries.isEmpty())
     }
 
-    @Test
-    fun `refresh sets lastBgEntry to first entry with a bgValue`() {
-        val withBg    = makeEntry(id = 1L, bgValue = 120.0, bgUnit = BgUnit.MGDL)
-        val withoutBg = makeEntry(id = 2L, insulinUnits = 4.0)
-        whenever(logRepository.getRecent(100)).thenReturn(listOf(withBg, withoutBg))
+    // ── lastBgEntry ───────────────────────────────────────────
 
-        val vm = DashboardViewModel(logRepository)
+    @Test
+    fun `lastBgEntry is set to first entry with a bgValue`() = runTest {
+        val withBg = makeEntry(id = 1L, bgValue = 120.0, bgUnit = BgUnit.MGDL)
+        val withoutBg = makeEntry(id = 2L, insulinUnits = 4.0)
+        whenever(logRepository.getRecent(100)).thenReturn(flowOf(listOf(withBg, withoutBg)))
+        val vm = DashboardViewModel(logRepository, this)
+        advanceUntilIdle()
 
         assertEquals(1L, vm.state.value.lastBgEntry?.id)
     }
 
     @Test
-    fun `lastBgEntry is null when no entry has a bgValue`() {
+    fun `lastBgEntry is null when no entry has a bgValue`() = runTest {
         val entry = makeEntry(id = 1L, insulinUnits = 4.0)
-        whenever(logRepository.getRecent(100)).thenReturn(listOf(entry))
-
-        val vm = DashboardViewModel(logRepository)
+        whenever(logRepository.getRecent(100)).thenReturn(flowOf(listOf(entry)))
+        val vm = DashboardViewModel(logRepository, this)
+        advanceUntilIdle()
 
         assertNull(vm.state.value.lastBgEntry)
     }
 
     @Test
-    fun `lastBgEntry can come from outside today`() {
-        val yesterday = makeEntry(id = 1L, bgValue = 95.0, bgUnit = BgUnit.MGDL,
-            timestampOffset = 25 * 60 * 60 * 1000L)
-        whenever(logRepository.getRecent(100)).thenReturn(listOf(yesterday))
+    fun `lastBgEntry can come from outside today`() = runTest {
+        val yesterday = makeEntry(
+            id = 1L,
+            bgValue = 95.0,
+            bgUnit = BgUnit.MGDL,
+            timestampOffset = 25 * 60 * 60 * 1000L
+        )
+        whenever(logRepository.getRecent(100)).thenReturn(flowOf(listOf(yesterday)))
+        val vm = DashboardViewModel(logRepository, this)
+        advanceUntilIdle()
 
-        val vm = DashboardViewModel(logRepository)
-
-        // Not in today's list…
         assertTrue(vm.state.value.todayEntries.isEmpty())
-        // …but still the last known BG reading
         assertEquals(1L, vm.state.value.lastBgEntry?.id)
     }
 
+    // ── live updates ──────────────────────────────────────────
+
     @Test
-    fun `refresh updates state after new entries arrive`() {
-        whenever(logRepository.getRecent(100)).thenReturn(emptyList())
-        val vm = DashboardViewModel(logRepository)
+    fun `state updates automatically when repository emits new entries`() = runTest {
+        val source = MutableStateFlow<List<LogEntry>>(emptyList())
+        whenever(logRepository.getRecent(100)).thenReturn(source)
+        // UnconfinedTestDispatcher executes emissions eagerly — no advanceUntilIdle needed.
+        // The scope is explicitly cancelled at the end so runTest doesn't flag it.
+        @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+        val vmScope = CoroutineScope(UnconfinedTestDispatcher(testScheduler))
+        val vm = DashboardViewModel(logRepository, vmScope)
+
         assertTrue(vm.state.value.todayEntries.isEmpty())
 
-        val newEntry = makeEntry(id = 5L, bgValue = 110.0, bgUnit = BgUnit.MGDL)
-        whenever(logRepository.getRecent(100)).thenReturn(listOf(newEntry))
-        vm.refresh()
+        source.value = listOf(makeEntry(id = 5L, bgValue = 110.0, bgUnit = BgUnit.MGDL))
 
         assertEquals(1, vm.state.value.todayEntries.size)
+        vmScope.cancel()
     }
 
     // ── log sheet visibility ──────────────────────────────────
 
     @Test
-    fun `showLogSheet starts as false`() {
-        whenever(logRepository.getRecent(100)).thenReturn(emptyList())
-        val vm = DashboardViewModel(logRepository)
+    fun `showLogSheet starts as false`() = runTest {
+        whenever(logRepository.getRecent(100)).thenReturn(flowOf(emptyList()))
+        val vm = DashboardViewModel(logRepository, this)
 
         assertFalse(vm.showLogSheet.value)
     }
 
     @Test
-    fun `openLogSheet sets showLogSheet to true`() {
-        whenever(logRepository.getRecent(100)).thenReturn(emptyList())
-        val vm = DashboardViewModel(logRepository)
+    fun `openLogSheet sets showLogSheet to true`() = runTest {
+        whenever(logRepository.getRecent(100)).thenReturn(flowOf(emptyList()))
+        val vm = DashboardViewModel(logRepository, this)
 
         vm.openLogSheet()
 
@@ -136,9 +159,9 @@ class DashboardViewModelTest {
     }
 
     @Test
-    fun `closeLogSheet sets showLogSheet to false`() {
-        whenever(logRepository.getRecent(100)).thenReturn(emptyList())
-        val vm = DashboardViewModel(logRepository)
+    fun `closeLogSheet sets showLogSheet to false`() = runTest {
+        whenever(logRepository.getRecent(100)).thenReturn(flowOf(emptyList()))
+        val vm = DashboardViewModel(logRepository, this)
 
         vm.openLogSheet()
         vm.closeLogSheet()
