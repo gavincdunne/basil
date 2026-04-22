@@ -1,5 +1,6 @@
 package org.weekendware.basil.presentation.logging
 
+import org.mockito.kotlin.doThrow
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
@@ -12,6 +13,8 @@ import org.weekendware.basil.domain.usecase.SetBgUnitPreferenceUseCase
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class LoggingViewModelTest {
@@ -38,13 +41,14 @@ class LoggingViewModelTest {
     }
 
     @Test
-    fun `initial form fields are blank`() {
+    fun `initial form fields are blank with no error`() {
         val vm = makeVm()
 
         assertEquals("", vm.state.value.bgValue)
         assertEquals("", vm.state.value.insulinUnits)
         assertEquals("", vm.state.value.carbsGrams)
         assertFalse(vm.state.value.hasAnyValue)
+        assertNull(vm.state.value.error)
     }
 
     // ── field updates ─────────────────────────────────────────
@@ -79,10 +83,20 @@ class LoggingViewModelTest {
         verify(preferencesRepository).setBgUnit(BgUnit.MMOLL)
     }
 
+    @Test
+    fun `onBgUnitChange sets error when preference write fails`() {
+        val vm = makeVm()
+        doThrow(RuntimeException("DB error")).whenever(preferencesRepository).setBgUnit(BgUnit.MMOLL)
+
+        vm.onBgUnitChange(BgUnit.MMOLL)
+
+        assertNotNull(vm.state.value.error)
+    }
+
     // ── reset ─────────────────────────────────────────────────
 
     @Test
-    fun `reset clears all text fields`() {
+    fun `reset clears all text fields and error`() {
         val vm = makeVm()
         vm.onBgValueChange("100")
         vm.onInsulinChange("4")
@@ -93,6 +107,7 @@ class LoggingViewModelTest {
         assertEquals("", vm.state.value.bgValue)
         assertEquals("", vm.state.value.insulinUnits)
         assertEquals("", vm.state.value.carbsGrams)
+        assertNull(vm.state.value.error)
     }
 
     @Test
@@ -114,6 +129,7 @@ class LoggingViewModelTest {
         vm.save { callbackInvoked = true }
 
         assertFalse(callbackInvoked)
+        assertNull(vm.state.value.error)
     }
 
     @Test
@@ -131,6 +147,7 @@ class LoggingViewModelTest {
             carbsGrams = null
         )
         assertTrue(callbackInvoked)
+        assertNull(vm.state.value.error)
     }
 
     @Test
@@ -170,5 +187,43 @@ class LoggingViewModelTest {
         vm.save {}
 
         assertEquals(BgUnit.MMOLL, vm.state.value.bgUnit)
+    }
+
+    @Test
+    fun `save sets error when repository throws`() {
+        val vm = makeVm()
+        vm.onBgValueChange("120")
+        doThrow(RuntimeException("DB error")).whenever(logRepository).insert(
+            bgValue = 120.0,
+            bgUnit = BgUnit.MGDL,
+            insulinUnits = null,
+            carbsGrams = null
+        )
+
+        var callbackInvoked = false
+        vm.save { callbackInvoked = true }
+
+        assertFalse(callbackInvoked)
+        assertNotNull(vm.state.value.error)
+    }
+
+    // ── clearError ────────────────────────────────────────────
+
+    @Test
+    fun `clearError removes the error from state`() {
+        val vm = makeVm()
+        vm.onBgValueChange("120")
+        doThrow(RuntimeException("DB error")).whenever(logRepository).insert(
+            bgValue = 120.0,
+            bgUnit = BgUnit.MGDL,
+            insulinUnits = null,
+            carbsGrams = null
+        )
+        vm.save {}
+        assertNotNull(vm.state.value.error)
+
+        vm.clearError()
+
+        assertNull(vm.state.value.error)
     }
 }
