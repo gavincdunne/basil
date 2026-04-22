@@ -1,3 +1,5 @@
+@file:OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+
 package org.weekendware.basil.presentation.dashboard
 
 import kotlinx.coroutines.CoroutineScope
@@ -13,6 +15,9 @@ import org.mockito.kotlin.whenever
 import org.weekendware.basil.data.repository.LogRepository
 import org.weekendware.basil.domain.model.BgUnit
 import org.weekendware.basil.domain.model.LogEntry
+import org.weekendware.basil.domain.usecase.GetLastBgReadingUseCase
+import org.weekendware.basil.domain.usecase.GetTodayEntriesUseCase
+import org.weekendware.basil.domain.usecase.ObserveRecentLogsUseCase
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -22,6 +27,9 @@ import kotlin.test.assertTrue
 class DashboardViewModelTest {
 
     private val logRepository = mock<LogRepository>()
+    private val observeRecentLogs = ObserveRecentLogsUseCase(logRepository)
+    private val getTodayEntries = GetTodayEntriesUseCase()
+    private val getLastBgReading = GetLastBgReadingUseCase()
 
     private fun makeEntry(
         id: Long,
@@ -39,12 +47,15 @@ class DashboardViewModelTest {
         carbsGrams = carbsGrams
     )
 
+    private fun makeVm(scope: CoroutineScope) =
+        DashboardViewModel(observeRecentLogs, getTodayEntries, getLastBgReading, scope)
+
     // ── initial state ─────────────────────────────────────────
 
     @Test
     fun `initial state is empty when repository returns no entries`() = runTest {
         whenever(logRepository.getRecent(100)).thenReturn(flowOf(emptyList()))
-        val vm = DashboardViewModel(logRepository, this)
+        val vm = makeVm(this)
         advanceUntilIdle()
 
         assertTrue(vm.state.value.todayEntries.isEmpty())
@@ -57,7 +68,7 @@ class DashboardViewModelTest {
     fun `state populates todayEntries with entries from today`() = runTest {
         val todayEntry = makeEntry(id = 1L, bgValue = 100.0, bgUnit = BgUnit.MGDL)
         whenever(logRepository.getRecent(100)).thenReturn(flowOf(listOf(todayEntry)))
-        val vm = DashboardViewModel(logRepository, this)
+        val vm = makeVm(this)
         advanceUntilIdle()
 
         assertEquals(1, vm.state.value.todayEntries.size)
@@ -73,7 +84,7 @@ class DashboardViewModelTest {
             timestampOffset = 25 * 60 * 60 * 1000L
         )
         whenever(logRepository.getRecent(100)).thenReturn(flowOf(listOf(yesterday)))
-        val vm = DashboardViewModel(logRepository, this)
+        val vm = makeVm(this)
         advanceUntilIdle()
 
         assertTrue(vm.state.value.todayEntries.isEmpty())
@@ -86,7 +97,7 @@ class DashboardViewModelTest {
         val withBg = makeEntry(id = 1L, bgValue = 120.0, bgUnit = BgUnit.MGDL)
         val withoutBg = makeEntry(id = 2L, insulinUnits = 4.0)
         whenever(logRepository.getRecent(100)).thenReturn(flowOf(listOf(withBg, withoutBg)))
-        val vm = DashboardViewModel(logRepository, this)
+        val vm = makeVm(this)
         advanceUntilIdle()
 
         assertEquals(1L, vm.state.value.lastBgEntry?.id)
@@ -96,7 +107,7 @@ class DashboardViewModelTest {
     fun `lastBgEntry is null when no entry has a bgValue`() = runTest {
         val entry = makeEntry(id = 1L, insulinUnits = 4.0)
         whenever(logRepository.getRecent(100)).thenReturn(flowOf(listOf(entry)))
-        val vm = DashboardViewModel(logRepository, this)
+        val vm = makeVm(this)
         advanceUntilIdle()
 
         assertNull(vm.state.value.lastBgEntry)
@@ -111,7 +122,7 @@ class DashboardViewModelTest {
             timestampOffset = 25 * 60 * 60 * 1000L
         )
         whenever(logRepository.getRecent(100)).thenReturn(flowOf(listOf(yesterday)))
-        val vm = DashboardViewModel(logRepository, this)
+        val vm = makeVm(this)
         advanceUntilIdle()
 
         assertTrue(vm.state.value.todayEntries.isEmpty())
@@ -124,11 +135,8 @@ class DashboardViewModelTest {
     fun `state updates automatically when repository emits new entries`() = runTest {
         val source = MutableStateFlow<List<LogEntry>>(emptyList())
         whenever(logRepository.getRecent(100)).thenReturn(source)
-        // UnconfinedTestDispatcher executes emissions eagerly — no advanceUntilIdle needed.
-        // The scope is explicitly cancelled at the end so runTest doesn't flag it.
-        @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
         val vmScope = CoroutineScope(UnconfinedTestDispatcher(testScheduler))
-        val vm = DashboardViewModel(logRepository, vmScope)
+        val vm = makeVm(vmScope)
 
         assertTrue(vm.state.value.todayEntries.isEmpty())
 
@@ -143,7 +151,7 @@ class DashboardViewModelTest {
     @Test
     fun `showLogSheet starts as false`() = runTest {
         whenever(logRepository.getRecent(100)).thenReturn(flowOf(emptyList()))
-        val vm = DashboardViewModel(logRepository, this)
+        val vm = makeVm(this)
 
         assertFalse(vm.showLogSheet.value)
     }
@@ -151,7 +159,7 @@ class DashboardViewModelTest {
     @Test
     fun `openLogSheet sets showLogSheet to true`() = runTest {
         whenever(logRepository.getRecent(100)).thenReturn(flowOf(emptyList()))
-        val vm = DashboardViewModel(logRepository, this)
+        val vm = makeVm(this)
 
         vm.openLogSheet()
 
@@ -161,7 +169,7 @@ class DashboardViewModelTest {
     @Test
     fun `closeLogSheet sets showLogSheet to false`() = runTest {
         whenever(logRepository.getRecent(100)).thenReturn(flowOf(emptyList()))
-        val vm = DashboardViewModel(logRepository, this)
+        val vm = makeVm(this)
 
         vm.openLogSheet()
         vm.closeLogSheet()
