@@ -1,36 +1,9 @@
 version: 2
 updates:
-  # Gradle dependencies — monthly schedule, low limit.
+  # GitHub Actions only — Gradle dependencies are managed manually.
   # KMP inter-dependency constraints (Kotlin + Compose + AGP + SQLDelight)
-  # mean these are reviewed and merged manually, not auto-merged.
-  - package-ecosystem: gradle
-    directory: /
-    schedule:
-      interval: monthly
-    open-pull-requests-limit: 2
-    reviewers:
-      - gavincdunne
-    labels:
-      - dependencies
-    # Group tightly-coupled ecosystems so they arrive as one PR
-    groups:
-      kotlin-ecosystem:
-        patterns:
-          - "org.jetbrains.kotlin*"
-          - "org.jetbrains.compose*"
-          - "com.android.application"
-          - "com.android.library"
-      sqldelight:
-        patterns:
-          - "app.cash.sqldelight:*"
-      koin:
-        patterns:
-          - "io.insert-koin:*"
-    # Voyager is being replaced — ignore it entirely
-    ignore:
-      - dependency-name: "cafe.adriel.voyager:*"
-
-  # GitHub Actions — monthly, safe to auto-merge
+  # make automated Gradle bumps unreliable. Updates are batched and tested
+  # in a dedicated branch when the team is ready.
   - package-ecosystem: github-actions
     directory: /
     schedule:
