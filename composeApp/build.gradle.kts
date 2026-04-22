@@ -53,10 +53,7 @@ kotlin {
             implementation(libs.material.icons.extended)
             implementation(libs.koin.core)
             implementation(libs.koin.compose)
-            implementation(libs.voyager.navigator)
-            implementation(libs.voyager.tab.navigator)
-            implementation(libs.voyager.bottom.sheet.navigator)
-            implementation(libs.voyager.transitions)
+            implementation(libs.androidx.navigation.compose)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
