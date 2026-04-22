@@ -6,6 +6,9 @@ import org.mockito.kotlin.whenever
 import org.weekendware.basil.data.repository.LogRepository
 import org.weekendware.basil.data.repository.PreferencesRepository
 import org.weekendware.basil.domain.model.BgUnit
+import org.weekendware.basil.domain.usecase.GetBgUnitPreferenceUseCase
+import org.weekendware.basil.domain.usecase.SaveLogEntryUseCase
+import org.weekendware.basil.domain.usecase.SetBgUnitPreferenceUseCase
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -13,12 +16,15 @@ import kotlin.test.assertTrue
 
 class LoggingViewModelTest {
 
-    private val logRepository         = mock<LogRepository>()
+    private val logRepository = mock<LogRepository>()
     private val preferencesRepository = mock<PreferencesRepository>()
+    private val saveLogEntry = SaveLogEntryUseCase(logRepository)
+    private val getBgUnitPreference = GetBgUnitPreferenceUseCase(preferencesRepository)
+    private val setBgUnitPreference = SetBgUnitPreferenceUseCase(preferencesRepository)
 
     private fun makeVm(): LoggingViewModel {
         whenever(preferencesRepository.getBgUnit()).thenReturn(BgUnit.MGDL)
-        return LoggingViewModel(logRepository, preferencesRepository)
+        return LoggingViewModel(saveLogEntry, getBgUnitPreference, setBgUnitPreference)
     }
 
     // ── initial state ─────────────────────────────────────────
@@ -26,7 +32,7 @@ class LoggingViewModelTest {
     @Test
     fun `initial bgUnit is loaded from preferences`() {
         whenever(preferencesRepository.getBgUnit()).thenReturn(BgUnit.MMOLL)
-        val vm = LoggingViewModel(logRepository, preferencesRepository)
+        val vm = LoggingViewModel(saveLogEntry, getBgUnitPreference, setBgUnitPreference)
 
         assertEquals(BgUnit.MMOLL, vm.state.value.bgUnit)
     }
@@ -92,7 +98,7 @@ class LoggingViewModelTest {
     @Test
     fun `reset preserves the current bgUnit`() {
         whenever(preferencesRepository.getBgUnit()).thenReturn(BgUnit.MMOLL)
-        val vm = LoggingViewModel(logRepository, preferencesRepository)
+        val vm = LoggingViewModel(saveLogEntry, getBgUnitPreference, setBgUnitPreference)
         vm.reset()
 
         assertEquals(BgUnit.MMOLL, vm.state.value.bgUnit)
@@ -119,10 +125,10 @@ class LoggingViewModelTest {
         vm.save { callbackInvoked = true }
 
         verify(logRepository).insert(
-            bgValue      = 120.0,
-            bgUnit       = BgUnit.MGDL,
+            bgValue = 120.0,
+            bgUnit = BgUnit.MGDL,
             insulinUnits = null,
-            carbsGrams   = null
+            carbsGrams = null
         )
         assertTrue(callbackInvoked)
     }
@@ -135,10 +141,10 @@ class LoggingViewModelTest {
         vm.save {}
 
         verify(logRepository).insert(
-            bgValue      = null,
-            bgUnit       = null,
+            bgValue = null,
+            bgUnit = null,
             insulinUnits = 5.0,
-            carbsGrams   = null
+            carbsGrams = null
         )
     }
 
@@ -158,7 +164,7 @@ class LoggingViewModelTest {
     @Test
     fun `save preserves bgUnit after reset`() {
         whenever(preferencesRepository.getBgUnit()).thenReturn(BgUnit.MMOLL)
-        val vm = LoggingViewModel(logRepository, preferencesRepository)
+        val vm = LoggingViewModel(saveLogEntry, getBgUnitPreference, setBgUnitPreference)
         vm.onBgValueChange("5.5")
 
         vm.save {}
