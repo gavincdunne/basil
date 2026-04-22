@@ -1,8 +1,6 @@
 package org.weekendware.basil.presentation.logging
 
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
+import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -46,10 +44,9 @@ data class LogFormState(
 class LoggingViewModel(
     private val saveLogEntry: SaveLogEntryUseCase,
     private val getBgUnitPreference: GetBgUnitPreferenceUseCase,
-    private val setBgUnitPreference: SetBgUnitPreferenceUseCase,
-    @Suppress("UnusedPrivateMember")
-    private val coroutineScope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
-) {
+    private val setBgUnitPreference: SetBgUnitPreferenceUseCase
+) : ViewModel() {
+
     private val _state = MutableStateFlow(LogFormState())
 
     /** The current form state, observed by [LogEntrySheet]. */
