@@ -8,7 +8,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
-import cafe.adriel.voyager.core.screen.Screen
 import org.koin.compose.koinInject
 import org.weekendware.basil.presentation.theme.basilColors
 import org.weekendware.basil.presentation.theme.basilSpacing
@@ -19,30 +18,20 @@ import org.weekendware.basil.presentation.theme.basilSpacing
  * Currently a placeholder surface. As settings are defined (units, notifications,
  * theme preference, profile data, etc.) they will be added here as grouped
  * preference rows.
- *
- * Navigated to via [BasilTopAppBar] → [SettingsScreen] push on the root
- * [Navigator]. The back-navigation close button is handled by [BasilTopAppBar].
  */
-object SettingsScreen : Screen {
+@Composable
+fun SettingsScreen() {
+    val viewModel = koinInject<SettingsViewModel>()
+    val title = viewModel.title.collectAsState()
 
-    /**
-     * Renders the settings content on a [MaterialTheme.basilColors.surfaceVariant]
-     * background, using the brand sage color from the theme instead of a hardcoded value.
-     */
-    @Composable
-    override fun Content() {
-        val viewModel = koinInject<SettingsViewModel>()
-        val title = viewModel.title.collectAsState()
-
-        Surface(
-            modifier = Modifier.fillMaxSize(),
-            color = MaterialTheme.basilColors.surfaceVariant
-        ) {
-            Text(
-                text     = title.value,
-                modifier = Modifier.padding(MaterialTheme.basilSpacing.xl),
-                style    = MaterialTheme.typography.headlineMedium
-            )
-        }
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = MaterialTheme.basilColors.surfaceVariant
+    ) {
+        Text(
+            text     = title.value,
+            modifier = Modifier.padding(MaterialTheme.basilSpacing.xl),
+            style    = MaterialTheme.typography.headlineMedium
+        )
     }
 }
