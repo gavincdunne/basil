@@ -1,42 +1,61 @@
 package org.weekendware.basil.presentation.components
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.EnergySavingsLeaf
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import cafe.adriel.voyager.navigator.tab.Tab
-import cafe.adriel.voyager.navigator.tab.TabNavigator
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.navigation.NavController
+import androidx.navigation.NavGraph.Companion.findStartDestination
+import org.weekendware.basil.ROUTE_CHAT
+import org.weekendware.basil.ROUTE_HOME
+import org.weekendware.basil.ROUTE_PROFILE
+
+private data class BottomNavItem(
+    val route: String,
+    val label: String,
+    val icon: ImageVector
+)
+
+private val tabItems = listOf(
+    BottomNavItem(ROUTE_HOME,    "Home",   Icons.Default.Home),
+    BottomNavItem(ROUTE_PROFILE, "Profile", Icons.Default.Person),
+    BottomNavItem(ROUTE_CHAT,    "Basil",  Icons.Default.EnergySavingsLeaf)
+)
 
 /**
  * The bottom navigation bar for the Basil app.
  *
- * Renders a [NavigationBar] item for each tab in [tabs]. The active item is
- * highlighted automatically based on [TabNavigator.current]. Tapping an item
- * switches the visible tab without pushing a new screen onto the back stack.
+ * Renders a [NavigationBar] item for each of the three main tabs. Tapping an
+ * item navigates to that tab's destination, preserving state and avoiding
+ * back-stack duplication via [NavController.navigate] with [launchSingleTop].
  *
- * @param tabNavigator The [TabNavigator] whose [TabNavigator.current] controls
- *   the selected state and receives tab-switch events.
- * @param tabs The ordered list of [Tab]s to display as navigation items.
- *   Each tab must provide a non-null [Tab.options] with a title and icon.
+ * @param navController The [NavController] used for navigation events.
+ * @param currentRoute  The currently-active route, used to highlight the
+ *   selected item.
  */
 @Composable
-fun BasilBottomBar(
-    tabNavigator: TabNavigator,
-    tabs: List<Tab>
-) {
+fun BasilBottomBar(navController: NavController, currentRoute: String?) {
     NavigationBar {
-        tabs.forEach { tab ->
-            val isSelected = tabNavigator.current == tab
+        tabItems.forEach { item ->
             NavigationBarItem(
-                selected = isSelected,
-                onClick  = { tabNavigator.current = tab },
-                icon = {
-                    tab.options.icon?.let {
-                        Icon(painter = it, contentDescription = tab.options.title)
+                selected = currentRoute == item.route,
+                onClick  = {
+                    navController.navigate(item.route) {
+                        popUpTo(navController.graph.findStartDestination().id) {
+                            saveState = true
+                        }
+                        launchSingleTop = true
+                        restoreState    = true
                     }
                 },
-                label = { Text(tab.options.title) }
+                icon  = { Icon(item.icon, contentDescription = item.label) },
+                label = { Text(item.label) }
             )
         }
     }
