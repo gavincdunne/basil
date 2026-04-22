@@ -1,69 +1,67 @@
 # Basil – Type 1 Diabetes Management
 *Built by WeekendWare*
 
-Basil is a Kotlin Multiplatform app for managing life with Type 1 diabetes. One codebase, three targets — Android, iOS, and desktop — built with Compose Multiplatform, a clean layered architecture, and an emphasis on correctness.
+Basil is a Kotlin Multiplatform app for managing life with Type 1 diabetes. One codebase, three targets — Android, iOS, and desktop — built with Compose Multiplatform and a clean layered architecture.
 
 ---
 
-## Targets
+## Screenshots
 
-| Platform | Status |
-|---|---|
-| Android | Running |
-| iOS (Simulator) | Running |
-| Desktop (JVM) | Running |
+| Desktop | iOS | Android |
+|:---:|:---:|:---:|
+| ![Desktop](docs/screenshots/desktop.png) | ![iOS](docs/screenshots/ios.png) | ![Android](docs/screenshots/android.png) |
 
 ---
 
-## Architecture
+## Engineering
 
-```
-presentation/          Compose UI + ViewModels (MVVM)
-domain/model/          Pure Kotlin domain models — no framework dependencies
-data/repository/       Repository interfaces + SQLDelight implementations
-data/local/database/   SQLDelight schema, generated queries, DatabaseDriverFactory
-di/                    Koin modules — shared + platform-specific
-```
-
-Each layer depends only on the layer below it. ViewModels and use cases depend on repository *interfaces*, not the SQLDelight implementations — keeping them testable without a real database.
-
----
-
-## Stack
+### Stack
 
 | Concern | Library |
 |---|---|
 | UI | Compose Multiplatform 1.8.1 |
-| Navigation | Voyager 1.0.0 |
+| Navigation | Compose Multiplatform Navigation 2.8.0-alpha13 |
+| ViewModel | androidx.lifecycle 2.9.0 |
 | DI | Koin 4.0.4 |
 | Database | SQLDelight 2.0.1 |
 | Date/Time | kotlinx-datetime 0.6.0 |
-| Static analysis | Detekt 1.23.7 + detekt-formatting (ktlint) |
+| Static analysis | Detekt 1.23.7 + detekt-formatting |
 | Testing | kotlin-test + Mockito-Kotlin 5.4.0 |
 
----
+### Architecture
 
-## What's Built
+```
+presentation/          Compose UI + ViewModels (MVVM)
+domain/model/          Pure Kotlin domain models
+domain/usecase/        Single-responsibility use cases
+data/repository/       Repository interfaces + SQLDelight implementations
+data/local/database/   SQLDelight schema, queries, DatabaseDriverFactory
+di/                    Koin modules — shared + platform-specific
+```
 
-- **Dashboard** — last BG reading summary card with glucose status colouring, today's entry timeline, empty states
-- **Log entry sheet** — bottom sheet for logging BG, insulin, and carbs; validates and persists via `LogRepository`
-- **Preferences** — persisted BG unit preference (mg/dL or mmol/L) via `PreferencesRepository`
-- **Theme system** — custom `BasilColors`, `BasilSpacing`, `BasilTypography`, `BasilShapes` wired into MaterialTheme
-- **Repository layer** — `LogRepository`, `PreferencesRepository`, `UserRepository` interfaces with SQLDelight-backed implementations
+Each layer depends only on the layer below it. ViewModels and use cases depend on repository *interfaces*, keeping them testable without a real database. ViewModels extend `androidx.lifecycle.ViewModel` and are scoped to their nav destination via `koinViewModel<T>()`.
+
+### What's built
+
+- **Dashboard** — last BG reading card with glucose status colouring, today's entry timeline, empty states
+- **Log entry** — bottom sheet for logging BG, insulin, and carbs; BG unit preference persisted across sessions
+- **Navigation** — `NavHost`-based navigation with bottom tab bar and settings destination
+- **Theme** — custom `BasilColors`, `BasilSpacing`, `BasilTypography`, `BasilShapes` wired into MaterialTheme
+- **Data layer** — `LogRepository`, `PreferencesRepository`, `UserRepository` backed by SQLDelight
 - **CI/CD** — GitHub Actions running Detekt, Android compile + test, and iOS framework build on every push
 
 ---
 
-## What's Next
+## Roadmap
 
-- Flow-based SQLDelight queries (live UI updates)
-- Coroutine-scoped ViewModels
-- Use case layer
-- `Result<T>` error handling
-- Migrate to Compose Multiplatform Navigation
-- Build flavors (dev / staging / prod)
-- Supabase auth + user session
-- Sentry crash reporting
+- [ ] Build flavors (dev / staging / prod)
+- [ ] Supabase auth + user session
+- [ ] Profile screen
+- [ ] Settings screen (units, notifications, theme)
+- [ ] History and trends view
+- [ ] AI assistant chat (Basil tab)
+- [ ] Sentry crash reporting
+- [ ] Push notifications
 
 ---
 
