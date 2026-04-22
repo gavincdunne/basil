@@ -4,27 +4,33 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import cafe.adriel.voyager.navigator.Navigator
-import cafe.adriel.voyager.navigator.tab.Tab
-import cafe.adriel.voyager.navigator.tab.TabNavigator
-import org.weekendware.basil.presentation.chat.ChatTab
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
+import org.weekendware.basil.presentation.chat.ChatScreen
 import org.weekendware.basil.presentation.components.BasilBottomBar
 import org.weekendware.basil.presentation.components.BasilTopAppBar
-import org.weekendware.basil.presentation.dashboard.DashboardTab
-import org.weekendware.basil.presentation.profile.ProfileTab
+import org.weekendware.basil.presentation.dashboard.DashboardScreen
+import org.weekendware.basil.presentation.profile.ProfileScreen
+import org.weekendware.basil.presentation.settings.SettingsScreen
 import org.weekendware.basil.presentation.theme.BasilTheme
+
+const val ROUTE_HOME = "home"
+const val ROUTE_PROFILE = "profile"
+const val ROUTE_CHAT = "chat"
+const val ROUTE_SETTINGS = "settings"
+val TAB_ROUTES = setOf(ROUTE_HOME, ROUTE_PROFILE, ROUTE_CHAT)
 
 /**
  * Root composable for the Basil application.
  *
- * Sets up the top-level navigation structure:
- * - A Voyager [Navigator] acts as the root stack, enabling push/pop navigation
- *   for full-screen destinations such as [SettingsScreen].
- * - A [TabNavigator] nested inside manages the three main tabs:
- *   [DashboardTab], [ProfileTab], and [ChatTab].
- * - A [Scaffold] wraps the content with [BasilTopAppBar] and [BasilBottomBar],
- *   hiding the bottom bar on non-tab screens.
+ * Sets up the top-level navigation structure using Compose Multiplatform Navigation:
+ * - A [NavHost] manages all destinations: Home, Profile, Chat, and Settings.
+ * - A [Scaffold] wraps the content with [BasilTopAppBar] and [BasilBottomBar].
+ *   The bottom bar is hidden on the Settings screen.
  *
  * All UI is wrapped in [BasilTheme] so every composable in the tree has access
  * to the Basil color, typography, shape, and spacing tokens.
@@ -32,31 +38,32 @@ import org.weekendware.basil.presentation.theme.BasilTheme
 @Composable
 fun App() {
     BasilTheme {
-        val tabs = listOf(DashboardTab, ProfileTab, ChatTab)
+        val navController = rememberNavController()
+        val backStackEntry by navController.currentBackStackEntryAsState()
+        val currentRoute = backStackEntry?.destination?.route
 
-        Navigator(DashboardTab) { rootNavigator ->
-            TabNavigator(DashboardTab) { tabNavigator ->
-                val currentScreen = rootNavigator.lastItem
-
-                Scaffold(
-                    topBar = {
-                        BasilTopAppBar(
-                            rootNavigator = rootNavigator,
-                            currentScreen = currentScreen
-                        )
-                    },
-                    bottomBar = {
-                        if (currentScreen is Tab) {
-                            BasilBottomBar(tabNavigator = tabNavigator, tabs = tabs)
-                        }
-                    }
-                ) { innerPadding ->
-                    Surface(modifier = Modifier.padding(innerPadding)) {
-                        when (currentScreen) {
-                            is Tab -> tabNavigator.current.Content()
-                            else   -> currentScreen.Content()
-                        }
-                    }
+        Scaffold(
+            topBar = {
+                BasilTopAppBar(
+                    navController = navController,
+                    currentRoute = currentRoute
+                )
+            },
+            bottomBar = {
+                if (currentRoute in TAB_ROUTES) {
+                    BasilBottomBar(
+                        navController = navController,
+                        currentRoute = currentRoute
+                    )
+                }
+            }
+        ) { innerPadding ->
+            Surface(modifier = Modifier.padding(innerPadding)) {
+                NavHost(navController = navController, startDestination = ROUTE_HOME) {
+                    composable(ROUTE_HOME)     { DashboardScreen() }
+                    composable(ROUTE_PROFILE)  { ProfileScreen() }
+                    composable(ROUTE_CHAT)     { ChatScreen() }
+                    composable(ROUTE_SETTINGS) { SettingsScreen() }
                 }
             }
         }

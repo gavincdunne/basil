@@ -28,7 +28,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import cafe.adriel.voyager.core.screen.Screen
 import org.koin.compose.koinInject
 import org.weekendware.basil.domain.model.LogEntry
 import org.weekendware.basil.presentation.logging.LogEntrySheet
@@ -47,10 +46,8 @@ import org.weekendware.basil.presentation.theme.basilSpacing
  *
  * The list refreshes automatically after a new entry is saved.
  */
-object DashboardScreen : Screen {
-
-    @Composable
-    override fun Content() {
+@Composable
+fun DashboardScreen() {
         val viewModel        = koinInject<DashboardViewModel>()
         val loggingViewModel = koinInject<LoggingViewModel>()
         val uiState  by viewModel.state.collectAsState()
@@ -110,7 +107,6 @@ object DashboardScreen : Screen {
                 onDismiss = { viewModel.closeLogSheet() }
             )
         }
-    }
 }
 
 // ─────────────────────────────────────────────────────────────

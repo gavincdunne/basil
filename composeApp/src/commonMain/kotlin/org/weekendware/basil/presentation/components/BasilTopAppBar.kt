@@ -9,52 +9,40 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import cafe.adriel.voyager.core.screen.Screen
-import cafe.adriel.voyager.navigator.Navigator
-import cafe.adriel.voyager.navigator.tab.Tab
-import org.weekendware.basil.presentation.settings.SettingsScreen
+import androidx.navigation.NavController
+import org.weekendware.basil.ROUTE_SETTINGS
+import org.weekendware.basil.TAB_ROUTES
 
 /**
  * The top app bar used across all Basil screens.
  *
- * Behaviour adapts based on the currently-displayed screen:
- * - **Tab screens** (e.g. Dashboard, Profile, Chat): shows a settings gear
- *   icon in the trailing actions area. Tapping it pushes [SettingsScreen]
- *   onto [rootNavigator].
- * - **Stack screens** (e.g. Settings): shows a close icon in the leading
- *   navigation slot. Tapping it pops the current screen.
+ * Behaviour adapts based on the currently-active route:
+ * - **Tab screens** (Home, Profile, Chat): shows a settings gear icon in the
+ *   trailing actions area. Tapping it navigates to [ROUTE_SETTINGS].
+ * - **Stack screens** (Settings): shows a close icon in the leading navigation
+ *   slot. Tapping it pops back to the previous destination.
  *
- * The title slot is populated for named stack screens (currently [SettingsScreen]);
- * tab screens leave it empty to keep the top bar clean.
- *
- * @param rootNavigator The root Voyager [Navigator] used for push/pop operations.
- * @param currentScreen The screen that is currently visible, used to determine
- *   which icons and title to display.
+ * @param navController The [NavController] used for navigation events.
+ * @param currentRoute  The currently-active route string.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BasilTopAppBar(
-    rootNavigator: Navigator,
-    currentScreen: Screen
-) {
-    val isTab = currentScreen is Tab
-    val title = when (currentScreen) {
-        is SettingsScreen -> "Settings"
-        else              -> ""
-    }
+fun BasilTopAppBar(navController: NavController, currentRoute: String?) {
+    val isTabScreen = currentRoute == null || currentRoute in TAB_ROUTES
+    val title = if (currentRoute == ROUTE_SETTINGS) "Settings" else ""
 
     CenterAlignedTopAppBar(
         title = { Text(title) },
         navigationIcon = {
-            if (!isTab) {
-                IconButton(onClick = { rootNavigator.pop() }) {
+            if (!isTabScreen) {
+                IconButton(onClick = { navController.popBackStack() }) {
                     Icon(Icons.Default.Close, contentDescription = "Close")
                 }
             }
         },
         actions = {
-            if (isTab) {
-                IconButton(onClick = { rootNavigator.push(SettingsScreen) }) {
+            if (isTabScreen) {
+                IconButton(onClick = { navController.navigate(ROUTE_SETTINGS) }) {
                     Icon(Icons.Default.Settings, contentDescription = "Settings")
                 }
             }
