@@ -1,5 +1,10 @@
 package org.weekendware.basil.data.repository
 
+import app.cash.sqldelight.coroutines.asFlow
+import app.cash.sqldelight.coroutines.mapToList
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import kotlinx.datetime.Clock
 import org.weekendware.basil.database.BasilDatabase
 import org.weekendware.basil.domain.model.BgUnit
@@ -16,8 +21,11 @@ import orgweekendwarebasil.database.LogEntry as LogEntryEntity
  */
 class SqlDelightLogRepository(private val database: BasilDatabase) : LogRepository {
 
-    override fun getRecent(limit: Long): List<LogEntry> =
-        database.logEntryQueries.selectRecent(limit).executeAsList().map { it.toDomain() }
+    override fun getRecent(limit: Long): Flow<List<LogEntry>> =
+        database.logEntryQueries.selectRecent(limit)
+            .asFlow()
+            .mapToList(Dispatchers.Default)
+            .map { list -> list.map { it.toDomain() } }
 
     override fun insert(
         bgValue: Double?,
