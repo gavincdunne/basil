@@ -28,7 +28,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import org.koin.compose.koinInject
+import org.koin.compose.viewmodel.koinViewModel
 import org.weekendware.basil.domain.model.LogEntry
 import org.weekendware.basil.presentation.logging.LogEntrySheet
 import org.weekendware.basil.presentation.logging.LoggingViewModel
@@ -48,8 +48,8 @@ import org.weekendware.basil.presentation.theme.basilSpacing
  */
 @Composable
 fun DashboardScreen() {
-    val viewModel = koinInject<DashboardViewModel>()
-    val loggingViewModel = koinInject<LoggingViewModel>()
+    val viewModel = koinViewModel<DashboardViewModel>()
+    val loggingViewModel = koinViewModel<LoggingViewModel>()
     val uiState by viewModel.state.collectAsState()
     val showSheet by viewModel.showLogSheet.collectAsState()
     val spacing = MaterialTheme.basilSpacing

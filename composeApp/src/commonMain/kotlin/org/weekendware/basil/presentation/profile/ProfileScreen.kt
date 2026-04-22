@@ -3,7 +3,7 @@ package org.weekendware.basil.presentation.profile
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import org.koin.compose.koinInject
+import org.koin.compose.viewmodel.koinViewModel
 
 /**
  * The user Profile screen.
@@ -17,7 +17,7 @@ import org.koin.compose.koinInject
  */
 @Composable
 fun ProfileScreen() {
-    val viewModel = koinInject<ProfileViewModel>()
+    val viewModel = koinViewModel<ProfileViewModel>()
     val title = viewModel.title.collectAsState()
     Text(title.value)
 }
