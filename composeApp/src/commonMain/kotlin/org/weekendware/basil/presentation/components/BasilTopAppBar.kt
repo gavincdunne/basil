@@ -11,7 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavController
 import org.weekendware.basil.ROUTE_SETTINGS
-import org.weekendware.basil.TAB_ROUTES
+import org.weekendware.basil.tabRoutes
 
 /**
  * The top app bar used across all Basil screens.
@@ -28,7 +28,7 @@ import org.weekendware.basil.TAB_ROUTES
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BasilTopAppBar(navController: NavController, currentRoute: String?) {
-    val isTabScreen = currentRoute == null || currentRoute in TAB_ROUTES
+    val isTabScreen = currentRoute == null || currentRoute in tabRoutes
     val title = if (currentRoute == ROUTE_SETTINGS) "Settings" else ""
 
     CenterAlignedTopAppBar(

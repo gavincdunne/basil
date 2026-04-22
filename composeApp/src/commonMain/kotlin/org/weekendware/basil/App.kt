@@ -22,7 +22,7 @@ const val ROUTE_HOME = "home"
 const val ROUTE_PROFILE = "profile"
 const val ROUTE_CHAT = "chat"
 const val ROUTE_SETTINGS = "settings"
-val TAB_ROUTES = setOf(ROUTE_HOME, ROUTE_PROFILE, ROUTE_CHAT)
+val tabRoutes = setOf(ROUTE_HOME, ROUTE_PROFILE, ROUTE_CHAT)
 
 /**
  * Root composable for the Basil application.
@@ -50,7 +50,7 @@ fun App() {
                 )
             },
             bottomBar = {
-                if (currentRoute in TAB_ROUTES) {
+                if (currentRoute in tabRoutes) {
                     BasilBottomBar(
                         navController = navController,
                         currentRoute = currentRoute
