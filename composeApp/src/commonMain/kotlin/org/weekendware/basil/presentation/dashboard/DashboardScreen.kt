@@ -48,65 +48,65 @@ import org.weekendware.basil.presentation.theme.basilSpacing
  */
 @Composable
 fun DashboardScreen() {
-        val viewModel        = koinInject<DashboardViewModel>()
-        val loggingViewModel = koinInject<LoggingViewModel>()
-        val uiState  by viewModel.state.collectAsState()
-        val showSheet by viewModel.showLogSheet.collectAsState()
-        val spacing = MaterialTheme.basilSpacing
+    val viewModel = koinInject<DashboardViewModel>()
+    val loggingViewModel = koinInject<LoggingViewModel>()
+    val uiState by viewModel.state.collectAsState()
+    val showSheet by viewModel.showLogSheet.collectAsState()
+    val spacing = MaterialTheme.basilSpacing
 
-        Box(modifier = Modifier.fillMaxSize()) {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(
-                    start  = spacing.lg,
-                    end    = spacing.lg,
-                    top    = spacing.lg,
-                    bottom = BasilTokens.FabSize + BasilTokens.FabEdgePadding * 2
-                ),
-                verticalArrangement = Arrangement.spacedBy(spacing.sm)
-            ) {
-                // ── Last reading summary ──────────────────────
-                item {
-                    LastReadingCard(entry = uiState.lastBgEntry)
-                }
-
-                // ── Today section header ──────────────────────
-                item {
-                    TodayHeader(
-                        modifier = Modifier.padding(top = spacing.md, bottom = spacing.xs)
-                    )
-                }
-
-                // ── Today's entries or empty state ────────────
-                if (uiState.todayEntries.isEmpty()) {
-                    item { EmptyTodayState() }
-                } else {
-                    items(uiState.todayEntries, key = { it.id }) { entry ->
-                        LogEntryItem(entry = entry)
-                    }
-                }
+    Box(modifier = Modifier.fillMaxSize()) {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(
+                start  = spacing.lg,
+                end    = spacing.lg,
+                top    = spacing.lg,
+                bottom = BasilTokens.FabSize + BasilTokens.FabEdgePadding * 2
+            ),
+            verticalArrangement = Arrangement.spacedBy(spacing.sm)
+        ) {
+            // ── Last reading summary ──────────────────────
+            item {
+                LastReadingCard(entry = uiState.lastBgEntry)
             }
 
-            // ── FAB ───────────────────────────────────────────
-            FloatingActionButton(
-                onClick = {
-                    loggingViewModel.reset()
-                    viewModel.openLogSheet()
-                },
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(BasilTokens.FabEdgePadding)
-            ) {
-                Icon(Icons.Default.Add, contentDescription = "Log Entry")
+            // ── Today section header ──────────────────────
+            item {
+                TodayHeader(
+                    modifier = Modifier.padding(top = spacing.md, bottom = spacing.xs)
+                )
+            }
+
+            // ── Today's entries or empty state ────────────
+            if (uiState.todayEntries.isEmpty()) {
+                item { EmptyTodayState() }
+            } else {
+                items(uiState.todayEntries, key = { it.id }) { entry ->
+                    LogEntryItem(entry = entry)
+                }
             }
         }
 
-        if (showSheet) {
-            LogEntrySheet(
-                viewModel = loggingViewModel,
-                onDismiss = { viewModel.closeLogSheet() }
-            )
+        // ── FAB ───────────────────────────────────────────
+        FloatingActionButton(
+            onClick = {
+                loggingViewModel.reset()
+                viewModel.openLogSheet()
+            },
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(BasilTokens.FabEdgePadding)
+        ) {
+            Icon(Icons.Default.Add, contentDescription = "Log Entry")
         }
+    }
+
+    if (showSheet) {
+        LogEntrySheet(
+            viewModel = loggingViewModel,
+            onDismiss = { viewModel.closeLogSheet() }
+        )
+    }
 }
 
 // ─────────────────────────────────────────────────────────────

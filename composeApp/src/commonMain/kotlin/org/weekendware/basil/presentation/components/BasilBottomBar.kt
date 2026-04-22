@@ -22,7 +22,7 @@ private data class BottomNavItem(
     val icon: ImageVector
 )
 
-private val TAB_ITEMS = listOf(
+private val tabItems = listOf(
     BottomNavItem(ROUTE_HOME,    "Home",   Icons.Default.Home),
     BottomNavItem(ROUTE_PROFILE, "Profile", Icons.Default.Person),
     BottomNavItem(ROUTE_CHAT,    "Basil",  Icons.Default.EnergySavingsLeaf)
@@ -42,7 +42,7 @@ private val TAB_ITEMS = listOf(
 @Composable
 fun BasilBottomBar(navController: NavController, currentRoute: String?) {
     NavigationBar {
-        TAB_ITEMS.forEach { item ->
+        tabItems.forEach { item ->
             NavigationBarItem(
                 selected = currentRoute == item.route,
                 onClick  = {
