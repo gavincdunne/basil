@@ -21,7 +21,7 @@ materialIconsExtended = "1.7.3"
 sqldelight = "2.0.1"
 detekt = "1.23.7"
 mockitoKotlin = "5.4.0"
-navigation = "2.8.0-alpha10"
+navigation = "2.9.10+dev2849"
 
 
 [libraries]
