@@ -59,8 +59,9 @@ local.properties
 !iosApp/Configuration/
 !iosApp/Configuration/Config.xcconfig
 
-# Unnecessary binaries
+# Unnecessary binaries (exclude intentional project screenshots)
 *.png
+!docs/screenshots/*.png
 
 # ---------------------------
 # Debug and Capture Files
