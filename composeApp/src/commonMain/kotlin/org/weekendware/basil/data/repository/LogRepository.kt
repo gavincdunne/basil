@@ -1,5 +1,6 @@
 package org.weekendware.basil.data.repository
 
+import kotlinx.coroutines.flow.Flow
 import org.weekendware.basil.domain.model.BgUnit
 import org.weekendware.basil.domain.model.LogEntry
 
@@ -12,11 +13,13 @@ import org.weekendware.basil.domain.model.LogEntry
 interface LogRepository {
 
     /**
-     * Returns the most recent log entries, ordered by timestamp descending.
+     * Returns a [Flow] of the most recent log entries, ordered by timestamp
+     * descending. Re-emits automatically whenever the underlying table changes,
+     * so observers always see up-to-date data without polling.
      *
      * @param limit Maximum number of entries to return. Defaults to 20.
      */
-    fun getRecent(limit: Long = 20): List<LogEntry>
+    fun getRecent(limit: Long = 20): Flow<List<LogEntry>>
 
     /**
      * Inserts a new log entry with the current timestamp.
