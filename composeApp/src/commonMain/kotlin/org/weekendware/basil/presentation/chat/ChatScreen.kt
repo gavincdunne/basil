@@ -3,7 +3,7 @@ package org.weekendware.basil.presentation.chat
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import org.koin.compose.koinInject
+import org.koin.compose.viewmodel.koinViewModel
 
 /**
  * The Basil AI assistant screen.
@@ -15,7 +15,7 @@ import org.koin.compose.koinInject
  */
 @Composable
 fun ChatScreen() {
-    val viewModel = koinInject<ChatViewModel>()
+    val viewModel = koinViewModel<ChatViewModel>()
     val title = viewModel.title.collectAsState()
     Text(title.value)
 }

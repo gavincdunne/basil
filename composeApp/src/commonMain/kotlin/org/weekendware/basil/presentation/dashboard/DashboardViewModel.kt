@@ -1,8 +1,8 @@
 package org.weekendware.basil.presentation.dashboard
 
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -31,13 +31,18 @@ data class DashboardState(
  *
  * Delegates all data access and business logic to use cases. The [state]
  * Flow updates automatically whenever the underlying log table changes.
+ *
+ * @param coroutineScope Scope for async operations. Defaults to [viewModelScope]
+ *   when null. Override in tests with a [kotlinx.coroutines.test.TestScope].
  */
 class DashboardViewModel(
     observeRecentLogs: ObserveRecentLogsUseCase,
     private val getTodayEntries: GetTodayEntriesUseCase,
     private val getLastBgReading: GetLastBgReadingUseCase,
-    coroutineScope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
-) {
+    coroutineScope: CoroutineScope? = null
+) : ViewModel() {
+
+    private val scope = coroutineScope ?: viewModelScope
 
     private val _showLogSheet = MutableStateFlow(false)
 
@@ -59,7 +64,7 @@ class DashboardViewModel(
             )
         }
         .stateIn(
-            scope = coroutineScope,
+            scope = scope,
             started = SharingStarted.Eagerly,
             initialValue = DashboardState()
         )
