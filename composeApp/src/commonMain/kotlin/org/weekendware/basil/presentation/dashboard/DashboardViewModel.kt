@@ -1,7 +1,13 @@
 package org.weekendware.basil.presentation.dashboard
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
@@ -20,19 +26,24 @@ import org.weekendware.basil.domain.model.LogEntry
  */
 data class DashboardState(
     val todayEntries: List<LogEntry> = emptyList(),
-    val lastBgEntry:  LogEntry?      = null
+    val lastBgEntry: LogEntry? = null
 )
 
 /**
  * ViewModel for [DashboardScreen].
  *
- * Loads today's log entries from [LogRepository] and derives the most recent
- * blood glucose reading for the summary card. Call [refresh] after a new entry
- * is saved to keep the dashboard in sync.
+ * Observes [LogRepository.getRecent] as a [kotlinx.coroutines.flow.Flow] so the
+ * dashboard updates automatically whenever an entry is inserted or deleted —
+ * no manual refresh calls required.
  *
  * @param logRepository Source of truth for all log entry data.
+ * @param coroutineScope Scope used to collect the repository Flow. Defaults to
+ *   an app-lifetime scope; override in tests with a [kotlinx.coroutines.test.TestScope].
  */
-class DashboardViewModel(private val logRepository: LogRepository) {
+class DashboardViewModel(
+    private val logRepository: LogRepository,
+    coroutineScope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+) {
 
     private val _showLogSheet = MutableStateFlow(false)
 
@@ -42,14 +53,22 @@ class DashboardViewModel(private val logRepository: LogRepository) {
      */
     val showLogSheet: StateFlow<Boolean> = _showLogSheet
 
-    private val _state = MutableStateFlow(DashboardState())
-
-    /** The current dashboard UI state, observed by [DashboardScreen]. */
-    val state: StateFlow<DashboardState> = _state
-
-    init {
-        refresh()
-    }
+    /**
+     * The current dashboard UI state, derived live from the repository Flow.
+     * Emits a new [DashboardState] whenever the underlying log table changes.
+     */
+    val state: StateFlow<DashboardState> = logRepository.getRecent(100)
+        .map { recent ->
+            DashboardState(
+                todayEntries = recent.filter { it.isToday() },
+                lastBgEntry = recent.firstOrNull { it.bgValue != null }
+            )
+        }
+        .stateIn(
+            scope = coroutineScope,
+            started = SharingStarted.Eagerly,
+            initialValue = DashboardState()
+        )
 
     /** Opens the log-entry bottom sheet. */
     fun openLogSheet() = _showLogSheet.update { true }
@@ -57,23 +76,10 @@ class DashboardViewModel(private val logRepository: LogRepository) {
     /** Closes the log-entry bottom sheet. */
     fun closeLogSheet() = _showLogSheet.update { false }
 
-    /**
-     * Reloads log entries from the database and updates [state].
-     *
-     * Call this after a new entry is saved so the dashboard reflects the
-     * latest data without requiring a full recomposition cycle.
-     */
-    fun refresh() {
-        val recent      = logRepository.getRecent(100)
-        val todayEntries = recent.filter { it.isToday() }
-        val lastBgEntry  = recent.firstOrNull { it.bgValue != null }
-        _state.update { DashboardState(todayEntries = todayEntries, lastBgEntry = lastBgEntry) }
-    }
-
     // ── Helpers ───────────────────────────────────────────────
 
     private fun LogEntry.isToday(): Boolean {
-        val tz    = TimeZone.currentSystemDefault()
+        val tz = TimeZone.currentSystemDefault()
         val today = Clock.System.now().toLocalDateTime(tz).date
         val entryDate = Instant.fromEpochMilliseconds(timestamp).toLocalDateTime(tz).date
         return entryDate == today

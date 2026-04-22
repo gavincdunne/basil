@@ -107,10 +107,7 @@ object DashboardScreen : Screen {
         if (showSheet) {
             LogEntrySheet(
                 viewModel = loggingViewModel,
-                onDismiss = {
-                    viewModel.closeLogSheet()
-                    viewModel.refresh()
-                }
+                onDismiss = { viewModel.closeLogSheet() }
             )
         }
     }

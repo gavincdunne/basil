@@ -1,0 +1,40 @@
+version: 2
+updates:
+  # Gradle / Kotlin ecosystem
+  - package-ecosystem: gradle
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    reviewers:
+      - gavincdunne
+    labels:
+      - dependencies
+    # Group Kotlin + Compose + AGP bumps so we review them together.
+    groups:
+      kotlin-ecosystem:
+        patterns:
+          - "org.jetbrains.kotlin*"
+          - "org.jetbrains.compose*"
+          - "com.android.application"
+          - "com.android.library"
+      voyager:
+        patterns:
+          - "cafe.adriel.voyager:*"
+      sqldelight:
+        patterns:
+          - "app.cash.sqldelight:*"
+      koin:
+        patterns:
+          - "io.insert-koin:*"
+
+  # GitHub Actions themselves
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 3
+    labels:
+      - dependencies
+      - ci
