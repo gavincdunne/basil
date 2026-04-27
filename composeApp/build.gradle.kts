@@ -61,6 +61,7 @@ kotlin {
             implementation(libs.androidx.navigation.compose)
             implementation(libs.supabase.auth)
             implementation(libs.ktor.client.core)
+            implementation(libs.sentry.kmp)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
@@ -159,6 +160,7 @@ buildkonfig {
         buildConfigField(STRING, "FLAVOR", "prod")
         buildConfigField(STRING, "SUPABASE_URL", localProps["supabase.prod.url"] as? String ?: "")
         buildConfigField(STRING, "SUPABASE_ANON_KEY", localProps["supabase.prod.anonKey"] as? String ?: "")
+        buildConfigField(STRING, "SENTRY_DSN", localProps["sentry.dsn"] as? String ?: "")
     }
     targetConfigs {
         create("dev") {

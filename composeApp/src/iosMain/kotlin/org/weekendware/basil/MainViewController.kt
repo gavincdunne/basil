@@ -1,6 +1,7 @@
 package org.weekendware.basil
 
 import androidx.compose.ui.window.ComposeUIViewController
+import org.weekendware.basil.crash.initSentry
 import org.weekendware.basil.di.initKoin
 
 /**
@@ -18,6 +19,7 @@ import org.weekendware.basil.di.initKoin
  * @return A [UIViewController] rendering the full [App] composable.
  */
 fun MainViewController() = run {
+    initSentry()
     initKoin()
     ComposeUIViewController { App() }
 }
