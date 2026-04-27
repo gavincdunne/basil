@@ -2,6 +2,7 @@ package org.weekendware.basil
 
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
+import org.weekendware.basil.crash.initSentry
 import org.weekendware.basil.di.initKoin
 
 /**
@@ -15,6 +16,7 @@ import org.weekendware.basil.di.initKoin
  * file-backed [JdbcSqliteDriver] before shipping a desktop release.
  */
 fun main() = application {
+    initSentry()
     initKoin()
     Window(
         onCloseRequest = ::exitApplication,
