@@ -1,12 +1,21 @@
 package org.weekendware.basil.data.repository
 
+import kotlinx.coroutines.flow.Flow
+
 /**
  * Contract for authentication operations.
  *
  * All methods return [Result] so callers can handle errors without
- * catching exceptions directly.
+ * catching exceptions directly. [sessionFlow] emits whenever the
+ * sign-in state changes so the UI layer can react without polling.
  */
 interface AuthRepository {
+
+    /**
+     * Emits `true` when a valid session exists, `false` when signed out.
+     * Replays the current state immediately on collection.
+     */
+    val sessionFlow: Flow<Boolean>
 
     /** Signs up a new user with [email] and [password]. */
     suspend fun signUp(email: String, password: String): Result<Unit>
