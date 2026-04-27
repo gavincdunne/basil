@@ -7,6 +7,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import org.koin.dsl.module
+import org.weekendware.basil.crash.initSentry
 import org.weekendware.basil.di.initKoin
 
 /**
@@ -24,6 +25,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
 
+        initSentry()
         initKoin {
             modules(module { single<android.content.Context> { applicationContext } })
         }
