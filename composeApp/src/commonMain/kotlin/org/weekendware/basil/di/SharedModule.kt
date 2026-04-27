@@ -3,11 +3,14 @@ package org.weekendware.basil.di
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 import org.weekendware.basil.data.local.database.DatabaseProvider
+import org.weekendware.basil.data.remote.createSupabaseClient
+import org.weekendware.basil.data.repository.AuthRepository
 import org.weekendware.basil.data.repository.LogRepository
 import org.weekendware.basil.data.repository.PreferencesRepository
 import org.weekendware.basil.data.repository.SqlDelightLogRepository
 import org.weekendware.basil.data.repository.SqlDelightPreferencesRepository
 import org.weekendware.basil.data.repository.SqlDelightUserRepository
+import org.weekendware.basil.data.repository.SupabaseAuthRepository
 import org.weekendware.basil.data.repository.UserRepository
 import org.weekendware.basil.domain.usecase.DeleteLogEntryUseCase
 import org.weekendware.basil.domain.usecase.GetBgUnitPreferenceUseCase
@@ -21,6 +24,14 @@ import org.weekendware.basil.presentation.dashboard.DashboardViewModel
 import org.weekendware.basil.presentation.logging.LoggingViewModel
 import org.weekendware.basil.presentation.profile.ProfileViewModel
 import org.weekendware.basil.presentation.settings.SettingsViewModel
+
+/**
+ * Koin module that wires the Supabase client and auth repository.
+ */
+val supabaseModule = module {
+    single { createSupabaseClient() }
+    single<AuthRepository> { SupabaseAuthRepository(get()) }
+}
 
 /**
  * Koin module that wires the database and all repositories.
