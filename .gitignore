@@ -54,10 +54,13 @@ local.properties
 **/*.appiconset/*.png
 **/*.appiconset/*.jpg
 **/Preview Content/
-# Ignore personal/sensitive xcconfig overrides but keep the shared template
+# Ignore personal/sensitive xcconfig overrides but keep the shared templates
 **/Configuration/**
 !iosApp/Configuration/
 !iosApp/Configuration/Config.xcconfig
+!iosApp/Configuration/Dev.xcconfig
+!iosApp/Configuration/Staging.xcconfig
+!iosApp/Configuration/Prod.xcconfig
 
 # Unnecessary binaries (exclude intentional project screenshots)
 *.png

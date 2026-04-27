@@ -1,3 +1,4 @@
+import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 
 plugins {
@@ -7,6 +8,7 @@ plugins {
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.composeHotReload)
     alias(libs.plugins.sqldelight)
+    alias(libs.plugins.buildkonfig)
 }
 
 kotlin {
@@ -93,6 +95,25 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+    flavorDimensions += "environment"
+    productFlavors {
+        create("dev") {
+            dimension = "environment"
+            applicationIdSuffix = ".dev"
+            versionNameSuffix = "-dev"
+            resValue("string", "app_name", "Basil Dev")
+        }
+        create("staging") {
+            dimension = "environment"
+            applicationIdSuffix = ".staging"
+            versionNameSuffix = "-staging"
+            resValue("string", "app_name", "Basil Staging")
+        }
+        create("prod") {
+            dimension = "environment"
+            resValue("string", "app_name", "Basil")
+        }
+    }
     buildTypes {
         getByName("release") {
             isMinifyEnabled = false
@@ -116,6 +137,38 @@ compose.desktop {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "org.weekendware.basil"
             packageVersion = "1.0.0"
+        }
+    }
+}
+
+buildkonfig {
+    packageName = "org.weekendware.basil"
+
+    // Prod defaults
+    defaultConfigs {
+        buildConfigField(STRING, "FLAVOR", "prod")
+        buildConfigField(STRING, "BASE_URL", "https://api.basil.app")
+    }
+    targetConfigs {
+        create("dev") {
+            buildConfigField(STRING, "FLAVOR", "dev")
+            buildConfigField(STRING, "BASE_URL", "https://dev-api.basil.app")
+        }
+        create("staging") {
+            buildConfigField(STRING, "FLAVOR", "staging")
+            buildConfigField(STRING, "BASE_URL", "https://staging-api.basil.app")
+        }
+    }
+}
+
+// Per-flavor desktop run tasks
+listOf("dev", "staging", "prod").forEach { flavor ->
+    tasks.register("runDesktop${flavor.replaceFirstChar { it.uppercase() }}") {
+        group = "application"
+        description = "Run desktop app with $flavor config"
+        dependsOn("desktopRun")
+        doFirst {
+            System.setProperty("app.flavor", flavor)
         }
     }
 }

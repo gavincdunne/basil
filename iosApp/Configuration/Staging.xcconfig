@@ -1,0 +1,6 @@
+#include "Config.xcconfig"
+
+APP_NAME = Basil Staging
+PRODUCT_NAME = Basil Staging
+PRODUCT_BUNDLE_IDENTIFIER = org.weekendware.basil.staging
+BASE_URL = https://staging-api.basil.app
