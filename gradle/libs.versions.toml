@@ -22,6 +22,7 @@ sqldelight = "2.0.1"
 detekt = "1.23.7"
 mockitoKotlin = "5.4.0"
 navigation = "2.8.0-alpha13"
+buildkonfig = "0.15.2"
 
 
 [libraries]
@@ -61,3 +62,4 @@ composeMultiplatform = { id = "org.jetbrains.compose", version.ref = "composeMul
 composeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 sqldelight = { id = "app.cash.sqldelight", version.ref = "sqldelight" }
+buildkonfig = { id = "com.codingfeline.buildkonfig", version.ref = "buildkonfig" }
