@@ -19,10 +19,12 @@ import org.weekendware.basil.domain.usecase.GetTodayEntriesUseCase
 import org.weekendware.basil.domain.usecase.ObserveRecentLogsUseCase
 import org.weekendware.basil.domain.usecase.SaveLogEntryUseCase
 import org.weekendware.basil.domain.usecase.SetBgUnitPreferenceUseCase
+import org.weekendware.basil.presentation.auth.AuthViewModel
 import org.weekendware.basil.presentation.chat.ChatViewModel
 import org.weekendware.basil.presentation.dashboard.DashboardViewModel
 import org.weekendware.basil.presentation.logging.LoggingViewModel
 import org.weekendware.basil.presentation.profile.ProfileViewModel
+import org.weekendware.basil.presentation.session.SessionViewModel
 import org.weekendware.basil.presentation.settings.SettingsViewModel
 
 /**
@@ -60,6 +62,8 @@ val useCaseModule = module {
  * Koin module that provides all shared ViewModels as singletons.
  */
 val sharedModule = module {
+    viewModel { SessionViewModel(get()) }
+    viewModel { AuthViewModel(get()) }
     viewModel { DashboardViewModel(get(), get(), get()) }
     viewModel { ProfileViewModel() }
     viewModel { ChatViewModel() }
