@@ -6,6 +6,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import basil.composeapp.generated.resources.Res
+import basil.composeapp.generated.resources.error_auth_failed
+import org.jetbrains.compose.resources.StringResource
 import org.weekendware.basil.data.repository.AuthRepository
 
 /**
@@ -15,14 +18,14 @@ import org.weekendware.basil.data.repository.AuthRepository
  * @property password     Current value of the password field.
  * @property isSignUp     When true the form submits as sign-up; false = sign-in.
  * @property isLoading    True while an auth network call is in flight.
- * @property error        User-facing error message, or null when there is none.
+ * @property error        User-facing error string resource, or null when there is none.
  */
 data class AuthFormState(
     val email: String = "",
     val password: String = "",
     val isSignUp: Boolean = false,
     val isLoading: Boolean = false,
-    val error: String? = null
+    val error: StringResource? = null
 ) {
     val canSubmit: Boolean get() = email.isNotBlank() && password.length >= 6 && !isLoading
 }
@@ -67,8 +70,8 @@ class AuthViewModel(
                     // navigate automatically — nothing to do here.
                     _state.update { it.copy(isLoading = false) }
                 },
-                onFailure = { error ->
-                    _state.update { it.copy(isLoading = false, error = error.message ?: "Authentication failed") }
+                onFailure = {
+                    _state.update { it.copy(isLoading = false, error = Res.string.error_auth_failed) }
                 }
             )
         }

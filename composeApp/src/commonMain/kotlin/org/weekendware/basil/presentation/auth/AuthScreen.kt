@@ -167,10 +167,10 @@ private fun AuthForm(state: AuthFormState, viewModel: AuthViewModel) {
             colors   = authFieldColors(),
             modifier = Modifier.fillMaxWidth()
         )
-        state.error?.let { error ->
+        state.error?.let { errorRes ->
             Spacer(Modifier.height(8.dp))
             Text(
-                text  = error,
+                text  = stringResource(errorRes),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.error
             )
@@ -183,7 +183,7 @@ private fun AuthForm(state: AuthFormState, viewModel: AuthViewModel) {
 @Composable
 private fun AuthFieldLabel(text: String) {
     Text(
-        text          = text,
+        text          = text.uppercase(),
         style         = MaterialTheme.typography.labelSmall,
         color         = BasilPalette.Stone500,
         fontWeight    = FontWeight.SemiBold,

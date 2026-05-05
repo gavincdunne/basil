@@ -4,15 +4,15 @@
     <!-- ── App branding ──────────────────────────────────────── -->
     <string name="app_name">basil</string>
     <string name="app_tagline">Your T1D companion</string>
-    <string name="app_type1_label">TYPE 1 DIABETES</string>
+    <string name="app_type1_label">Type 1 Diabetes</string>
 
     <!-- ── Auth screen ───────────────────────────────────────── -->
     <string name="auth_create_account">Create account</string>
     <string name="auth_welcome_back">Welcome back</string>
     <string name="auth_signup_subtitle">Sign up to start managing your T1D.</string>
     <string name="auth_signin_subtitle">Sign in to continue to Basil.</string>
-    <string name="auth_field_email">EMAIL</string>
-    <string name="auth_field_password">PASSWORD</string>
+    <string name="auth_field_email">Email</string>
+    <string name="auth_field_password">Password</string>
     <string name="auth_email_placeholder">you@example.com</string>
     <string name="auth_sign_in">Sign in</string>
     <string name="auth_toggle_to_signup">New to Basil? Create account</string>
@@ -62,6 +62,11 @@
         Note: proper pluralisation (e.g. "1 minute ago" vs "5 minutes ago") is
         deferred until the app ships with multi-language support.
     -->
+    <!-- ── Error messages ──────────────────────────────────── -->
+    <string name="error_auth_failed">Authentication failed</string>
+    <string name="error_save_preference_failed">Failed to save unit preference</string>
+    <string name="error_save_entry_failed">Failed to save entry. Please try again.</string>
+
     <string name="relative_time_just_now">just now</string>
     <string name="relative_time_minutes">%1$dm ago</string>
     <string name="relative_time_hours">%1$dh ago</string>
