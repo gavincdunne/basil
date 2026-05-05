@@ -1,13 +1,14 @@
 package org.weekendware.basil.presentation.components
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.Canvas
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
@@ -31,7 +32,7 @@ fun BasilLeaf(
     vein: Color = Color.White
 ) {
     val height = size * 1.15f
-    Canvas(modifier = Modifier.size(size, height)) {
+    Canvas(modifier = Modifier.size(size, height).clearAndSetSemantics {}) {
         drawLeaf(fill = fill, vein = vein)
     }
 }

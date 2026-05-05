@@ -18,9 +18,7 @@ import basil.composeapp.generated.resources.nav_home
 import basil.composeapp.generated.resources.nav_profile
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
-import org.weekendware.basil.ROUTE_CHAT
-import org.weekendware.basil.ROUTE_HOME
-import org.weekendware.basil.ROUTE_PROFILE
+import org.weekendware.basil.AppRoute
 
 private data class BottomNavItem(
     val route:    String,
@@ -29,9 +27,9 @@ private data class BottomNavItem(
 )
 
 private val tabItems = listOf(
-    BottomNavItem(ROUTE_HOME,    Res.string.nav_home,    Icons.Default.Home),
-    BottomNavItem(ROUTE_PROFILE, Res.string.nav_profile, Icons.Default.Person),
-    BottomNavItem(ROUTE_CHAT,    Res.string.nav_chat,    Icons.Default.EnergySavingsLeaf)
+    BottomNavItem(AppRoute.Home.route,    Res.string.nav_home,    Icons.Default.Home),
+    BottomNavItem(AppRoute.Profile.route, Res.string.nav_profile, Icons.Default.Person),
+    BottomNavItem(AppRoute.Chat.route,    Res.string.nav_chat,    Icons.Default.EnergySavingsLeaf)
 )
 
 /**

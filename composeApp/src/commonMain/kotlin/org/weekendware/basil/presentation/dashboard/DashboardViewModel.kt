@@ -1,5 +1,6 @@
 package org.weekendware.basil.presentation.dashboard
 
+import androidx.compose.runtime.Stable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CoroutineScope
@@ -21,6 +22,7 @@ import org.weekendware.basil.domain.usecase.ObserveRecentLogsUseCase
  * @property lastBgEntry  The most recent entry that contains a blood glucose
  *   value, regardless of whether it was recorded today.
  */
+@Stable
 data class DashboardState(
     val todayEntries: List<LogEntry> = emptyList(),
     val lastBgEntry: LogEntry? = null

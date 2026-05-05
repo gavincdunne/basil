@@ -37,10 +37,13 @@ import basil.composeapp.generated.resources.dashboard_nothing_logged
 import basil.composeapp.generated.resources.dashboard_nothing_logged_hint
 import basil.composeapp.generated.resources.dashboard_today
 import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
+import org.weekendware.basil.domain.model.BgUnit
 import org.weekendware.basil.domain.model.LogEntry
 import org.weekendware.basil.presentation.logging.LogEntrySheet
 import org.weekendware.basil.presentation.logging.LoggingViewModel
+import org.weekendware.basil.presentation.theme.BasilTheme
 import org.weekendware.basil.presentation.theme.BasilTokens
 import org.weekendware.basil.presentation.theme.basilColors
 import org.weekendware.basil.presentation.theme.basilSpacing
@@ -326,4 +329,58 @@ private fun GlucoseStatus.color(): Color = when (this) {
     GlucoseStatus.IN_RANGE  -> MaterialTheme.basilColors.glucoseInRange
     GlucoseStatus.HIGH      -> MaterialTheme.basilColors.glucoseHigh
     GlucoseStatus.VERY_HIGH -> MaterialTheme.basilColors.glucoseVeryHigh
+}
+
+// ─────────────────────────────────────────────────────────────
+// Previews
+// ─────────────────────────────────────────────────────────────
+
+@Preview
+@Composable
+internal fun LastReadingCardWithDataPreview() {
+    BasilTheme {
+        LastReadingCard(
+            entry = LogEntry(
+                id           = 1L,
+                timestamp    = System.currentTimeMillis() - 15 * 60 * 1000,
+                bgValue      = 6.2,
+                bgUnit       = BgUnit.MMOLL,
+                insulinUnits = null,
+                carbsGrams   = null
+            )
+        )
+    }
+}
+
+@Preview
+@Composable
+internal fun LastReadingCardEmptyPreview() {
+    BasilTheme {
+        LastReadingCard(entry = null)
+    }
+}
+
+@Preview
+@Composable
+internal fun LogEntryItemPreview() {
+    BasilTheme {
+        LogEntryItem(
+            entry = LogEntry(
+                id           = 1L,
+                timestamp    = System.currentTimeMillis(),
+                bgValue      = 5.5,
+                bgUnit       = BgUnit.MMOLL,
+                insulinUnits = 4.0,
+                carbsGrams   = 45.0
+            )
+        )
+    }
+}
+
+@Preview
+@Composable
+internal fun EmptyTodayStatePreview() {
+    BasilTheme {
+        EmptyTodayState()
+    }
 }

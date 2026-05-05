@@ -15,15 +15,14 @@ import basil.composeapp.generated.resources.cd_close
 import basil.composeapp.generated.resources.cd_settings
 import basil.composeapp.generated.resources.screen_settings
 import org.jetbrains.compose.resources.stringResource
-import org.weekendware.basil.ROUTE_SETTINGS
-import org.weekendware.basil.tabRoutes
+import org.weekendware.basil.AppRoute
 
 /**
  * The top app bar used across all Basil screens.
  *
  * Behaviour adapts based on the currently-active route:
  * - **Tab screens** (Home, Profile, Chat): shows a settings gear icon in the
- *   trailing actions area. Tapping it navigates to [ROUTE_SETTINGS].
+ *   trailing actions area. Tapping it navigates to [AppRoute.Settings].
  * - **Stack screens** (Settings): shows a close icon in the leading navigation
  *   slot. Tapping it pops back to the previous destination.
  *
@@ -33,8 +32,8 @@ import org.weekendware.basil.tabRoutes
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BasilTopAppBar(navController: NavController, currentRoute: String?) {
-    val isTabScreen = currentRoute == null || currentRoute in tabRoutes
-    val title = if (currentRoute == ROUTE_SETTINGS) stringResource(Res.string.screen_settings) else ""
+    val isTabScreen = currentRoute == null || currentRoute in AppRoute.tabRoutes
+    val title = if (currentRoute == AppRoute.Settings.route) stringResource(Res.string.screen_settings) else ""
 
     CenterAlignedTopAppBar(
         title = { Text(title) },
@@ -47,7 +46,7 @@ fun BasilTopAppBar(navController: NavController, currentRoute: String?) {
         },
         actions = {
             if (isTabScreen) {
-                IconButton(onClick = { navController.navigate(ROUTE_SETTINGS) }) {
+                IconButton(onClick = { navController.navigate(AppRoute.Settings.route) }) {
                     Icon(Icons.Default.Settings, contentDescription = stringResource(Res.string.cd_settings))
                 }
             }

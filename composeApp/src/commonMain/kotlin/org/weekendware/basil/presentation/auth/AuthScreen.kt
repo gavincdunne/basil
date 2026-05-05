@@ -47,33 +47,67 @@ import basil.composeapp.generated.resources.auth_toggle_to_signin
 import basil.composeapp.generated.resources.auth_toggle_to_signup
 import basil.composeapp.generated.resources.auth_welcome_back
 import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 import org.weekendware.basil.presentation.components.BasilLeaf
 import org.weekendware.basil.presentation.theme.BasilPalette
+import org.weekendware.basil.presentation.theme.BasilTheme
+import org.weekendware.basil.presentation.theme.BasilTokens
 
 /**
  * Authentication screen, shown when no valid session exists.
  *
- * Layout matches the "Option A — Warm & Grounded" design handoff:
- * - Sage-600 hero band with the leaf mark + "basil" wordmark
- * - Cream background form area below with email/password fields
- *
- * Handles both sign-in and sign-up via a mode toggle. Navigation away from
- * this screen happens automatically when [SessionViewModel] detects a
- * successful authentication.
+ * Wires [AuthViewModel] to [AuthScreenContent]. Navigation away from this
+ * screen happens automatically when [SessionViewModel] detects a successful
+ * authentication.
  */
 @Composable
 fun AuthScreen() {
     val viewModel = koinViewModel<AuthViewModel>()
     val state by viewModel.state.collectAsState()
+    AuthScreenContent(
+        state           = state,
+        onEmailChange   = viewModel::onEmailChange,
+        onPasswordChange = viewModel::onPasswordChange,
+        onToggle        = viewModel::toggleMode,
+        onSubmit        = viewModel::submit
+    )
+}
 
+/**
+ * Stateless authentication UI.
+ *
+ * Layout matches the "Option A — Warm & Grounded" design handoff:
+ * - Sage-600 hero band with the leaf mark + "basil" wordmark
+ * - Cream background form area below with email/password fields
+ *
+ * @param state            Current form state.
+ * @param onEmailChange    Called when the email field changes.
+ * @param onPasswordChange Called when the password field changes.
+ * @param onToggle         Called when the sign-in / sign-up toggle is tapped.
+ * @param onSubmit         Called when the submit button is tapped.
+ */
+@Composable
+fun AuthScreenContent(
+    state:            AuthFormState,
+    onEmailChange:    (String) -> Unit,
+    onPasswordChange: (String) -> Unit,
+    onToggle:         () -> Unit,
+    onSubmit:         () -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(BasilPalette.Cream)
     ) {
         AuthHeroBand()
-        AuthForm(state = state, viewModel = viewModel)
+        AuthForm(
+            state            = state,
+            onEmailChange    = onEmailChange,
+            onPasswordChange = onPasswordChange,
+            onToggle         = onToggle,
+            onSubmit         = onSubmit
+        )
     }
 }
 
@@ -84,13 +118,16 @@ private fun AuthHeroBand() {
             .fillMaxWidth()
             .background(
                 color = BasilPalette.Sage600,
-                shape = RoundedCornerShape(bottomStart = 32.dp, bottomEnd = 32.dp)
+                shape = RoundedCornerShape(
+                    bottomStart = BasilTokens.AuthHeroCorner,
+                    bottomEnd   = BasilTokens.AuthHeroCorner
+                )
             )
             .statusBarsPadding()
             .padding(top = 48.dp, bottom = 36.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        BasilLeaf(size = 38.dp, fill = Color.White, vein = BasilPalette.Sage800)
+        BasilLeaf(size = BasilTokens.AuthHeroLeafSize, fill = Color.White, vein = BasilPalette.Sage800)
         Spacer(Modifier.height(10.dp))
         Text(
             text  = stringResource(Res.string.app_name),
@@ -107,7 +144,13 @@ private fun AuthHeroBand() {
 }
 
 @Composable
-private fun AuthForm(state: AuthFormState, viewModel: AuthViewModel) {
+private fun AuthForm(
+    state:            AuthFormState,
+    onEmailChange:    (String) -> Unit,
+    onPasswordChange: (String) -> Unit,
+    onToggle:         () -> Unit,
+    onSubmit:         () -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -139,10 +182,10 @@ private fun AuthForm(state: AuthFormState, viewModel: AuthViewModel) {
         AuthFieldLabel(stringResource(Res.string.auth_field_email))
         Spacer(Modifier.height(6.dp))
         OutlinedTextField(
-            value         = state.email,
-            onValueChange = viewModel::onEmailChange,
-            singleLine    = true,
-            placeholder   = { Text(stringResource(Res.string.auth_email_placeholder)) },
+            value           = state.email,
+            onValueChange   = onEmailChange,
+            singleLine      = true,
+            placeholder     = { Text(stringResource(Res.string.auth_email_placeholder)) },
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Email,
                 imeAction    = ImeAction.Next
@@ -155,7 +198,7 @@ private fun AuthForm(state: AuthFormState, viewModel: AuthViewModel) {
         Spacer(Modifier.height(6.dp))
         OutlinedTextField(
             value                = state.password,
-            onValueChange        = viewModel::onPasswordChange,
+            onValueChange        = onPasswordChange,
             singleLine           = true,
             placeholder          = { Text("••••••••") },
             visualTransformation = PasswordVisualTransformation(),
@@ -163,7 +206,7 @@ private fun AuthForm(state: AuthFormState, viewModel: AuthViewModel) {
                 keyboardType = KeyboardType.Password,
                 imeAction    = ImeAction.Done
             ),
-            keyboardActions = KeyboardActions(onDone = { viewModel.submit() }),
+            keyboardActions = KeyboardActions(onDone = { onSubmit() }),
             colors   = authFieldColors(),
             modifier = Modifier.fillMaxWidth()
         )
@@ -176,7 +219,7 @@ private fun AuthForm(state: AuthFormState, viewModel: AuthViewModel) {
             )
         }
         Spacer(Modifier.height(22.dp))
-        AuthSubmitArea(state = state, viewModel = viewModel)
+        AuthSubmitArea(state = state, onToggle = onToggle, onSubmit = onSubmit)
     }
 }
 
@@ -192,7 +235,11 @@ private fun AuthFieldLabel(text: String) {
 }
 
 @Composable
-private fun AuthSubmitArea(state: AuthFormState, viewModel: AuthViewModel) {
+private fun AuthSubmitArea(
+    state:    AuthFormState,
+    onToggle: () -> Unit,
+    onSubmit: () -> Unit
+) {
     Column(
         modifier            = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -206,7 +253,7 @@ private fun AuthSubmitArea(state: AuthFormState, viewModel: AuthViewModel) {
                 stringResource(Res.string.auth_sign_in)
             }
             Button(
-                onClick  = viewModel::submit,
+                onClick  = onSubmit,
                 enabled  = state.canSubmit,
                 shape    = RoundedCornerShape(50),
                 colors   = ButtonDefaults.buttonColors(
@@ -215,7 +262,7 @@ private fun AuthSubmitArea(state: AuthFormState, viewModel: AuthViewModel) {
                 ),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(52.dp)
+                    .height(BasilTokens.ButtonHeight)
             ) {
                 Text(text = buttonLabel, style = MaterialTheme.typography.labelLarge)
             }
@@ -226,7 +273,7 @@ private fun AuthSubmitArea(state: AuthFormState, viewModel: AuthViewModel) {
         } else {
             stringResource(Res.string.auth_toggle_to_signup)
         }
-        TextButton(onClick = viewModel::toggleMode) {
+        TextButton(onClick = onToggle) {
             Text(
                 text  = toggleLabel,
                 style = MaterialTheme.typography.bodyMedium,
@@ -243,3 +290,35 @@ private fun authFieldColors() = OutlinedTextFieldDefaults.colors(
     focusedLabelColor    = BasilPalette.Sage600,
     cursorColor          = BasilPalette.Sage600
 )
+
+// ─────────────────────────────────────────────────────────────
+// Previews
+// ─────────────────────────────────────────────────────────────
+
+@Preview
+@Composable
+internal fun AuthScreenSignInPreview() {
+    BasilTheme {
+        AuthScreenContent(
+            state            = AuthFormState(),
+            onEmailChange    = {},
+            onPasswordChange = {},
+            onToggle         = {},
+            onSubmit         = {}
+        )
+    }
+}
+
+@Preview
+@Composable
+internal fun AuthScreenSignUpPreview() {
+    BasilTheme {
+        AuthScreenContent(
+            state            = AuthFormState(isSignUp = true),
+            onEmailChange    = {},
+            onPasswordChange = {},
+            onToggle         = {},
+            onSubmit         = {}
+        )
+    }
+}

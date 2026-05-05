@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
+import androidx.compose.runtime.Immutable
 import basil.composeapp.generated.resources.Res
 import basil.composeapp.generated.resources.error_save_entry_failed
 import basil.composeapp.generated.resources.error_save_preference_failed
@@ -26,6 +27,7 @@ import org.weekendware.basil.domain.usecase.SetBgUnitPreferenceUseCase
  * @property hasAnyValue  True if at least one field has been filled in, enabling the Save button.
  * @property error        A user-facing error string resource, or null when there is no error.
  */
+@Immutable
 data class LogFormState(
     val bgValue: String = "",
     val bgUnit: BgUnit = BgUnit.MGDL,
