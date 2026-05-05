@@ -1,15 +1,28 @@
 package org.weekendware.basil.presentation.dashboard
 
+import androidx.compose.runtime.Composable
+import basil.composeapp.generated.resources.Res
+import basil.composeapp.generated.resources.glucose_high
+import basil.composeapp.generated.resources.glucose_in_range
+import basil.composeapp.generated.resources.glucose_low
+import basil.composeapp.generated.resources.glucose_very_high
+import basil.composeapp.generated.resources.glucose_very_low
+import basil.composeapp.generated.resources.relative_time_days
+import basil.composeapp.generated.resources.relative_time_hours
+import basil.composeapp.generated.resources.relative_time_just_now
+import basil.composeapp.generated.resources.relative_time_minutes
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import org.jetbrains.compose.resources.stringResource
 import org.weekendware.basil.domain.model.BgUnit
 
 /**
  * Blood glucose status ranges, based on standard clinical thresholds in mg/dL.
  *
- * @property label Human-readable status label shown in the UI.
+ * @property label Raw English label, kept for unit tests and non-UI logic.
+ *   Use [displayLabel] in composables so the string is localisation-aware.
  */
 internal enum class GlucoseStatus(val label: String) {
     VERY_LOW("Very Low"),
@@ -17,6 +30,21 @@ internal enum class GlucoseStatus(val label: String) {
     IN_RANGE("In Range"),
     HIGH("High"),
     VERY_HIGH("Very High")
+}
+
+/**
+ * Returns the localised display string for this [GlucoseStatus].
+ *
+ * Call this inside composables instead of [GlucoseStatus.label] so the
+ * displayed text is driven by the string resource and can be translated.
+ */
+@Composable
+internal fun GlucoseStatus.displayLabel(): String = when (this) {
+    GlucoseStatus.VERY_LOW  -> stringResource(Res.string.glucose_very_low)
+    GlucoseStatus.LOW       -> stringResource(Res.string.glucose_low)
+    GlucoseStatus.IN_RANGE  -> stringResource(Res.string.glucose_in_range)
+    GlucoseStatus.HIGH      -> stringResource(Res.string.glucose_high)
+    GlucoseStatus.VERY_HIGH -> stringResource(Res.string.glucose_very_high)
 }
 
 /**
@@ -57,6 +85,9 @@ internal fun Double.toFormattedValue(): String {
 /**
  * Formats a Unix epoch millisecond timestamp as a 12-hour clock time string,
  * e.g. `"2:30 PM"`.
+ *
+ * Note: AM/PM is locale-specific. Full localisation of time formatting
+ * requires platform APIs and is deferred until multi-language support ships.
  */
 internal fun formatTime(epochMillis: Long): String {
     val local = Instant.fromEpochMilliseconds(epochMillis)
@@ -75,6 +106,9 @@ internal fun formatTime(epochMillis: Long): String {
 /**
  * Returns a human-readable relative time string for a past timestamp,
  * e.g. `"just now"`, `"5m ago"`, `"2h ago"`, `"3d ago"`.
+ *
+ * This non-composable overload uses hardcoded English strings and is
+ * retained for unit testing. Prefer [relativeTimeLabel] in composables.
  */
 internal fun formatRelativeTime(epochMillis: Long): String {
     val diffMs  = Clock.System.now().toEpochMilliseconds() - epochMillis
@@ -84,5 +118,21 @@ internal fun formatRelativeTime(epochMillis: Long): String {
         minutes < 60   -> "${minutes}m ago"
         minutes < 1440 -> "${minutes / 60}h ago"
         else           -> "${minutes / 1440}d ago"
+    }
+}
+
+/**
+ * Composable wrapper for [formatRelativeTime] that resolves string labels
+ * from resources so they can be localised.
+ */
+@Composable
+internal fun relativeTimeLabel(epochMillis: Long): String {
+    val diffMs  = Clock.System.now().toEpochMilliseconds() - epochMillis
+    val minutes = diffMs / 60_000
+    return when {
+        minutes < 1    -> stringResource(Res.string.relative_time_just_now)
+        minutes < 60   -> stringResource(Res.string.relative_time_minutes, minutes.toInt())
+        minutes < 1440 -> stringResource(Res.string.relative_time_hours, (minutes / 60).toInt())
+        else           -> stringResource(Res.string.relative_time_days, (minutes / 1440).toInt())
     }
 }

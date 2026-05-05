@@ -1,5 +1,7 @@
 package org.weekendware.basil.domain.model
 
+import androidx.compose.runtime.Immutable
+
 /**
  * A single recorded log entry in the user's health journal.
  *
@@ -14,6 +16,7 @@ package org.weekendware.basil.domain.model
  * @property insulinUnits Insulin dose in units. Null if not recorded for this entry.
  * @property carbsGrams   Carbohydrate intake in grams. Null if not recorded for this entry.
  */
+@Immutable
 data class LogEntry(
     val id:           Long,
     val timestamp:    Long,

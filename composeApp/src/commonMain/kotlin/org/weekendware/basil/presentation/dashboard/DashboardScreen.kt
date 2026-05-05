@@ -28,10 +28,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import basil.composeapp.generated.resources.Res
+import basil.composeapp.generated.resources.cd_log_entry
+import basil.composeapp.generated.resources.dashboard_last_reading
+import basil.composeapp.generated.resources.dashboard_no_readings
+import basil.composeapp.generated.resources.dashboard_no_readings_hint
+import basil.composeapp.generated.resources.dashboard_nothing_logged
+import basil.composeapp.generated.resources.dashboard_nothing_logged_hint
+import basil.composeapp.generated.resources.dashboard_today
+import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
+import org.weekendware.basil.domain.model.BgUnit
 import org.weekendware.basil.domain.model.LogEntry
 import org.weekendware.basil.presentation.logging.LogEntrySheet
 import org.weekendware.basil.presentation.logging.LoggingViewModel
+import org.weekendware.basil.presentation.theme.BasilTheme
 import org.weekendware.basil.presentation.theme.BasilTokens
 import org.weekendware.basil.presentation.theme.basilColors
 import org.weekendware.basil.presentation.theme.basilSpacing
@@ -97,7 +109,7 @@ fun DashboardScreen() {
                 .align(Alignment.BottomEnd)
                 .padding(BasilTokens.FabEdgePadding)
         ) {
-            Icon(Icons.Default.Add, contentDescription = "Log Entry")
+            Icon(Icons.Default.Add, contentDescription = stringResource(Res.string.cd_log_entry))
         }
     }
 
@@ -141,12 +153,12 @@ private fun LastReadingCard(entry: LogEntry?, modifier: Modifier = Modifier) {
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text  = "Last Reading",
+                        text  = stringResource(Res.string.dashboard_last_reading),
                         style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Text(
-                        text  = formatRelativeTime(entry.timestamp),
+                        text  = relativeTimeLabel(entry.timestamp),
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -175,25 +187,25 @@ private fun LastReadingCard(entry: LogEntry?, modifier: Modifier = Modifier) {
                         color = MaterialTheme.colorScheme.outlineVariant
                     )
                     Text(
-                        text  = status.label,
+                        text  = status.displayLabel(),
                         style = MaterialTheme.typography.bodyMedium,
                         color = color
                     )
                 }
             } else {
                 Text(
-                    text  = "Last Reading",
+                    text  = stringResource(Res.string.dashboard_last_reading),
                     style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Spacer(Modifier.height(MaterialTheme.basilSpacing.sm))
                 Text(
-                    text  = "No readings yet",
+                    text  = stringResource(Res.string.dashboard_no_readings),
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Text(
-                    text  = "Tap + to log your first reading",
+                    text  = stringResource(Res.string.dashboard_no_readings_hint),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -209,7 +221,7 @@ private fun LastReadingCard(entry: LogEntry?, modifier: Modifier = Modifier) {
 private fun TodayHeader(modifier: Modifier = Modifier) {
     Column(modifier = modifier) {
         Text(
-            text  = "Today",
+            text  = stringResource(Res.string.dashboard_today),
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.onBackground
         )
@@ -292,12 +304,12 @@ private fun EmptyTodayState() {
             verticalArrangement = Arrangement.spacedBy(MaterialTheme.basilSpacing.xs)
         ) {
             Text(
-                text  = "Nothing logged today",
+                text  = stringResource(Res.string.dashboard_nothing_logged),
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Text(
-                text  = "Tap + to add your first entry",
+                text  = stringResource(Res.string.dashboard_nothing_logged_hint),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -317,4 +329,58 @@ private fun GlucoseStatus.color(): Color = when (this) {
     GlucoseStatus.IN_RANGE  -> MaterialTheme.basilColors.glucoseInRange
     GlucoseStatus.HIGH      -> MaterialTheme.basilColors.glucoseHigh
     GlucoseStatus.VERY_HIGH -> MaterialTheme.basilColors.glucoseVeryHigh
+}
+
+// ─────────────────────────────────────────────────────────────
+// Previews
+// ─────────────────────────────────────────────────────────────
+
+@Preview
+@Composable
+internal fun LastReadingCardWithDataPreview() {
+    BasilTheme {
+        LastReadingCard(
+            entry = LogEntry(
+                id           = 1L,
+                timestamp    = System.currentTimeMillis() - 15 * 60 * 1000,
+                bgValue      = 6.2,
+                bgUnit       = BgUnit.MMOLL,
+                insulinUnits = null,
+                carbsGrams   = null
+            )
+        )
+    }
+}
+
+@Preview
+@Composable
+internal fun LastReadingCardEmptyPreview() {
+    BasilTheme {
+        LastReadingCard(entry = null)
+    }
+}
+
+@Preview
+@Composable
+internal fun LogEntryItemPreview() {
+    BasilTheme {
+        LogEntryItem(
+            entry = LogEntry(
+                id           = 1L,
+                timestamp    = System.currentTimeMillis(),
+                bgValue      = 5.5,
+                bgUnit       = BgUnit.MMOLL,
+                insulinUnits = 4.0,
+                carbsGrams   = 45.0
+            )
+        )
+    }
+}
+
+@Preview
+@Composable
+internal fun EmptyTodayStatePreview() {
+    BasilTheme {
+        EmptyTodayState()
+    }
 }
