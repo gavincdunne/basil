@@ -43,11 +43,18 @@ import org.weekendware.basil.presentation.theme.BasilTheme
 fun shouldShowSplash(sessionState: SessionState, splashFadeDone: Boolean): Boolean =
     sessionState == SessionState.Loading || !splashFadeDone
 
-const val ROUTE_HOME = "home"
-const val ROUTE_PROFILE = "profile"
-const val ROUTE_CHAT = "chat"
-const val ROUTE_SETTINGS = "settings"
-val tabRoutes = setOf(ROUTE_HOME, ROUTE_PROFILE, ROUTE_CHAT)
+/** Compile-safe navigation destinations for the app. */
+sealed class AppRoute(val route: String) {
+    data object Home     : AppRoute("home")
+    data object Profile  : AppRoute("profile")
+    data object Chat     : AppRoute("chat")
+    data object Settings : AppRoute("settings")
+
+    companion object {
+        /** Routes that show the bottom navigation bar. */
+        val tabRoutes = setOf(Home.route, Profile.route, Chat.route)
+    }
+}
 
 /**
  * Root composable for the Basil application.
@@ -106,7 +113,7 @@ private fun MainApp() {
             )
         },
         bottomBar = {
-            if (currentRoute in tabRoutes) {
+            if (currentRoute in AppRoute.tabRoutes) {
                 BasilBottomBar(
                     navController = navController,
                     currentRoute = currentRoute
@@ -115,11 +122,11 @@ private fun MainApp() {
         }
     ) { innerPadding ->
         Surface(modifier = Modifier.padding(innerPadding)) {
-            NavHost(navController = navController, startDestination = ROUTE_HOME) {
-                composable(ROUTE_HOME)     { DashboardScreen() }
-                composable(ROUTE_PROFILE)  { ProfileScreen() }
-                composable(ROUTE_CHAT)     { ChatScreen() }
-                composable(ROUTE_SETTINGS) { SettingsScreen() }
+            NavHost(navController = navController, startDestination = AppRoute.Home.route) {
+                composable(AppRoute.Home.route)     { DashboardScreen() }
+                composable(AppRoute.Profile.route)  { ProfileScreen() }
+                composable(AppRoute.Chat.route)     { ChatScreen() }
+                composable(AppRoute.Settings.route) { SettingsScreen() }
             }
         }
     }

@@ -29,6 +29,7 @@ import kotlinx.coroutines.delay
 import org.jetbrains.compose.resources.stringResource
 import org.weekendware.basil.presentation.components.BasilLeaf
 import org.weekendware.basil.presentation.theme.BasilPalette
+import org.weekendware.basil.presentation.theme.BasilTokens
 
 /**
  * Splash screen shown during [SessionState.Loading] while the Supabase SDK
@@ -70,15 +71,15 @@ fun SplashScreen(onFadeComplete: () -> Unit) {
         ) {
             Box(
                 modifier = Modifier
-                    .size(88.dp)
+                    .size(BasilTokens.SplashIconContainerSize)
                     .background(
                         color = Color.White.copy(alpha = 0.14f),
-                        shape = RoundedCornerShape(24.dp)
+                        shape = RoundedCornerShape(BasilTokens.SplashIconContainerCorner)
                     ),
                 contentAlignment = Alignment.Center
             ) {
                 BasilLeaf(
-                    size = 48.dp,
+                    size = BasilTokens.SplashLeafSize,
                     fill = Color.White,
                     vein = BasilPalette.Sage800
                 )

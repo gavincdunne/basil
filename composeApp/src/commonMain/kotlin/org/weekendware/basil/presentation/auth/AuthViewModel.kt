@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import androidx.compose.runtime.Immutable
 import basil.composeapp.generated.resources.Res
 import basil.composeapp.generated.resources.error_auth_failed
 import org.jetbrains.compose.resources.StringResource
@@ -20,6 +21,7 @@ import org.weekendware.basil.data.repository.AuthRepository
  * @property isLoading    True while an auth network call is in flight.
  * @property error        User-facing error string resource, or null when there is none.
  */
+@Immutable
 data class AuthFormState(
     val email: String = "",
     val password: String = "",
