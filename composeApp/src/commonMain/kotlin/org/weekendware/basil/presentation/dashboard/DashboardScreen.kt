@@ -342,7 +342,7 @@ internal fun LastReadingCardWithDataPreview() {
         LastReadingCard(
             entry = LogEntry(
                 id           = 1L,
-                timestamp    = System.currentTimeMillis() - 15 * 60 * 1000,
+                timestamp    = 1_746_000_000_000L,
                 bgValue      = 6.2,
                 bgUnit       = BgUnit.MMOLL,
                 insulinUnits = null,
@@ -367,7 +367,7 @@ internal fun LogEntryItemPreview() {
         LogEntryItem(
             entry = LogEntry(
                 id           = 1L,
-                timestamp    = System.currentTimeMillis(),
+                timestamp    = 1_746_000_000_000L,
                 bgValue      = 5.5,
                 bgUnit       = BgUnit.MMOLL,
                 insulinUnits = 4.0,
