@@ -8,6 +8,9 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -23,6 +26,7 @@ import org.weekendware.basil.presentation.profile.ProfileScreen
 import org.weekendware.basil.presentation.session.SessionState
 import org.weekendware.basil.presentation.session.SessionViewModel
 import org.weekendware.basil.presentation.settings.SettingsScreen
+import org.weekendware.basil.presentation.splash.SplashScreen
 import org.weekendware.basil.presentation.theme.BasilTheme
 
 const val ROUTE_HOME = "home"
@@ -35,12 +39,14 @@ val tabRoutes = setOf(ROUTE_HOME, ROUTE_PROFILE, ROUTE_CHAT)
  * Root composable for the Basil application.
  *
  * Observes [SessionViewModel] to decide which graph to display:
- * - [SessionState.Loading]         — blank surface while the SDK restores a stored session.
- * - [SessionState.Unauthenticated] — [AuthScreen] only; no scaffold, no back stack.
+ * - [SessionState.Loading] — [SplashScreen] while the SDK restores a stored session.
+ *   Once the session resolves AND the splash fade completes, the appropriate
+ *   screen is shown.
+ * - [SessionState.Unauthenticated] — [AuthScreen]; no scaffold, no back stack.
  * - [SessionState.Authenticated]   — full app scaffold with [NavHost].
  *
- * Auth and main-app navigation are kept in separate sub-trees so the
- * back stack can never return to the sign-in screen from inside the app.
+ * Auth and main-app navigation are kept in separate sub-trees so the back stack
+ * can never return to the sign-in screen from inside the app.
  */
 @Composable
 fun App() {
@@ -48,19 +54,20 @@ fun App() {
         val sessionViewModel = koinViewModel<SessionViewModel>()
         val sessionState by sessionViewModel.state.collectAsState()
 
-        when (sessionState) {
-            SessionState.Loading -> {
-                // Blank surface — avoids flashing auth or app UI while the SDK
-                // resolves the stored session on cold start.
-                Box(modifier = Modifier.fillMaxSize())
-            }
+        // Track whether the splash fade animation has finished. We wait for
+        // both: the session to resolve *and* the splash to fade out before
+        // showing the next screen, preventing any jarring cut.
+        var splashDone by remember { mutableStateOf(false) }
 
-            SessionState.Unauthenticated -> {
-                AuthScreen()
-            }
+        val showSplash = sessionState == SessionState.Loading || !splashDone
 
-            SessionState.Authenticated -> {
-                MainApp()
+        if (showSplash) {
+            SplashScreen(onFadeComplete = { splashDone = true })
+        } else {
+            when (sessionState) {
+                SessionState.Unauthenticated -> AuthScreen()
+                SessionState.Authenticated   -> MainApp()
+                SessionState.Loading         -> Box(Modifier.fillMaxSize()) // unreachable
             }
         }
     }
