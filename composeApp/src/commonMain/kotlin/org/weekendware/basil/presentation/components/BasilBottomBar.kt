@@ -12,20 +12,24 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
-import org.weekendware.basil.ROUTE_CHAT
-import org.weekendware.basil.ROUTE_HOME
-import org.weekendware.basil.ROUTE_PROFILE
+import basil.composeapp.generated.resources.Res
+import basil.composeapp.generated.resources.nav_chat
+import basil.composeapp.generated.resources.nav_home
+import basil.composeapp.generated.resources.nav_profile
+import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.stringResource
+import org.weekendware.basil.AppRoute
 
 private data class BottomNavItem(
-    val route: String,
-    val label: String,
-    val icon: ImageVector
+    val route:    String,
+    val labelRes: StringResource,
+    val icon:     ImageVector
 )
 
 private val tabItems = listOf(
-    BottomNavItem(ROUTE_HOME,    "Home",   Icons.Default.Home),
-    BottomNavItem(ROUTE_PROFILE, "Profile", Icons.Default.Person),
-    BottomNavItem(ROUTE_CHAT,    "Basil",  Icons.Default.EnergySavingsLeaf)
+    BottomNavItem(AppRoute.Home.route,    Res.string.nav_home,    Icons.Default.Home),
+    BottomNavItem(AppRoute.Profile.route, Res.string.nav_profile, Icons.Default.Person),
+    BottomNavItem(AppRoute.Chat.route,    Res.string.nav_chat,    Icons.Default.EnergySavingsLeaf)
 )
 
 /**
@@ -43,6 +47,7 @@ private val tabItems = listOf(
 fun BasilBottomBar(navController: NavController, currentRoute: String?) {
     NavigationBar {
         tabItems.forEach { item ->
+            val label = stringResource(item.labelRes)
             NavigationBarItem(
                 selected = currentRoute == item.route,
                 onClick  = {
@@ -54,8 +59,8 @@ fun BasilBottomBar(navController: NavController, currentRoute: String?) {
                         restoreState    = true
                     }
                 },
-                icon  = { Icon(item.icon, contentDescription = item.label) },
-                label = { Text(item.label) }
+                icon  = { Icon(item.icon, contentDescription = label) },
+                label = { Text(label) }
             )
         }
     }

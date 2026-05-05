@@ -51,9 +51,10 @@ fun BasilTheme(
         MaterialTheme(
             colorScheme = colors.toMaterialColorScheme(),
             typography  = basilTypography(),
-            shapes      = shapes.toMaterialShapes(),
-            content     = content
-        )
+            shapes      = shapes.toMaterialShapes()
+        ) {
+            content()
+        }
     }
 }
 

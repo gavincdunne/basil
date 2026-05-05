@@ -7,6 +7,7 @@ androidx-activity = "1.10.1"
 androidx-appcompat = "1.7.0"
 androidx-constraintlayout = "2.2.1"
 androidx-core = "1.16.0"
+androidx-splashscreen = "1.0.1"
 androidx-espresso = "3.6.1"
 androidx-lifecycle = "2.9.0"
 androidx-testExt = "1.2.1"
@@ -39,6 +40,7 @@ kotlinx-coroutinesTest = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-te
 mockito-kotlin = { module = "org.mockito.kotlin:mockito-kotlin", version.ref = "mockitoKotlin" }
 junit = { module = "junit:junit", version.ref = "junit" }
 androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "androidx-core" }
+androidx-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "androidx-splashscreen" }
 androidx-testExt-junit = { module = "androidx.test.ext:junit", version.ref = "androidx-testExt" }
 androidx-espresso-core = { module = "androidx.test.espresso:espresso-core", version.ref = "androidx-espresso" }
 androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "androidx-appcompat" }

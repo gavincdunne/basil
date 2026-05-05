@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- ── App branding ──────────────────────────────────────── -->
+    <string name="app_name">basil</string>
+    <string name="app_tagline">Your T1D companion</string>
+    <string name="app_type1_label">Type 1 Diabetes</string>
+
+    <!-- ── Auth screen ───────────────────────────────────────── -->
+    <string name="auth_create_account">Create account</string>
+    <string name="auth_welcome_back">Welcome back</string>
+    <string name="auth_signup_subtitle">Sign up to start managing your T1D.</string>
+    <string name="auth_signin_subtitle">Sign in to continue to Basil.</string>
+    <string name="auth_field_email">Email</string>
+    <string name="auth_field_password">Password</string>
+    <string name="auth_email_placeholder">you@example.com</string>
+    <string name="auth_sign_in">Sign in</string>
+    <string name="auth_toggle_to_signup">New to Basil? Create account</string>
+    <string name="auth_toggle_to_signin">Already have an account? Sign in</string>
+
+    <!-- ── Dashboard ─────────────────────────────────────────── -->
+    <string name="dashboard_last_reading">Last Reading</string>
+    <string name="dashboard_no_readings">No readings yet</string>
+    <string name="dashboard_no_readings_hint">Tap + to log your first reading</string>
+    <string name="dashboard_today">Today</string>
+    <string name="dashboard_nothing_logged">Nothing logged today</string>
+    <string name="dashboard_nothing_logged_hint">Tap + to add your first entry</string>
+
+    <!-- ── Log entry sheet ───────────────────────────────────── -->
+    <string name="log_entry_title">Log Entry</string>
+    <string name="log_field_blood_glucose">Blood Glucose</string>
+    <string name="log_field_insulin">Insulin</string>
+    <string name="log_field_carbs">Carbs</string>
+    <string name="log_placeholder_bg">0</string>
+    <string name="log_placeholder_units">Units</string>
+    <string name="log_placeholder_grams">Grams</string>
+    <string name="log_save">Save</string>
+
+    <!-- ── Bottom navigation ─────────────────────────────────── -->
+    <string name="nav_home">Home</string>
+    <string name="nav_profile">Profile</string>
+    <string name="nav_chat">Basil</string>
+
+    <!-- ── Screens ───────────────────────────────────────────── -->
+    <string name="screen_settings">Settings</string>
+
+    <!-- ── Content descriptions ──────────────────────────────── -->
+    <string name="cd_log_entry">Log Entry</string>
+    <string name="cd_close">Close</string>
+    <string name="cd_settings">Settings</string>
+
+    <!-- ── Glucose status labels ─────────────────────────────── -->
+    <string name="glucose_very_low">Very Low</string>
+    <string name="glucose_low">Low</string>
+    <string name="glucose_in_range">In Range</string>
+    <string name="glucose_high">High</string>
+    <string name="glucose_very_high">Very High</string>
+
+    <!--
+        Relative time labels.
+        %1$d is the integer count (minutes, hours, or days).
+        Note: proper pluralisation (e.g. "1 minute ago" vs "5 minutes ago") is
+        deferred until the app ships with multi-language support.
+    -->
+    <!-- ── Error messages ──────────────────────────────────── -->
+    <string name="error_auth_failed">Authentication failed</string>
+    <string name="error_save_preference_failed">Failed to save unit preference</string>
+    <string name="error_save_entry_failed">Failed to save entry. Please try again.</string>
+
+    <string name="relative_time_just_now">just now</string>
+    <string name="relative_time_minutes">%1$dm ago</string>
+    <string name="relative_time_hours">%1$dh ago</string>
+    <string name="relative_time_days">%1$dd ago</string>
+
+</resources>

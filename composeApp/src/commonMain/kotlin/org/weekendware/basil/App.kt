@@ -8,6 +8,9 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -23,24 +26,48 @@ import org.weekendware.basil.presentation.profile.ProfileScreen
 import org.weekendware.basil.presentation.session.SessionState
 import org.weekendware.basil.presentation.session.SessionViewModel
 import org.weekendware.basil.presentation.settings.SettingsScreen
+import org.weekendware.basil.presentation.splash.SplashScreen
 import org.weekendware.basil.presentation.theme.BasilTheme
 
-const val ROUTE_HOME = "home"
-const val ROUTE_PROFILE = "profile"
-const val ROUTE_CHAT = "chat"
-const val ROUTE_SETTINGS = "settings"
-val tabRoutes = setOf(ROUTE_HOME, ROUTE_PROFILE, ROUTE_CHAT)
+/**
+ * Returns true when the splash screen should be shown.
+ *
+ * The splash remains visible in two cases:
+ * 1. The session is still loading — we have not yet heard from Supabase.
+ * 2. The session has resolved but the splash fade animation has not completed —
+ *    we hold the screen briefly to avoid a jarring cut.
+ *
+ * @param sessionState   The current authentication session state.
+ * @param splashFadeDone Whether the fade-out animation has completed.
+ */
+fun shouldShowSplash(sessionState: SessionState, splashFadeDone: Boolean): Boolean =
+    sessionState == SessionState.Loading || !splashFadeDone
+
+/** Compile-safe navigation destinations for the app. */
+sealed class AppRoute(val route: String) {
+    data object Home     : AppRoute("home")
+    data object Profile  : AppRoute("profile")
+    data object Chat     : AppRoute("chat")
+    data object Settings : AppRoute("settings")
+
+    companion object {
+        /** Routes that show the bottom navigation bar. */
+        val tabRoutes = setOf(Home.route, Profile.route, Chat.route)
+    }
+}
 
 /**
  * Root composable for the Basil application.
  *
  * Observes [SessionViewModel] to decide which graph to display:
- * - [SessionState.Loading]         — blank surface while the SDK restores a stored session.
- * - [SessionState.Unauthenticated] — [AuthScreen] only; no scaffold, no back stack.
+ * - [SessionState.Loading] — [SplashScreen] while the SDK restores a stored session.
+ *   Once the session resolves AND the splash fade completes, the appropriate
+ *   screen is shown.
+ * - [SessionState.Unauthenticated] — [AuthScreen]; no scaffold, no back stack.
  * - [SessionState.Authenticated]   — full app scaffold with [NavHost].
  *
- * Auth and main-app navigation are kept in separate sub-trees so the
- * back stack can never return to the sign-in screen from inside the app.
+ * Auth and main-app navigation are kept in separate sub-trees so the back stack
+ * can never return to the sign-in screen from inside the app.
  */
 @Composable
 fun App() {
@@ -48,19 +75,20 @@ fun App() {
         val sessionViewModel = koinViewModel<SessionViewModel>()
         val sessionState by sessionViewModel.state.collectAsState()
 
-        when (sessionState) {
-            SessionState.Loading -> {
-                // Blank surface — avoids flashing auth or app UI while the SDK
-                // resolves the stored session on cold start.
-                Box(modifier = Modifier.fillMaxSize())
-            }
+        // Track whether the splash fade animation has finished. We wait for
+        // both: the session to resolve *and* the splash to fade out before
+        // showing the next screen, preventing any jarring cut.
+        var splashDone by remember { mutableStateOf(false) }
 
-            SessionState.Unauthenticated -> {
-                AuthScreen()
-            }
+        val showSplash = shouldShowSplash(sessionState, splashDone)
 
-            SessionState.Authenticated -> {
-                MainApp()
+        if (showSplash) {
+            SplashScreen(onFadeComplete = { splashDone = true })
+        } else {
+            when (sessionState) {
+                SessionState.Unauthenticated -> AuthScreen()
+                SessionState.Authenticated   -> MainApp()
+                SessionState.Loading         -> Box(Modifier.fillMaxSize()) // unreachable
             }
         }
     }
@@ -85,7 +113,7 @@ private fun MainApp() {
             )
         },
         bottomBar = {
-            if (currentRoute in tabRoutes) {
+            if (currentRoute in AppRoute.tabRoutes) {
                 BasilBottomBar(
                     navController = navController,
                     currentRoute = currentRoute
@@ -94,11 +122,11 @@ private fun MainApp() {
         }
     ) { innerPadding ->
         Surface(modifier = Modifier.padding(innerPadding)) {
-            NavHost(navController = navController, startDestination = ROUTE_HOME) {
-                composable(ROUTE_HOME)     { DashboardScreen() }
-                composable(ROUTE_PROFILE)  { ProfileScreen() }
-                composable(ROUTE_CHAT)     { ChatScreen() }
-                composable(ROUTE_SETTINGS) { SettingsScreen() }
+            NavHost(navController = navController, startDestination = AppRoute.Home.route) {
+                composable(AppRoute.Home.route)     { DashboardScreen() }
+                composable(AppRoute.Profile.route)  { ProfileScreen() }
+                composable(AppRoute.Chat.route)     { ChatScreen() }
+                composable(AppRoute.Settings.route) { SettingsScreen() }
             }
         }
     }
