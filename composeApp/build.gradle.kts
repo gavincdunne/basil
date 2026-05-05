@@ -41,6 +41,7 @@ kotlin {
             implementation(libs.androidx.activity.compose)
             implementation(libs.sqldelight.androidDriver)
             implementation(libs.ktor.client.okhttp)
+            implementation(libs.androidx.splashscreen)
         }
         commonMain.dependencies {
             implementation(libs.sqldelight.runtime)

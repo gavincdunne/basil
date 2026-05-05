@@ -20,6 +20,16 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
+import basil.composeapp.generated.resources.Res
+import basil.composeapp.generated.resources.log_entry_title
+import basil.composeapp.generated.resources.log_field_blood_glucose
+import basil.composeapp.generated.resources.log_field_carbs
+import basil.composeapp.generated.resources.log_field_insulin
+import basil.composeapp.generated.resources.log_placeholder_bg
+import basil.composeapp.generated.resources.log_placeholder_grams
+import basil.composeapp.generated.resources.log_placeholder_units
+import basil.composeapp.generated.resources.log_save
+import org.jetbrains.compose.resources.stringResource
 import org.weekendware.basil.domain.model.BgUnit
 import org.weekendware.basil.presentation.theme.BasilTokens
 import org.weekendware.basil.presentation.theme.basilSpacing
@@ -57,18 +67,18 @@ fun LogEntrySheet(
             verticalArrangement = Arrangement.spacedBy(BasilTokens.FormFieldGap)
         ) {
             Text(
-                text  = "Log Entry",
+                text  = stringResource(Res.string.log_entry_title),
                 style = MaterialTheme.typography.titleLarge
             )
 
             // ── Blood Glucose ────────────────────────────────────
-            LogFieldSection(label = "Blood Glucose") {
+            LogFieldSection(label = stringResource(Res.string.log_field_blood_glucose)) {
                 Row(horizontalArrangement = Arrangement.spacedBy(spacing.sm)) {
                     OutlinedTextField(
                         value         = state.bgValue,
                         onValueChange = viewModel::onBgValueChange,
                         modifier      = Modifier.weight(1f),
-                        placeholder   = { Text("0") },
+                        placeholder   = { Text(stringResource(Res.string.log_placeholder_bg)) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                         singleLine    = true
                     )
@@ -80,24 +90,24 @@ fun LogEntrySheet(
             }
 
             // ── Insulin ──────────────────────────────────────────
-            LogFieldSection(label = "Insulin") {
+            LogFieldSection(label = stringResource(Res.string.log_field_insulin)) {
                 OutlinedTextField(
                     value         = state.insulinUnits,
                     onValueChange = viewModel::onInsulinChange,
                     modifier      = Modifier.fillMaxWidth(),
-                    placeholder   = { Text("Units") },
+                    placeholder   = { Text(stringResource(Res.string.log_placeholder_units)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     singleLine    = true
                 )
             }
 
             // ── Carbohydrates ────────────────────────────────────
-            LogFieldSection(label = "Carbs") {
+            LogFieldSection(label = stringResource(Res.string.log_field_carbs)) {
                 OutlinedTextField(
                     value         = state.carbsGrams,
                     onValueChange = viewModel::onCarbsChange,
                     modifier      = Modifier.fillMaxWidth(),
-                    placeholder   = { Text("Grams") },
+                    placeholder   = { Text(stringResource(Res.string.log_placeholder_grams)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     singleLine    = true
                 )
@@ -109,7 +119,7 @@ fun LogEntrySheet(
                 modifier = Modifier.fillMaxWidth(),
                 enabled  = state.hasAnyValue
             ) {
-                Text("Save")
+                Text(stringResource(Res.string.log_save))
             }
 
             Spacer(modifier = Modifier.height(spacing.sm))

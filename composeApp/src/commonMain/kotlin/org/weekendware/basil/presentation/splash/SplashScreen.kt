@@ -22,7 +22,11 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import basil.composeapp.generated.resources.Res
+import basil.composeapp.generated.resources.app_name
+import basil.composeapp.generated.resources.app_type1_label
 import kotlinx.coroutines.delay
+import org.jetbrains.compose.resources.stringResource
 import org.weekendware.basil.presentation.components.BasilLeaf
 import org.weekendware.basil.presentation.theme.BasilPalette
 
@@ -31,13 +35,12 @@ import org.weekendware.basil.presentation.theme.BasilPalette
  * restores a stored session on cold start.
  *
  * Displays the Basil leaf mark + wordmark on a sage-green background. After
- * [holdMs] milliseconds the screen fades out over [fadeDurationMs] ms, then
- * calls [onFadeComplete] so [App] can proceed to the next state.
+ * a 1.6 second hold the screen fades out over 400 ms, then calls
+ * [onFadeComplete] so [App] can proceed to the resolved session state.
  *
- * The fade is driven by [LaunchedEffect] — it starts automatically when the
- * composable enters the composition. [onFadeComplete] is called once the fade
- * animation is complete, or if [SessionState] resolves before the hold time
- * elapses.
+ * On Android the OS-level SplashScreen API (`core-splashscreen`) covers the
+ * startup phase. This composable handles the subsequent session-restoration
+ * window, which applies on all platforms.
  *
  * @param onFadeComplete Called when the fade-out animation finishes.
  */
@@ -65,7 +68,6 @@ fun SplashScreen(onFadeComplete: () -> Unit) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            // Icon container — frosted-glass pill
             Box(
                 modifier = Modifier
                     .size(88.dp)
@@ -84,18 +86,16 @@ fun SplashScreen(onFadeComplete: () -> Unit) {
 
             Spacer(Modifier.height(16.dp))
 
-            // "basil" wordmark — DM Serif Display via displaySmall
             Text(
-                text  = "basil",
+                text  = stringResource(Res.string.app_name),
                 style = MaterialTheme.typography.displaySmall,
                 color = Color.White
             )
 
             Spacer(Modifier.height(6.dp))
 
-            // Tracking label
             Text(
-                text          = "TYPE 1 DIABETES",
+                text          = stringResource(Res.string.app_type1_label),
                 style         = MaterialTheme.typography.labelSmall,
                 color         = Color.White.copy(alpha = 0.5f),
                 letterSpacing = 2.5.sp

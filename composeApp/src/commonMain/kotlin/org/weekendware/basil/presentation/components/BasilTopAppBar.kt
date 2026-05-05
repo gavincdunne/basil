@@ -10,6 +10,11 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavController
+import basil.composeapp.generated.resources.Res
+import basil.composeapp.generated.resources.cd_close
+import basil.composeapp.generated.resources.cd_settings
+import basil.composeapp.generated.resources.screen_settings
+import org.jetbrains.compose.resources.stringResource
 import org.weekendware.basil.ROUTE_SETTINGS
 import org.weekendware.basil.tabRoutes
 
@@ -29,21 +34,21 @@ import org.weekendware.basil.tabRoutes
 @Composable
 fun BasilTopAppBar(navController: NavController, currentRoute: String?) {
     val isTabScreen = currentRoute == null || currentRoute in tabRoutes
-    val title = if (currentRoute == ROUTE_SETTINGS) "Settings" else ""
+    val title = if (currentRoute == ROUTE_SETTINGS) stringResource(Res.string.screen_settings) else ""
 
     CenterAlignedTopAppBar(
         title = { Text(title) },
         navigationIcon = {
             if (!isTabScreen) {
                 IconButton(onClick = { navController.popBackStack() }) {
-                    Icon(Icons.Default.Close, contentDescription = "Close")
+                    Icon(Icons.Default.Close, contentDescription = stringResource(Res.string.cd_close))
                 }
             }
         },
         actions = {
             if (isTabScreen) {
                 IconButton(onClick = { navController.navigate(ROUTE_SETTINGS) }) {
-                    Icon(Icons.Default.Settings, contentDescription = "Settings")
+                    Icon(Icons.Default.Settings, contentDescription = stringResource(Res.string.cd_settings))
                 }
             }
         }

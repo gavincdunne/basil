@@ -29,6 +29,20 @@ import org.weekendware.basil.presentation.settings.SettingsScreen
 import org.weekendware.basil.presentation.splash.SplashScreen
 import org.weekendware.basil.presentation.theme.BasilTheme
 
+/**
+ * Returns true when the splash screen should be shown.
+ *
+ * The splash remains visible in two cases:
+ * 1. The session is still loading — we have not yet heard from Supabase.
+ * 2. The session has resolved but the splash fade animation has not completed —
+ *    we hold the screen briefly to avoid a jarring cut.
+ *
+ * @param sessionState   The current authentication session state.
+ * @param splashFadeDone Whether the fade-out animation has completed.
+ */
+fun shouldShowSplash(sessionState: SessionState, splashFadeDone: Boolean): Boolean =
+    sessionState == SessionState.Loading || !splashFadeDone
+
 const val ROUTE_HOME = "home"
 const val ROUTE_PROFILE = "profile"
 const val ROUTE_CHAT = "chat"
@@ -59,7 +73,7 @@ fun App() {
         // showing the next screen, preventing any jarring cut.
         var splashDone by remember { mutableStateOf(false) }
 
-        val showSplash = sessionState == SessionState.Loading || !splashDone
+        val showSplash = shouldShowSplash(sessionState, splashDone)
 
         if (showSplash) {
             SplashScreen(onFadeComplete = { splashDone = true })
