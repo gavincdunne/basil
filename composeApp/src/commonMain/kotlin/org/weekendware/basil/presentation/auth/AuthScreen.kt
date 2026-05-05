@@ -33,6 +33,20 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import basil.composeapp.generated.resources.Res
+import basil.composeapp.generated.resources.app_name
+import basil.composeapp.generated.resources.app_tagline
+import basil.composeapp.generated.resources.auth_create_account
+import basil.composeapp.generated.resources.auth_email_placeholder
+import basil.composeapp.generated.resources.auth_field_email
+import basil.composeapp.generated.resources.auth_field_password
+import basil.composeapp.generated.resources.auth_sign_in
+import basil.composeapp.generated.resources.auth_signin_subtitle
+import basil.composeapp.generated.resources.auth_signup_subtitle
+import basil.composeapp.generated.resources.auth_toggle_to_signin
+import basil.composeapp.generated.resources.auth_toggle_to_signup
+import basil.composeapp.generated.resources.auth_welcome_back
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.weekendware.basil.presentation.components.BasilLeaf
 import org.weekendware.basil.presentation.theme.BasilPalette
@@ -79,13 +93,13 @@ private fun AuthHeroBand() {
         BasilLeaf(size = 38.dp, fill = Color.White, vein = BasilPalette.Sage800)
         Spacer(Modifier.height(10.dp))
         Text(
-            text  = "basil",
+            text  = stringResource(Res.string.app_name),
             style = MaterialTheme.typography.displaySmall,
             color = Color.White
         )
         Spacer(Modifier.height(4.dp))
         Text(
-            text  = "Your T1D companion",
+            text  = stringResource(Res.string.app_tagline),
             style = MaterialTheme.typography.bodyMedium,
             color = Color.White.copy(alpha = 0.6f)
         )
@@ -100,16 +114,21 @@ private fun AuthForm(state: AuthFormState, viewModel: AuthViewModel) {
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 24.dp, vertical = 28.dp)
     ) {
+        val title = if (state.isSignUp) {
+            stringResource(Res.string.auth_create_account)
+        } else {
+            stringResource(Res.string.auth_welcome_back)
+        }
         Text(
-            text  = if (state.isSignUp) "Create account" else "Welcome back",
+            text  = title,
             style = MaterialTheme.typography.headlineSmall,
             color = BasilPalette.Stone900
         )
         Spacer(Modifier.height(4.dp))
         val subtitle = if (state.isSignUp) {
-            "Sign up to start managing your T1D."
+            stringResource(Res.string.auth_signup_subtitle)
         } else {
-            "Sign in to continue to Basil."
+            stringResource(Res.string.auth_signin_subtitle)
         }
         Text(
             text  = subtitle,
@@ -117,13 +136,13 @@ private fun AuthForm(state: AuthFormState, viewModel: AuthViewModel) {
             color = BasilPalette.Stone500
         )
         Spacer(Modifier.height(22.dp))
-        AuthFieldLabel("EMAIL")
+        AuthFieldLabel(stringResource(Res.string.auth_field_email))
         Spacer(Modifier.height(6.dp))
         OutlinedTextField(
             value         = state.email,
             onValueChange = viewModel::onEmailChange,
             singleLine    = true,
-            placeholder   = { Text("you@example.com") },
+            placeholder   = { Text(stringResource(Res.string.auth_email_placeholder)) },
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Email,
                 imeAction    = ImeAction.Next
@@ -132,7 +151,7 @@ private fun AuthForm(state: AuthFormState, viewModel: AuthViewModel) {
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(Modifier.height(14.dp))
-        AuthFieldLabel("PASSWORD")
+        AuthFieldLabel(stringResource(Res.string.auth_field_password))
         Spacer(Modifier.height(6.dp))
         OutlinedTextField(
             value                = state.password,
@@ -181,6 +200,11 @@ private fun AuthSubmitArea(state: AuthFormState, viewModel: AuthViewModel) {
         if (state.isLoading) {
             CircularProgressIndicator(color = BasilPalette.Sage600)
         } else {
+            val buttonLabel = if (state.isSignUp) {
+                stringResource(Res.string.auth_create_account)
+            } else {
+                stringResource(Res.string.auth_sign_in)
+            }
             Button(
                 onClick  = viewModel::submit,
                 enabled  = state.canSubmit,
@@ -193,19 +217,16 @@ private fun AuthSubmitArea(state: AuthFormState, viewModel: AuthViewModel) {
                     .fillMaxWidth()
                     .height(52.dp)
             ) {
-                Text(
-                    text  = if (state.isSignUp) "Create account" else "Sign in",
-                    style = MaterialTheme.typography.labelLarge
-                )
+                Text(text = buttonLabel, style = MaterialTheme.typography.labelLarge)
             }
         }
         Spacer(Modifier.height(14.dp))
+        val toggleLabel = if (state.isSignUp) {
+            stringResource(Res.string.auth_toggle_to_signin)
+        } else {
+            stringResource(Res.string.auth_toggle_to_signup)
+        }
         TextButton(onClick = viewModel::toggleMode) {
-            val toggleLabel = if (state.isSignUp) {
-                "Already have an account? Sign in"
-            } else {
-                "New to Basil? Create account"
-            }
             Text(
                 text  = toggleLabel,
                 style = MaterialTheme.typography.bodyMedium,

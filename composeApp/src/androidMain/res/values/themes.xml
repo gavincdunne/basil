@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!--
+        Base application theme. Used as the post-splash theme so the Activity
+        window background matches the app's cream canvas instead of white.
+        The Compose layer takes over styling from here.
+    -->
+    <style name="Theme.Basil" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@color/cream</item>
+    </style>
+
+    <!--
+        Splash screen theme applied to the Activity in AndroidManifest.xml.
+        The OS draws this theme during process startup before the first
+        Compose frame is rendered, covering the cold-start window.
+
+        After the splash exits, the theme reverts to Theme.Basil via
+        postSplashScreenTheme so the window background is correct.
+    -->
+    <style name="Theme.Basil.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/sage600</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash_leaf</item>
+        <item name="postSplashScreenTheme">@style/Theme.Basil</item>
+    </style>
+
+</resources>
