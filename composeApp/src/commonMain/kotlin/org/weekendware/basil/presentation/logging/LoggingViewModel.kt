@@ -4,6 +4,10 @@ import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
+import basil.composeapp.generated.resources.Res
+import basil.composeapp.generated.resources.error_save_entry_failed
+import basil.composeapp.generated.resources.error_save_preference_failed
+import org.jetbrains.compose.resources.StringResource
 import org.weekendware.basil.domain.model.BgUnit
 import org.weekendware.basil.domain.usecase.GetBgUnitPreferenceUseCase
 import org.weekendware.basil.domain.usecase.SaveLogEntryUseCase
@@ -20,14 +24,14 @@ import org.weekendware.basil.domain.usecase.SetBgUnitPreferenceUseCase
  * @property insulinUnits Raw text value for the insulin units field.
  * @property carbsGrams   Raw text value for the carbohydrates field in grams.
  * @property hasAnyValue  True if at least one field has been filled in, enabling the Save button.
- * @property error        A user-facing error message, or null when there is no error.
+ * @property error        A user-facing error string resource, or null when there is no error.
  */
 data class LogFormState(
     val bgValue: String = "",
     val bgUnit: BgUnit = BgUnit.MGDL,
     val insulinUnits: String = "",
     val carbsGrams: String = "",
-    val error: String? = null
+    val error: StringResource? = null
 ) {
     val hasAnyValue: Boolean
         get() = bgValue.isNotBlank() || insulinUnits.isNotBlank() || carbsGrams.isNotBlank()
@@ -68,7 +72,7 @@ class LoggingViewModel(
     fun onBgUnitChange(unit: BgUnit) {
         _state.update { it.copy(bgUnit = unit, error = null) }
         setBgUnitPreference(unit).onFailure {
-            _state.update { s -> s.copy(error = "Failed to save unit preference") }
+            _state.update { s -> s.copy(error = Res.string.error_save_preference_failed) }
         }
     }
 
@@ -109,7 +113,7 @@ class LoggingViewModel(
                 }
             },
             onFailure = {
-                _state.update { s -> s.copy(error = "Failed to save entry. Please try again.") }
+                _state.update { s -> s.copy(error = Res.string.error_save_entry_failed) }
             }
         )
     }

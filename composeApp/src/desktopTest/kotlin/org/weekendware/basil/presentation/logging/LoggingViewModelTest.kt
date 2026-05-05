@@ -4,6 +4,9 @@ import org.mockito.kotlin.doThrow
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
+import basil.composeapp.generated.resources.Res
+import basil.composeapp.generated.resources.error_save_entry_failed
+import basil.composeapp.generated.resources.error_save_preference_failed
 import org.weekendware.basil.data.repository.LogRepository
 import org.weekendware.basil.data.repository.PreferencesRepository
 import org.weekendware.basil.domain.model.BgUnit
@@ -13,7 +16,6 @@ import org.weekendware.basil.domain.usecase.SetBgUnitPreferenceUseCase
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
-import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
@@ -90,7 +92,7 @@ class LoggingViewModelTest {
 
         vm.onBgUnitChange(BgUnit.MMOLL)
 
-        assertNotNull(vm.state.value.error)
+        assertEquals(Res.string.error_save_preference_failed, vm.state.value.error)
     }
 
     // ── reset ─────────────────────────────────────────────────
@@ -204,7 +206,7 @@ class LoggingViewModelTest {
         vm.save { callbackInvoked = true }
 
         assertFalse(callbackInvoked)
-        assertNotNull(vm.state.value.error)
+        assertEquals(Res.string.error_save_entry_failed, vm.state.value.error)
     }
 
     // ── clearError ────────────────────────────────────────────
@@ -220,7 +222,7 @@ class LoggingViewModelTest {
             carbsGrams = null
         )
         vm.save {}
-        assertNotNull(vm.state.value.error)
+        assertEquals(Res.string.error_save_entry_failed, vm.state.value.error)
 
         vm.clearError()
 

@@ -6,13 +6,14 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
+import basil.composeapp.generated.resources.Res
+import basil.composeapp.generated.resources.error_auth_failed
 import org.weekendware.basil.data.repository.FakeAuthRepository
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
-import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
@@ -90,7 +91,7 @@ class AuthViewModelTest {
         viewModel.onEmailChange("user@test.com")
         viewModel.onPasswordChange("password123")
         viewModel.submit()
-        assertNotNull(viewModel.state.value.error)
+        assertEquals(Res.string.error_auth_failed, viewModel.state.value.error)
         assertFalse(viewModel.state.value.isLoading)
     }
 

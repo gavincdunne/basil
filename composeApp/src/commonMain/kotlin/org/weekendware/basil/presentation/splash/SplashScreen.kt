@@ -95,7 +95,7 @@ fun SplashScreen(onFadeComplete: () -> Unit) {
             Spacer(Modifier.height(6.dp))
 
             Text(
-                text          = stringResource(Res.string.app_type1_label),
+                text          = stringResource(Res.string.app_type1_label).uppercase(),
                 style         = MaterialTheme.typography.labelSmall,
                 color         = Color.White.copy(alpha = 0.5f),
                 letterSpacing = 2.5.sp
