@@ -41,6 +41,22 @@
     <string name="nav_profile">Profile</string>
     <string name="nav_chat">Basil</string>
 
+    <!-- ── Profile screen ──────────────────────────────────── -->
+    <string name="profile_section_account">Account</string>
+    <string name="profile_section_health">Health Profile</string>
+    <string name="profile_label_name">Name</string>
+    <string name="profile_label_email">Email</string>
+    <string name="profile_label_target_range">Target BG Range</string>
+    <string name="profile_label_target_low">Low</string>
+    <string name="profile_label_target_high">High</string>
+    <string name="profile_placeholder_name">Your name</string>
+    <string name="profile_placeholder_target">0</string>
+    <string name="profile_action_edit">Edit</string>
+    <string name="profile_action_save">Save</string>
+    <string name="profile_action_cancel">Cancel</string>
+    <string name="profile_no_user">No profile data found</string>
+    <string name="error_profile_save_failed">Failed to save profile. Please try again.</string>
+
     <!-- ── Screens ───────────────────────────────────────────── -->
     <string name="screen_settings">Settings</string>
 
