@@ -73,6 +73,6 @@ val sharedModule = module {
     viewModel { DashboardViewModel(get(), get(), get()) }
     viewModel { ProfileViewModel(get(), get(), get()) }
     viewModel { ChatViewModel() }
-    viewModel { SettingsViewModel() }
+    viewModel { SettingsViewModel(get(), get()) }
     viewModel { LoggingViewModel(get(), get(), get()) }
 }
