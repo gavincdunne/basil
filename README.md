@@ -11,6 +11,8 @@ Basil is a Kotlin Multiplatform app for managing life with Type 1 diabetes. One 
 |:---:|:---:|:---:|
 | ![Desktop](docs/screenshots/desktop.png) | ![iOS](docs/screenshots/ios.png) | ![Android](docs/screenshots/android.png) |
 
+*Design: Option A — Warm & Grounded*
+
 ---
 
 ## Engineering
@@ -54,13 +56,13 @@ Each layer depends only on the layer below it. ViewModels and use cases depend o
 
 ## Roadmap
 
-- [ ] Build flavors (dev / staging / prod)
-- [ ] Supabase auth + user session
+- [x] Build flavors (dev / staging / prod)
+- [x] Supabase auth + user session
+- [x] Sentry crash reporting (with PHI scrubbing)
 - [ ] Profile screen
 - [ ] Settings screen (units, notifications, theme)
 - [ ] History and trends view
 - [ ] AI assistant chat (Basil tab)
-- [ ] Sentry crash reporting
 - [ ] Push notifications
 
 ---
