@@ -10,6 +10,7 @@ plugins {
     alias(libs.plugins.composeHotReload)
     alias(libs.plugins.sqldelight)
     alias(libs.plugins.buildkonfig)
+    alias(libs.plugins.kotlinSerialization)
 }
 
 kotlin {
@@ -62,6 +63,8 @@ kotlin {
             implementation(libs.androidx.navigation.compose)
             implementation(libs.supabase.auth)
             implementation(libs.ktor.client.core)
+            implementation(libs.ktor.client.content.negotiation)
+            implementation(libs.ktor.serialization.kotlinx.json)
             implementation(libs.sentry.kmp)
         }
         commonTest.dependencies {
@@ -162,6 +165,8 @@ buildkonfig {
         buildConfigField(STRING, "SUPABASE_URL", localProps["supabase.prod.url"] as? String ?: "")
         buildConfigField(STRING, "SUPABASE_ANON_KEY", localProps["supabase.prod.anonKey"] as? String ?: "")
         buildConfigField(STRING, "SENTRY_DSN", localProps["sentry.dsn"] as? String ?: "")
+        buildConfigField(STRING, "CHAT_API_URL", localProps["chat.api.url"] as? String ?: "")
+        buildConfigField(STRING, "CHAT_API_KEY", localProps["chat.api.key"] as? String ?: "")
     }
     targetConfigs {
         create("dev") {

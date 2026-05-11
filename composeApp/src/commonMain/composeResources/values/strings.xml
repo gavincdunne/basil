@@ -88,10 +88,18 @@
         Note: proper pluralisation (e.g. "1 minute ago" vs "5 minutes ago") is
         deferred until the app ships with multi-language support.
     -->
+    <!-- ── Chat screen ─────────────────────────────────────── -->
+    <string name="chat_input_placeholder">Ask Basil anything…</string>
+    <string name="chat_send">Send</string>
+    <string name="chat_empty_title">Hi, I\'m Basil</string>
+    <string name="chat_empty_subtitle">Ask me anything about managing your T1D.</string>
+    <string name="cd_send_message">Send message</string>
+
     <!-- ── Error messages ──────────────────────────────────── -->
     <string name="error_auth_failed">Authentication failed</string>
     <string name="error_save_preference_failed">Failed to save unit preference</string>
     <string name="error_save_entry_failed">Failed to save entry. Please try again.</string>
+    <string name="error_chat_failed">Something went wrong. Please try again.</string>
 
     <string name="relative_time_just_now">just now</string>
     <string name="relative_time_minutes">%1$dm ago</string>
