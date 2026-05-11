@@ -26,9 +26,32 @@ import org.weekendware.basil.domain.model.ChatMessage
  * This repository parses [content_block_delta] events and emits each text
  * fragment as a [String] so callers can accumulate them into a full reply.
  *
+ * ### HIPAA hardening
+ * - **HTTPS-only**: throws [IllegalStateException] if [BuildKonfig.CHAT_API_URL]
+ *   is not an `https://` URL, preventing accidental transmission of PHI over
+ *   plain HTTP.
+ * - **Context window cap**: only the most recent [MAX_MESSAGES_PER_REQUEST]
+ *   messages are sent per request (minimum-necessary principle). The client
+ *   holds the full history locally but the server never receives the entire
+ *   lifetime conversation.
+ * - **No HTTP logging**: the Ktor [httpClient] must not have a logging plugin
+ *   installed; request bodies contain PHI and must never be written to logs.
+ *
  * @param httpClient A configured Ktor [HttpClient] shared across the app.
  */
 class KtorChatRepository(private val httpClient: HttpClient) : ChatRepository {
+
+    companion object {
+        /**
+         * Maximum number of messages included in a single API request.
+         *
+         * Must not exceed the server-side `MAX_MESSAGES` limit in basil-chat-api.
+         * Keeping only a sliding window of recent messages enforces the
+         * minimum-necessary principle — the full conversation history never
+         * leaves the device in one payload.
+         */
+        const val MAX_MESSAGES_PER_REQUEST = 40
+    }
 
     /**
      * A lenient JSON parser that ignores unknown fields from the SSE stream.
@@ -41,17 +64,30 @@ class KtorChatRepository(private val httpClient: HttpClient) : ChatRepository {
      * POST the conversation to the chat API and stream each text delta as it
      * arrives. The flow completes when the SSE stream closes.
      *
+     * @throws IllegalStateException if the configured API URL does not use HTTPS.
      * @throws Exception if the HTTP request fails or the server returns an
      *   error status.
      */
     override fun streamChat(messages: List<ChatMessage>): Flow<String> = flow {
+        // HTTPS-only guard: PHI must never travel over an unencrypted channel.
+        // This will catch misconfigured `local.properties` before any data leaves
+        // the device. An http:// URL in production is a critical configuration error.
+        require(BuildKonfig.CHAT_API_URL.startsWith("https://")) {
+            "CHAT_API_URL must use HTTPS to protect PHI in transit. " +
+            "Got: ${BuildKonfig.CHAT_API_URL}"
+        }
+
+        // Context window cap: send only the most recent messages to limit the
+        // volume of PHI per request (minimum-necessary principle).
+        val window = messages.takeLast(MAX_MESSAGES_PER_REQUEST)
+
         val requestBody = ChatRequest(
-            messages = messages.map { ApiMessage(role = it.role, content = it.content) }
+            messages = window.map { ApiMessage(role = it.role, content = it.content) }
         )
 
         // `preparePost` + `execute` keeps the response open so we can stream
         // the body without buffering the entire reply in memory.
-        httpClient.preparePost("${BuildKonfig.CHAT_API_URL}/chat") {
+        httpClient.preparePost("${BuildKonfig.CHAT_API_URL.trimEnd('/')}/chat") {
             header(HttpHeaders.Authorization, "Bearer ${BuildKonfig.CHAT_API_KEY}")
             contentType(ContentType.Application.Json)
             setBody(requestBody)

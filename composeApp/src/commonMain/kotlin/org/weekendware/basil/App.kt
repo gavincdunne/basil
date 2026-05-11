@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -19,6 +20,7 @@ import androidx.navigation.compose.rememberNavController
 import org.koin.compose.viewmodel.koinViewModel
 import org.weekendware.basil.presentation.auth.AuthScreen
 import org.weekendware.basil.presentation.chat.ChatScreen
+import org.weekendware.basil.presentation.chat.ChatViewModel
 import org.weekendware.basil.presentation.components.BasilBottomBar
 import org.weekendware.basil.presentation.components.BasilTopAppBar
 import org.weekendware.basil.presentation.dashboard.DashboardScreen
@@ -74,6 +76,16 @@ fun App() {
     BasilTheme {
         val sessionViewModel = koinViewModel<SessionViewModel>()
         val sessionState by sessionViewModel.state.collectAsState()
+        val chatViewModel = koinViewModel<ChatViewModel>()
+
+        // Clear all in-memory chat history whenever the session ends.
+        // This ensures no PHI from a previous session persists in memory
+        // when the user signs out or a different user signs in on the same device.
+        LaunchedEffect(sessionState) {
+            if (sessionState == SessionState.Unauthenticated) {
+                chatViewModel.clearHistory()
+            }
+        }
 
         // Track whether the splash fade animation has finished. We wait for
         // both: the session to resolve *and* the splash to fade out before
