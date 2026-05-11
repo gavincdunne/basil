@@ -1,5 +1,6 @@
 import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -9,6 +10,7 @@ plugins {
     alias(libs.plugins.composeHotReload)
     alias(libs.plugins.sqldelight)
     alias(libs.plugins.buildkonfig)
+    alias(libs.plugins.kotlinSerialization)
 }
 
 kotlin {
@@ -39,6 +41,8 @@ kotlin {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
             implementation(libs.sqldelight.androidDriver)
+            implementation(libs.ktor.client.okhttp)
+            implementation(libs.androidx.splashscreen)
         }
         commonMain.dependencies {
             implementation(libs.sqldelight.runtime)
@@ -57,6 +61,11 @@ kotlin {
             implementation(libs.koin.compose)
             implementation(libs.koin.compose.viewmodel)
             implementation(libs.androidx.navigation.compose)
+            implementation(libs.supabase.auth)
+            implementation(libs.ktor.client.core)
+            implementation(libs.ktor.client.content.negotiation)
+            implementation(libs.ktor.serialization.kotlinx.json)
+            implementation(libs.sentry.kmp)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
@@ -66,6 +75,7 @@ kotlin {
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutinesSwing)
             implementation(libs.sqlite.driver)
+            implementation(libs.ktor.client.java)
         }
         desktopTest.dependencies {
             implementation(libs.kotlin.testJunit)
@@ -75,6 +85,7 @@ kotlin {
         }
         iosMain.dependencies {
             implementation(libs.sqldelight.nativeDriver)
+            implementation(libs.ktor.client.darwin)
         }
     }
 }
@@ -141,22 +152,32 @@ compose.desktop {
     }
 }
 
+val localProps = Properties().apply {
+    val f = rootProject.file("local.properties")
+    if (f.exists()) load(f.inputStream())
+}
+
 buildkonfig {
     packageName = "org.weekendware.basil"
 
-    // Prod defaults
     defaultConfigs {
         buildConfigField(STRING, "FLAVOR", "prod")
-        buildConfigField(STRING, "BASE_URL", "https://api.basil.app")
+        buildConfigField(STRING, "SUPABASE_URL", localProps["supabase.prod.url"] as? String ?: "")
+        buildConfigField(STRING, "SUPABASE_ANON_KEY", localProps["supabase.prod.anonKey"] as? String ?: "")
+        buildConfigField(STRING, "SENTRY_DSN", localProps["sentry.dsn"] as? String ?: "")
+        buildConfigField(STRING, "CHAT_API_URL", localProps["chat.api.url"] as? String ?: "")
+        buildConfigField(STRING, "CHAT_API_KEY", localProps["chat.api.key"] as? String ?: "")
     }
     targetConfigs {
         create("dev") {
             buildConfigField(STRING, "FLAVOR", "dev")
-            buildConfigField(STRING, "BASE_URL", "https://dev-api.basil.app")
+            buildConfigField(STRING, "SUPABASE_URL", localProps["supabase.dev.url"] as? String ?: "")
+            buildConfigField(STRING, "SUPABASE_ANON_KEY", localProps["supabase.dev.anonKey"] as? String ?: "")
         }
         create("staging") {
             buildConfigField(STRING, "FLAVOR", "staging")
-            buildConfigField(STRING, "BASE_URL", "https://staging-api.basil.app")
+            buildConfigField(STRING, "SUPABASE_URL", localProps["supabase.staging.url"] as? String ?: "")
+            buildConfigField(STRING, "SUPABASE_ANON_KEY", localProps["supabase.staging.anonKey"] as? String ?: "")
         }
     }
 }

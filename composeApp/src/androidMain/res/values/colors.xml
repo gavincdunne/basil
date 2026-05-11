@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Sage 600 — primary brand color used for the splash screen background -->
+    <color name="sage600">#546857</color>
+    <!-- Cream — app canvas background, used as post-splash window background -->
+    <color name="cream">#FAF8F5</color>
+</resources>

@@ -14,9 +14,10 @@ import org.koin.dsl.KoinAppDeclaration
  *
  * The loaded modules are:
  * 1. [platformModule] — platform-specific bindings (e.g. [DatabaseDriverFactory]).
- * 2. [databaseModule] — [BasilDatabase] and all repositories.
- * 3. [useCaseModule] — all use cases.
- * 4. [sharedModule] — all ViewModels.
+ * 2. [chatModule] — Ktor [HttpClient] and [ChatRepository].
+ * 3. [databaseModule] — [BasilDatabase] and all repositories.
+ * 4. [useCaseModule] — all use cases.
+ * 5. [sharedModule] — all ViewModels.
  *
  * @param appDeclaration Optional platform-level Koin configuration. Android
  *   uses this to register `Context` as a Koin singleton so [DatabaseDriverFactory]
@@ -24,5 +25,5 @@ import org.koin.dsl.KoinAppDeclaration
  */
 fun initKoin(appDeclaration: KoinAppDeclaration = {}) = startKoin {
     appDeclaration()
-    modules(platformModule, databaseModule, useCaseModule, sharedModule)
+    modules(platformModule, chatModule, supabaseModule, databaseModule, useCaseModule, sharedModule)
 }

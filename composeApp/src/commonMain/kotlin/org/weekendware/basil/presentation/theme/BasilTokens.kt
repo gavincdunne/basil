@@ -57,6 +57,20 @@ object BasilTokens {
     val IconSizeMd = 24.dp
     val IconSizeLg = 32.dp
 
+    // ── Splash screen ─────────────────────────────────────────
+    /** Size of the frosted icon container on the splash screen. */
+    val SplashIconContainerSize = 88.dp
+    /** Corner radius of the splash screen icon container. */
+    val SplashIconContainerCorner = 24.dp
+    /** Size of the leaf mark on the splash screen. */
+    val SplashLeafSize = 48.dp
+
+    // ── Auth screen ───────────────────────────────────────────
+    /** Corner radius of the hero band's bottom edge on the auth screen. */
+    val AuthHeroCorner = 32.dp
+    /** Size of the leaf mark inside the auth hero band. */
+    val AuthHeroLeafSize = 38.dp
+
     // ── Glucose indicator ─────────────────────────────────────
     /** Diameter of the dot used in glucose trend indicators. */
     val GlucoseDotSize = 12.dp
