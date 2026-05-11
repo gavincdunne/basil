@@ -14,8 +14,12 @@ import org.weekendware.basil.domain.model.BgUnit
 class SqlDelightPreferencesRepository(private val database: BasilDatabase) : PreferencesRepository {
 
     companion object {
-        /** Key for the user's preferred blood glucose unit. */
-        private const val BG_UNIT_KEY = "bg_unit"
+        private const val BG_UNIT_KEY        = "bg_unit"
+        private const val BG_TARGET_LOW_KEY  = "bg_target_low"
+        private const val BG_TARGET_HIGH_KEY = "bg_target_high"
+
+        private const val DEFAULT_TARGET_LOW  = 3.9
+        private const val DEFAULT_TARGET_HIGH = 10.0
     }
 
     override fun getBgUnit(): BgUnit {
@@ -25,5 +29,21 @@ class SqlDelightPreferencesRepository(private val database: BasilDatabase) : Pre
 
     override fun setBgUnit(unit: BgUnit) {
         database.preferencesQueries.set(BG_UNIT_KEY, unit.name)
+    }
+
+    override fun getBgTargetLow(): Double =
+        database.preferencesQueries.get(BG_TARGET_LOW_KEY).executeAsOneOrNull()
+            ?.toDoubleOrNull() ?: DEFAULT_TARGET_LOW
+
+    override fun setBgTargetLow(value: Double) {
+        database.preferencesQueries.set(BG_TARGET_LOW_KEY, value.toString())
+    }
+
+    override fun getBgTargetHigh(): Double =
+        database.preferencesQueries.get(BG_TARGET_HIGH_KEY).executeAsOneOrNull()
+            ?.toDoubleOrNull() ?: DEFAULT_TARGET_HIGH
+
+    override fun setBgTargetHigh(value: Double) {
+        database.preferencesQueries.set(BG_TARGET_HIGH_KEY, value.toString())
     }
 }

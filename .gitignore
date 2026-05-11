@@ -84,3 +84,4 @@ captures/
 # Not for the engineering repo. Move /basil-ops to your own machine.
 # ---------------------------
 /basil-ops/
+iosApp/Sentry.xcframework/
