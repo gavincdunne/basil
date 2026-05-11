@@ -142,4 +142,14 @@ class ChatViewModel(
     fun clearError() {
         _state.update { it.copy(error = null) }
     }
+
+    /**
+     * Wipes all messages, input, and error state.
+     *
+     * Called on sign-out so that no PHI from the previous session persists
+     * in memory when a new user logs in on the same device.
+     */
+    fun clearHistory() {
+        _state.update { ChatState() }
+    }
 }
