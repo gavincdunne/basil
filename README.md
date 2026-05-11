@@ -11,8 +11,6 @@ Basil is a Kotlin Multiplatform app for managing life with Type 1 diabetes. One 
 |:---:|:---:|:---:|
 | ![Desktop](docs/screenshots/desktop.png) | ![iOS](docs/screenshots/ios.png) | ![Android](docs/screenshots/android.png) |
 
-*Design: Option A — Warm & Grounded*
-
 ---
 
 ## Engineering
