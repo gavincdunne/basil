@@ -10,11 +10,8 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import org.koin.dsl.module
 import org.koin.mp.KoinPlatform
-import org.weekendware.basil.crash.initSentry
 import org.weekendware.basil.data.repository.AuthRepository
-import org.weekendware.basil.di.initKoin
 
 /**
  * The single Android [ComponentActivity] that hosts the entire Basil UI.
@@ -24,9 +21,11 @@ import org.weekendware.basil.di.initKoin
  *   SDK has resolved the stored session. This covers the cold-start window
  *   before the first Compose frame is drawn.
  * - Enables edge-to-edge display so content draws behind system bars.
- * - Initialises Koin, passing `applicationContext` so [DatabaseDriverFactory]
- *   can receive it via `get<Context>()`.
  * - Sets the Compose content root to [App].
+ *
+ * Koin and Sentry initialisation live in [BasilApplication.onCreate] so they
+ * survive activity recreation (rotation, multi-window, etc.) without throwing
+ * [org.koin.core.error.KoinApplicationAlreadyStartedException].
  */
 class MainActivity : ComponentActivity() {
 
@@ -34,11 +33,6 @@ class MainActivity : ComponentActivity() {
         val splashScreen = installSplashScreen()
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
-
-        initSentry()
-        initKoin {
-            modules(module { single<android.content.Context> { applicationContext } })
-        }
 
         // Keep the OS splash visible until sessionFlow emits its first value.
         // The first emission means Supabase has finished restoring (or not) the
