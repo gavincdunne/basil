@@ -9,6 +9,7 @@ import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 import org.weekendware.basil.data.repository.AuthRepository
+import org.weekendware.basil.data.repository.AvatarRepository
 import org.weekendware.basil.data.repository.ChatRepository
 import org.weekendware.basil.data.repository.KtorChatRepository
 import org.weekendware.basil.data.repository.LogRepository
@@ -17,6 +18,7 @@ import org.weekendware.basil.data.repository.SqlDelightLogRepository
 import org.weekendware.basil.data.repository.SqlDelightPreferencesRepository
 import org.weekendware.basil.data.repository.SqlDelightUserRepository
 import org.weekendware.basil.data.repository.SupabaseAuthRepository
+import org.weekendware.basil.data.repository.SupabaseAvatarRepository
 import org.weekendware.basil.data.repository.UserRepository
 import org.weekendware.basil.domain.usecase.DeleteLogEntryUseCase
 import org.weekendware.basil.domain.usecase.SendMessageUseCase
@@ -60,6 +62,7 @@ val chatModule = module {
 val supabaseModule = module {
     single { createSupabaseClient() }
     single<AuthRepository> { SupabaseAuthRepository(get()) }
+    single<AvatarRepository> { SupabaseAvatarRepository(get()) }
 }
 
 /**
@@ -96,7 +99,7 @@ val sharedModule = module {
     viewModel { SessionViewModel(get()) }
     viewModel { AuthViewModel(get()) }
     viewModel { DashboardViewModel(get(), get(), get()) }
-    viewModel { ProfileViewModel(get(), get(), get()) }
+    viewModel { ProfileViewModel(get(), get(), get(), get(), get()) }
     viewModel { ChatViewModel(get()) }
     viewModel { SettingsViewModel(get(), get()) }
     viewModel { LoggingViewModel(get(), get(), get()) }

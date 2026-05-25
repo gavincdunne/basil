@@ -1,7 +1,8 @@
 CREATE TABLE User(
     id TEXT NOT NULL PRIMARY KEY,
     name TEXT NOT NULL,
-    email TEXT NOT NULL
+    email TEXT NOT NULL,
+    avatar_url TEXT
 );
 
 selectAll:
@@ -10,6 +11,9 @@ SELECT * FROM User;
 insertUser:
 INSERT INTO User(id, name, email)
 VALUES (?, ?, ?);
+
+updateAvatarUrl:
+UPDATE User SET avatar_url = ? WHERE id = ?;
 
 deleteAll:
 DELETE FROM User;
