@@ -56,6 +56,10 @@
     <string name="profile_action_cancel">Cancel</string>
     <string name="profile_no_user">No profile data found</string>
     <string name="error_profile_save_failed">Failed to save profile. Please try again.</string>
+    <string name="profile_pick_photo">Change photo</string>
+    <string name="profile_remove_photo">Remove photo</string>
+    <string name="cd_profile_avatar">Profile picture</string>
+    <string name="error_avatar_upload_failed">Failed to update photo. Please try again.</string>
 
     <!-- ── Settings screen ──────────────────────────────────── -->
     <string name="settings_section_data">Data</string>

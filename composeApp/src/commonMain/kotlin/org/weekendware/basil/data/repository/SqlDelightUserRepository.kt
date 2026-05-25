@@ -20,9 +20,17 @@ class SqlDelightUserRepository(private val database: BasilDatabase) : UserReposi
     override fun insert(id: String, name: String, email: String) =
         database.userQueries.insertUser(id, name, email)
 
+    override fun updateAvatarUrl(userId: String, url: String?) =
+        database.userQueries.updateAvatarUrl(url, userId)
+
     override fun deleteAll() = database.userQueries.deleteAll()
 
     // ── Mapping ───────────────────────────────────────────────
 
-    private fun UserEntity.toDomain() = User(id = id, name = name, email = email)
+    private fun UserEntity.toDomain() = User(
+        id = id,
+        name = name,
+        email = email,
+        avatarUrl = avatar_url,
+    )
 }

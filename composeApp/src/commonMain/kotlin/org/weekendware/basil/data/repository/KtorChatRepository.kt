@@ -70,11 +70,13 @@ class KtorChatRepository(private val httpClient: HttpClient) : ChatRepository {
      */
     override fun streamChat(messages: List<ChatMessage>): Flow<String> = flow {
         // HTTPS-only guard: PHI must never travel over an unencrypted channel.
-        // This will catch misconfigured `local.properties` before any data leaves
-        // the device. An http:// URL in production is a critical configuration error.
-        require(BuildKonfig.CHAT_API_URL.startsWith("https://")) {
-            "CHAT_API_URL must use HTTPS to protect PHI in transit. " +
-            "Got: ${BuildKonfig.CHAT_API_URL}"
+        // The dev flavor is exempt so localhost testing works without TLS.
+        // Staging and prod will fail fast here if misconfigured.
+        if (BuildKonfig.FLAVOR != "dev") {
+            require(BuildKonfig.CHAT_API_URL.startsWith("https://")) {
+                "CHAT_API_URL must use HTTPS to protect PHI in transit. " +
+                "Got: ${BuildKonfig.CHAT_API_URL}"
+            }
         }
 
         // Context window cap: send only the most recent messages to limit the

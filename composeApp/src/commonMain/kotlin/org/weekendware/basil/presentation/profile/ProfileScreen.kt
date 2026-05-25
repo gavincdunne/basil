@@ -1,6 +1,7 @@
 package org.weekendware.basil.presentation.profile
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
@@ -14,9 +15,16 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AddAPhoto
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -26,13 +34,16 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import basil.composeapp.generated.resources.Res
+import basil.composeapp.generated.resources.cd_profile_avatar
 import basil.composeapp.generated.resources.profile_action_cancel
 import basil.composeapp.generated.resources.profile_action_edit
 import basil.composeapp.generated.resources.profile_action_save
@@ -41,10 +52,19 @@ import basil.composeapp.generated.resources.profile_label_name
 import basil.composeapp.generated.resources.profile_label_target_high
 import basil.composeapp.generated.resources.profile_label_target_low
 import basil.composeapp.generated.resources.profile_label_target_range
+import basil.composeapp.generated.resources.profile_pick_photo
 import basil.composeapp.generated.resources.profile_placeholder_name
 import basil.composeapp.generated.resources.profile_placeholder_target
+import basil.composeapp.generated.resources.profile_remove_photo
 import basil.composeapp.generated.resources.profile_section_account
 import basil.composeapp.generated.resources.profile_section_health
+import coil3.compose.AsyncImage
+import com.mohamedrejeb.calf.core.LocalPlatformContext
+import com.mohamedrejeb.calf.io.readByteArray
+import com.mohamedrejeb.calf.picker.FilePickerFileType
+import com.mohamedrejeb.calf.picker.FilePickerSelectionMode
+import com.mohamedrejeb.calf.picker.rememberFilePickerLauncher
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
@@ -52,22 +72,22 @@ import org.weekendware.basil.presentation.theme.BasilTheme
 import org.weekendware.basil.presentation.theme.basilSpacing
 
 /**
- * Profile screen — shows account info and the user's target BG range.
- * Entering edit mode allows updating targets; name is shown read-only
- * until full user-update support is wired to Supabase.
+ * Profile screen — shows account info, avatar, and the user's target BG range.
  */
 @Composable
 fun ProfileScreen() {
     val viewModel = koinViewModel<ProfileViewModel>()
     val state by viewModel.state.collectAsState()
     ProfileScreenContent(
-        state           = state,
-        onEditClick     = viewModel::onEditClick,
-        onCancelClick   = viewModel::onCancelClick,
-        onNameChange    = viewModel::onNameChange,
+        state              = state,
+        onEditClick        = viewModel::onEditClick,
+        onCancelClick      = viewModel::onCancelClick,
+        onNameChange       = viewModel::onNameChange,
         onTargetLowChange  = viewModel::onTargetLowChange,
         onTargetHighChange = viewModel::onTargetHighChange,
-        onSaveClick     = viewModel::onSaveClick
+        onSaveClick        = viewModel::onSaveClick,
+        onAvatarPicked     = viewModel::onAvatarPicked,
+        onRemoveAvatar     = viewModel::onRemoveAvatar
     )
 }
 
@@ -80,6 +100,8 @@ fun ProfileScreenContent(
     onTargetLowChange: (String) -> Unit,
     onTargetHighChange: (String) -> Unit,
     onSaveClick: () -> Unit,
+    onAvatarPicked: (ByteArray) -> Unit,
+    onRemoveAvatar: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val spacing = MaterialTheme.basilSpacing
@@ -92,7 +114,14 @@ fun ProfileScreenContent(
         verticalArrangement = Arrangement.spacedBy(spacing.xl)
     ) {
         // ── Avatar + name header ──────────────────────────────
-        ProfileHeader(name = state.name, email = state.email)
+        ProfileHeader(
+            name             = state.name,
+            email            = state.email,
+            avatarUrl        = state.avatarUrl,
+            isUploading      = state.isUploadingAvatar,
+            onAvatarPicked   = onAvatarPicked,
+            onRemoveAvatar   = onRemoveAvatar
+        )
 
         // ── Account section ───────────────────────────────────
         ProfileSection(title = stringResource(Res.string.profile_section_account)) {
@@ -209,24 +238,101 @@ fun ProfileScreenContent(
 // ─────────────────────────────────────────────────────────────
 
 @Composable
-private fun ProfileHeader(name: String, email: String) {
+private fun ProfileHeader(
+    name: String,
+    email: String,
+    avatarUrl: String?,
+    isUploading: Boolean,
+    onAvatarPicked: (ByteArray) -> Unit,
+    onRemoveAvatar: () -> Unit
+) {
+    val spacing = MaterialTheme.basilSpacing
+    val coroutineScope = rememberCoroutineScope()
+    val platformContext = LocalPlatformContext.current
+
+    val pickerLauncher = rememberFilePickerLauncher(
+        type = FilePickerFileType.Image,
+        selectionMode = FilePickerSelectionMode.Single
+    ) { files ->
+        val file = files.firstOrNull() ?: return@rememberFilePickerLauncher
+        coroutineScope.launch {
+            val bytes = file.readByteArray(platformContext)
+            onAvatarPicked(bytes)
+        }
+    }
+
     Column(
         modifier            = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(MaterialTheme.basilSpacing.sm)
+        verticalArrangement = Arrangement.spacedBy(spacing.sm)
     ) {
-        // Initials avatar
-        Surface(
-            modifier  = Modifier.size(72.dp).clip(CircleShape),
-            color     = MaterialTheme.colorScheme.primaryContainer
-        ) {
-            Text(
-                text      = name.initials(),
-                modifier  = Modifier.fillMaxSize().padding(top = 18.dp),
-                textAlign = TextAlign.Center,
-                style     = MaterialTheme.typography.headlineMedium,
-                color     = MaterialTheme.colorScheme.onPrimaryContainer
-            )
+        // Avatar with overlay controls
+        Box(contentAlignment = Alignment.BottomEnd) {
+            if (avatarUrl != null) {
+                AsyncImage(
+                    model             = avatarUrl,
+                    contentDescription = stringResource(Res.string.cd_profile_avatar),
+                    contentScale      = ContentScale.Crop,
+                    modifier          = Modifier.size(72.dp).clip(CircleShape)
+                )
+            } else {
+                Surface(
+                    modifier  = Modifier.size(72.dp).clip(CircleShape),
+                    color     = MaterialTheme.colorScheme.primaryContainer
+                ) {
+                    if (isUploading) {
+                        CircularProgressIndicator(
+                            modifier  = Modifier.padding(16.dp),
+                            color     = MaterialTheme.colorScheme.onPrimaryContainer,
+                            strokeWidth = 2.dp
+                        )
+                    } else {
+                        Text(
+                            text      = name.initials(),
+                            modifier  = Modifier.fillMaxSize().padding(top = 18.dp),
+                            textAlign = TextAlign.Center,
+                            style     = MaterialTheme.typography.headlineMedium,
+                            color     = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
+                    }
+                }
+            }
+
+            // Camera button (bottom-end of avatar)
+            if (!isUploading) {
+                IconButton(
+                    onClick = { pickerLauncher.launch() },
+                    modifier = Modifier.size(28.dp),
+                    colors = IconButtonDefaults.iconButtonColors(
+                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                        contentColor   = MaterialTheme.colorScheme.onSecondaryContainer
+                    )
+                ) {
+                    Icon(
+                        imageVector        = Icons.Default.AddAPhoto,
+                        contentDescription = stringResource(Res.string.profile_pick_photo),
+                        modifier           = Modifier.size(16.dp)
+                    )
+                }
+            }
+        }
+
+        // Remove photo button — only shown when an avatar exists
+        if (avatarUrl != null && !isUploading) {
+            TextButton(
+                onClick = onRemoveAvatar
+            ) {
+                Icon(
+                    imageVector        = Icons.Default.Close,
+                    contentDescription = null,
+                    modifier           = Modifier.size(16.dp)
+                )
+                Spacer(Modifier.size(spacing.xs))
+                Text(
+                    text  = stringResource(Res.string.profile_remove_photo),
+                    style = MaterialTheme.typography.labelMedium
+                )
+            }
         }
 
         if (name.isNotBlank()) {
@@ -316,7 +422,9 @@ internal fun ProfileScreenContentPreview() {
             onNameChange       = {},
             onTargetLowChange  = {},
             onTargetHighChange = {},
-            onSaveClick        = {}
+            onSaveClick        = {},
+            onAvatarPicked     = {},
+            onRemoveAvatar     = {}
         )
     }
 }
@@ -338,7 +446,9 @@ internal fun ProfileScreenEditingPreview() {
             onNameChange       = {},
             onTargetLowChange  = {},
             onTargetHighChange = {},
-            onSaveClick        = {}
+            onSaveClick        = {},
+            onAvatarPicked     = {},
+            onRemoveAvatar     = {}
         )
     }
 }

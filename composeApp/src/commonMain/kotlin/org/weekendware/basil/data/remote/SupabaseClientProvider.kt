@@ -3,6 +3,7 @@ package org.weekendware.basil.data.remote
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.Auth
 import io.github.jan.supabase.createSupabaseClient
+import io.github.jan.supabase.storage.Storage
 import org.weekendware.basil.BuildKonfig
 
 /**
@@ -17,4 +18,5 @@ fun createSupabaseClient(): SupabaseClient = createSupabaseClient(
     supabaseKey = BuildKonfig.SUPABASE_ANON_KEY
 ) {
     install(Auth)
+    install(Storage)
 }
