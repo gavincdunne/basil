@@ -1,19 +1,26 @@
 package org.weekendware.basil.presentation.components
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.semantics.clearAndSetSemantics
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import org.jetbrains.compose.ui.tooling.preview.Preview
+import org.weekendware.basil.presentation.theme.BasilPalette
+import org.weekendware.basil.presentation.theme.BasilTheme
 
 /**
  * The Basil leaf logo mark, drawn with [Canvas].
@@ -80,4 +87,34 @@ private fun DrawScope.drawLeaf(fill: Color, vein: Color) {
         cubicTo(x(14f), y(20f), x(19.5f), y(16f), x(21.5f), y(11f))
     }
     drawPath(rightVein, color = vein.copy(alpha = 0.7f), style = thinStyle)
+}
+
+// ─────────────────────────────────────────────────────────────
+// Previews
+// ─────────────────────────────────────────────────────────────
+
+@Preview
+@Composable
+internal fun BasilLeafDefaultPreview() {
+    BasilTheme {
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier.padding(16.dp)
+        ) {
+            BasilLeaf()
+        }
+    }
+}
+
+@Preview
+@Composable
+internal fun BasilLeafLargeOnSagePreview() {
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = Modifier
+            .background(BasilPalette.Sage600)
+            .padding(24.dp)
+    ) {
+        BasilLeaf(size = 64.dp, fill = Color.White, vein = BasilPalette.Sage800)
+    }
 }

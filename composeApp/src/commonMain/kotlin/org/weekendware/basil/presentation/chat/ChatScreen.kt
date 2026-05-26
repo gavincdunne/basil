@@ -47,8 +47,10 @@ import basil.composeapp.generated.resources.chat_empty_subtitle
 import basil.composeapp.generated.resources.chat_empty_title
 import basil.composeapp.generated.resources.chat_input_placeholder
 import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 import org.weekendware.basil.domain.model.ChatMessage
+import org.weekendware.basil.presentation.theme.BasilTheme
 import org.weekendware.basil.presentation.theme.basilSpacing
 
 /**
@@ -66,15 +68,7 @@ import org.weekendware.basil.presentation.theme.basilSpacing
 fun ChatScreen() {
     val viewModel = koinViewModel<ChatViewModel>()
     val state by viewModel.state.collectAsState()
-    val listState = rememberLazyListState()
     val snackbarHostState = remember { SnackbarHostState() }
-
-    // Scroll to the bottom whenever the message list grows.
-    LaunchedEffect(state.messages.size) {
-        if (state.messages.isNotEmpty()) {
-            listState.animateScrollToItem(state.messages.lastIndex)
-        }
-    }
 
     // Show the error snackbar and clear the error when dismissed.
     val error = state.error
@@ -85,7 +79,36 @@ fun ChatScreen() {
         }
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    ChatScreenContent(
+        state            = state,
+        snackbarHostState = snackbarHostState,
+        onInputChange    = viewModel::onInputChange,
+        onSend           = viewModel::sendMessage
+    )
+}
+
+/**
+ * Stateless chat UI — accepts all state and callbacks so it can be
+ * independently previewed and tested.
+ */
+@Composable
+fun ChatScreenContent(
+    state: ChatState,
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
+    onInputChange: (String) -> Unit,
+    onSend: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val listState = rememberLazyListState()
+
+    // Scroll to the bottom whenever the message list grows.
+    LaunchedEffect(state.messages.size) {
+        if (state.messages.isNotEmpty()) {
+            listState.animateScrollToItem(state.messages.lastIndex)
+        }
+    }
+
+    Box(modifier = modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -104,7 +127,7 @@ fun ChatScreen() {
                             .padding(horizontal = spacing.md),
                         verticalArrangement = Arrangement.spacedBy(spacing.sm),
                         contentPadding = PaddingValues(
-                            top = spacing.md,
+                            top    = spacing.md,
                             bottom = spacing.md,
                         ),
                     ) {
@@ -124,9 +147,9 @@ fun ChatScreen() {
 
             // ── Input bar ─────────────────────────────────────────
             ChatInputBar(
-                input = state.input,
-                onInputChange = viewModel::onInputChange,
-                onSend = viewModel::sendMessage,
+                input         = state.input,
+                onInputChange = onInputChange,
+                onSend        = onSend,
                 isSendEnabled = state.input.isNotBlank() && !state.isLoading,
             )
         }
@@ -134,7 +157,7 @@ fun ChatScreen() {
         // ── Error snackbar ────────────────────────────────────────
         SnackbarHost(
             hostState = snackbarHostState,
-            modifier = Modifier.align(Alignment.BottomCenter),
+            modifier  = Modifier.align(Alignment.BottomCenter),
         )
     }
 }
@@ -143,7 +166,7 @@ fun ChatScreen() {
  * Shown when the conversation has no messages yet.
  */
 @Composable
-private fun ChatEmptyState(modifier: Modifier = Modifier) {
+internal fun ChatEmptyState(modifier: Modifier = Modifier) {
     val spacing = MaterialTheme.basilSpacing
     Column(
         modifier = modifier.padding(horizontal = spacing.xl),
@@ -151,13 +174,13 @@ private fun ChatEmptyState(modifier: Modifier = Modifier) {
         verticalArrangement = Arrangement.Center,
     ) {
         Text(
-            text = stringResource(Res.string.chat_empty_title),
+            text  = stringResource(Res.string.chat_empty_title),
             style = MaterialTheme.typography.headlineMedium,
             color = MaterialTheme.colorScheme.onSurface,
         )
         Spacer(modifier = Modifier.height(spacing.sm))
         Text(
-            text = stringResource(Res.string.chat_empty_subtitle),
+            text  = stringResource(Res.string.chat_empty_subtitle),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
@@ -173,8 +196,8 @@ private fun ChatEmptyState(modifier: Modifier = Modifier) {
  * signal to the user that more content is on the way.
  */
 @Composable
-private fun MessageBubble(message: ChatMessage) {
-    val isUser = message.role == "user"
+internal fun MessageBubble(message: ChatMessage) {
+    val isUser     = message.role == "user"
     val bubbleColor = if (isUser)
         MaterialTheme.colorScheme.primaryContainer
     else
@@ -183,7 +206,7 @@ private fun MessageBubble(message: ChatMessage) {
         MaterialTheme.colorScheme.onPrimaryContainer
     else
         MaterialTheme.colorScheme.onSecondaryContainer
-    val alignment = if (isUser) Alignment.End else Alignment.Start
+    val alignment  = if (isUser) Alignment.End else Alignment.Start
     val bubbleShape = if (isUser) {
         RoundedCornerShape(topStart = 16.dp, topEnd = 4.dp, bottomStart = 16.dp, bottomEnd = 16.dp)
     } else {
@@ -191,20 +214,19 @@ private fun MessageBubble(message: ChatMessage) {
     }
 
     Column(
-        modifier = Modifier.fillMaxWidth(),
+        modifier            = Modifier.fillMaxWidth(),
         horizontalAlignment = alignment,
     ) {
         Surface(
-            modifier = Modifier.widthIn(max = 280.dp),
-            shape = bubbleShape,
-            color = bubbleColor,
+            modifier       = Modifier.widthIn(max = 280.dp),
+            shape          = bubbleShape,
+            color          = bubbleColor,
             tonalElevation = 1.dp,
         ) {
             Text(
-                // Append a block cursor while the reply is still streaming.
-                text = if (message.isStreaming) message.content + "▋" else message.content,
-                style = MaterialTheme.typography.bodyMedium,
-                color = textColor,
+                text     = if (message.isStreaming) message.content + "▋" else message.content,
+                style    = MaterialTheme.typography.bodyMedium,
+                color    = textColor,
                 modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
             )
         }
@@ -216,7 +238,7 @@ private fun MessageBubble(message: ChatMessage) {
  * assistant has not yet emitted its first token.
  */
 @Composable
-private fun TypingIndicator() {
+internal fun TypingIndicator() {
     Row(
         modifier = Modifier
             .padding(vertical = 4.dp)
@@ -229,7 +251,7 @@ private fun TypingIndicator() {
             .background(MaterialTheme.colorScheme.secondaryContainer)
             .padding(horizontal = 16.dp, vertical = 12.dp),
         horizontalArrangement = Arrangement.spacedBy(4.dp),
-        verticalAlignment = Alignment.CenterVertically,
+        verticalAlignment     = Alignment.CenterVertically,
     ) {
         repeat(3) {
             Box(
@@ -249,15 +271,9 @@ private fun TypingIndicator() {
  *
  * The send button and keyboard action are disabled while the previous message
  * is still loading or the input is blank.
- *
- * @param input         The current text field value.
- * @param onInputChange Called when the user edits the text.
- * @param onSend        Called when the user taps send or presses the keyboard
- *                      action button.
- * @param isSendEnabled Whether the send action is active.
  */
 @Composable
-private fun ChatInputBar(
+internal fun ChatInputBar(
     input: String,
     onInputChange: (String) -> Unit,
     onSend: () -> Unit,
@@ -265,30 +281,30 @@ private fun ChatInputBar(
 ) {
     val spacing = MaterialTheme.basilSpacing
     Surface(
-        modifier = Modifier.fillMaxWidth(),
+        modifier       = Modifier.fillMaxWidth(),
         tonalElevation = 3.dp,
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = spacing.md, vertical = spacing.sm),
-            verticalAlignment = Alignment.CenterVertically,
+            verticalAlignment     = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(spacing.sm),
         ) {
             OutlinedTextField(
-                value = input,
+                value         = input,
                 onValueChange = onInputChange,
-                modifier = Modifier.weight(1f),
-                placeholder = {
+                modifier      = Modifier.weight(1f),
+                placeholder   = {
                     Text(
-                        text = stringResource(Res.string.chat_input_placeholder),
+                        text  = stringResource(Res.string.chat_input_placeholder),
                         style = MaterialTheme.typography.bodyMedium,
                     )
                 },
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
                 keyboardActions = KeyboardActions(onSend = { if (isSendEnabled) onSend() }),
-                maxLines = 4,
-                shape = RoundedCornerShape(24.dp),
+                maxLines        = 4,
+                shape           = RoundedCornerShape(24.dp),
             )
 
             IconButton(
@@ -296,14 +312,126 @@ private fun ChatInputBar(
                 enabled = isSendEnabled,
             ) {
                 Icon(
-                    imageVector = Icons.AutoMirrored.Filled.Send,
+                    imageVector        = Icons.AutoMirrored.Filled.Send,
                     contentDescription = stringResource(Res.string.cd_send_message),
-                    tint = if (isSendEnabled)
+                    tint               = if (isSendEnabled)
                         MaterialTheme.colorScheme.primary
                     else
                         MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
                 )
             }
         }
+    }
+}
+
+// ─────────────────────────────────────────────────────────────
+// Previews
+// ─────────────────────────────────────────────────────────────
+
+@Preview
+@Composable
+internal fun ChatScreenEmptyPreview() {
+    BasilTheme {
+        ChatScreenContent(
+            state         = ChatState(),
+            onInputChange = {},
+            onSend        = {}
+        )
+    }
+}
+
+@Preview
+@Composable
+internal fun ChatScreenWithMessagesPreview() {
+    BasilTheme {
+        ChatScreenContent(
+            state = ChatState(
+                messages = listOf(
+                    ChatMessage(id = "1", role = "user",      content = "What should I eat before a run?"),
+                    ChatMessage(id = "2", role = "assistant", content = "For a run, aim for easily digestible carbs about 30–60 minutes before. A banana or a small bowl of oats works well."),
+                    ChatMessage(id = "3", role = "user",      content = "How much insulin should I reduce?"),
+                    ChatMessage(id = "4", role = "assistant", content = "That depends on exercise intensity and duration. Generally a 20–50% reduction for moderate activity, but always check with your diabetes team first."),
+                )
+            ),
+            onInputChange = {},
+            onSend        = {}
+        )
+    }
+}
+
+@Preview
+@Composable
+internal fun ChatScreenLoadingPreview() {
+    BasilTheme {
+        ChatScreenContent(
+            state = ChatState(
+                messages  = listOf(
+                    ChatMessage(id = "1", role = "user", content = "Will exercise lower my BG?")
+                ),
+                isLoading = true
+            ),
+            onInputChange = {},
+            onSend        = {}
+        )
+    }
+}
+
+@Preview
+@Composable
+internal fun ChatScreenWithInputPreview() {
+    BasilTheme {
+        ChatScreenContent(
+            state         = ChatState(input = "How do I adjust for a high-fat meal?"),
+            onInputChange = {},
+            onSend        = {}
+        )
+    }
+}
+
+@Preview
+@Composable
+internal fun MessageBubbleUserPreview() {
+    BasilTheme {
+        MessageBubble(ChatMessage(id = "1", role = "user", content = "What's a good snack for overnight lows?"))
+    }
+}
+
+@Preview
+@Composable
+internal fun MessageBubbleAssistantPreview() {
+    BasilTheme {
+        MessageBubble(ChatMessage(id = "1", role = "assistant", content = "15g of fast-acting carbs — glucose tablets, juice, or regular soda. Recheck in 15 minutes."))
+    }
+}
+
+@Preview
+@Composable
+internal fun MessageBubbleStreamingPreview() {
+    BasilTheme {
+        MessageBubble(ChatMessage(id = "1", role = "assistant", content = "Glucose tablets work best", isStreaming = true))
+    }
+}
+
+@Preview
+@Composable
+internal fun TypingIndicatorPreview() {
+    BasilTheme {
+        TypingIndicator()
+    }
+}
+
+@Preview
+@Composable
+internal fun ChatInputBarEmptyPreview() {
+    BasilTheme {
+        ChatInputBar(input = "", onInputChange = {}, onSend = {}, isSendEnabled = false)
+    }
+}
+
+@Preview
+@Composable
+internal fun ChatInputBarWithTextPreview() {
+    BasilTheme {
+        ChatInputBar(input = "How do I count carbs in pizza?", onInputChange = {}, onSend = {}, isSendEnabled = true)
     }
 }
