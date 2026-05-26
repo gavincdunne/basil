@@ -27,8 +27,10 @@ import basil.composeapp.generated.resources.app_name
 import basil.composeapp.generated.resources.app_type1_label
 import kotlinx.coroutines.delay
 import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.weekendware.basil.presentation.components.BasilLeaf
 import org.weekendware.basil.presentation.theme.BasilPalette
+import org.weekendware.basil.presentation.theme.BasilTheme
 import org.weekendware.basil.presentation.theme.BasilTokens
 
 /**
@@ -102,5 +104,19 @@ fun SplashScreen(onFadeComplete: () -> Unit) {
                 letterSpacing = 2.5.sp
             )
         }
+    }
+}
+
+// ─────────────────────────────────────────────────────────────
+// Previews
+// ─────────────────────────────────────────────────────────────
+
+@Preview
+@Composable
+internal fun SplashScreenPreview() {
+    BasilTheme {
+        // LaunchedEffect does not fire in preview, so the screen renders at
+        // full opacity showing the static splash layout.
+        SplashScreen(onFadeComplete = {})
     }
 }
