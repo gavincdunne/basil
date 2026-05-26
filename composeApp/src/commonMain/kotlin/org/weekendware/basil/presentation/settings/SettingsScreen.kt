@@ -27,6 +27,7 @@ import basil.composeapp.generated.resources.settings_label_bg_unit
 import basil.composeapp.generated.resources.settings_label_reminders
 import basil.composeapp.generated.resources.settings_label_reminders_hint
 import basil.composeapp.generated.resources.settings_label_version
+import basil.composeapp.generated.resources.error_save_preference_failed
 import basil.composeapp.generated.resources.settings_notifications_coming_soon
 import basil.composeapp.generated.resources.settings_section_about
 import basil.composeapp.generated.resources.settings_section_data
@@ -221,6 +222,20 @@ internal fun SettingsScreenMmollPreview() {
     BasilTheme {
         SettingsScreenContent(
             state          = SettingsState(bgUnit = BgUnit.MMOLL),
+            onBgUnitChange = {}
+        )
+    }
+}
+
+@Preview
+@Composable
+internal fun SettingsScreenErrorPreview() {
+    BasilTheme {
+        SettingsScreenContent(
+            state          = SettingsState(
+                bgUnit = BgUnit.MGDL,
+                error  = Res.string.error_save_preference_failed
+            ),
             onBgUnitChange = {}
         )
     }

@@ -46,6 +46,7 @@ import basil.composeapp.generated.resources.auth_signup_subtitle
 import basil.composeapp.generated.resources.auth_toggle_to_signin
 import basil.composeapp.generated.resources.auth_toggle_to_signup
 import basil.composeapp.generated.resources.auth_welcome_back
+import basil.composeapp.generated.resources.error_auth_failed
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
@@ -315,6 +316,42 @@ internal fun AuthScreenSignUpPreview() {
     BasilTheme {
         AuthScreenContent(
             state            = AuthFormState(isSignUp = true),
+            onEmailChange    = {},
+            onPasswordChange = {},
+            onToggle         = {},
+            onSubmit         = {}
+        )
+    }
+}
+
+@Preview
+@Composable
+internal fun AuthScreenLoadingPreview() {
+    BasilTheme {
+        AuthScreenContent(
+            state            = AuthFormState(
+                email     = "gavin@example.com",
+                password  = "••••••••",
+                isLoading = true
+            ),
+            onEmailChange    = {},
+            onPasswordChange = {},
+            onToggle         = {},
+            onSubmit         = {}
+        )
+    }
+}
+
+@Preview
+@Composable
+internal fun AuthScreenErrorPreview() {
+    BasilTheme {
+        AuthScreenContent(
+            state            = AuthFormState(
+                email  = "gavin@example.com",
+                password = "wrongpassword",
+                error  = Res.string.error_auth_failed
+            ),
             onEmailChange    = {},
             onPasswordChange = {},
             onToggle         = {},

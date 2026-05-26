@@ -252,3 +252,18 @@ internal fun LogEntrySheetContentFilledPreview() {
         )
     }
 }
+
+@Preview
+@Composable
+internal fun LogEntrySheetContentMgdlPreview() {
+    BasilTheme {
+        LogEntrySheetContent(
+            state           = LogFormState(bgValue = "112", bgUnit = BgUnit.MGDL),
+            onBgValueChange = {},
+            onBgUnitChange  = {},
+            onInsulinChange = {},
+            onCarbsChange   = {},
+            onSave          = {}
+        )
+    }
+}

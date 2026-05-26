@@ -55,6 +55,7 @@ import basil.composeapp.generated.resources.profile_label_target_range
 import basil.composeapp.generated.resources.profile_pick_photo
 import basil.composeapp.generated.resources.profile_placeholder_name
 import basil.composeapp.generated.resources.profile_placeholder_target
+import basil.composeapp.generated.resources.error_profile_save_failed
 import basil.composeapp.generated.resources.profile_remove_photo
 import basil.composeapp.generated.resources.profile_section_account
 import basil.composeapp.generated.resources.profile_section_health
@@ -472,6 +473,31 @@ internal fun ProfileScreenEditingPreview() {
             onSaveClick        = {},
             onAvatarPicked = {},
             onRemoveAvatar = {}
+        )
+    }
+}
+
+@Preview
+@Composable
+internal fun ProfileScreenErrorPreview() {
+    BasilTheme {
+        ProfileScreenContent(
+            state = ProfileState(
+                name         = "Gavin Dunne",
+                email        = "gavin@weekendware.io",
+                targetBgLow  = "10.0",
+                targetBgHigh = "4.0",
+                isEditing    = true,
+                error        = Res.string.error_profile_save_failed
+            ),
+            onEditClick        = {},
+            onCancelClick      = {},
+            onNameChange       = {},
+            onTargetLowChange  = {},
+            onTargetHighChange = {},
+            onSaveClick        = {},
+            onAvatarPicked     = {},
+            onRemoveAvatar     = {}
         )
     }
 }
