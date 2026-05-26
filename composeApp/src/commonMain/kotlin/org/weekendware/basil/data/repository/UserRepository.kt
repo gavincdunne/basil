@@ -25,6 +25,11 @@ interface UserRepository {
     fun insert(id: String, name: String, email: String)
 
     /**
+     * Persists the avatar URL for [userId]. Pass null to clear the avatar.
+     */
+    fun updateAvatarUrl(userId: String, url: String?)
+
+    /**
      * Deletes all user records. Used during development and reset flows.
      *
      * **Caution:** This is destructive and permanent.
