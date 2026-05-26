@@ -10,15 +10,15 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.navigation.NavController
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import basil.composeapp.generated.resources.Res
 import basil.composeapp.generated.resources.nav_chat
 import basil.composeapp.generated.resources.nav_home
 import basil.composeapp.generated.resources.nav_profile
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.weekendware.basil.AppRoute
+import org.weekendware.basil.presentation.theme.BasilTheme
 
 private data class BottomNavItem(
     val route:    String,
@@ -36,32 +36,51 @@ private val tabItems = listOf(
  * The bottom navigation bar for the Basil app.
  *
  * Renders a [NavigationBar] item for each of the three main tabs. Tapping an
- * item navigates to that tab's destination, preserving state and avoiding
- * back-stack duplication via [NavController.navigate] with [launchSingleTop].
+ * item calls [onNavigate] with the destination route; the caller is responsible
+ * for the actual navigation logic (single-top, state restoration, etc.).
  *
- * @param navController The [NavController] used for navigation events.
- * @param currentRoute  The currently-active route, used to highlight the
- *   selected item.
+ * @param currentRoute  The currently-active route, used to highlight the selected item.
+ * @param onNavigate    Called with the target route when a tab is tapped.
  */
 @Composable
-fun BasilBottomBar(navController: NavController, currentRoute: String?) {
+fun BasilBottomBar(currentRoute: String?, onNavigate: (String) -> Unit) {
     NavigationBar {
         tabItems.forEach { item ->
             val label = stringResource(item.labelRes)
             NavigationBarItem(
                 selected = currentRoute == item.route,
-                onClick  = {
-                    navController.navigate(item.route) {
-                        popUpTo(navController.graph.findStartDestination().id) {
-                            saveState = true
-                        }
-                        launchSingleTop = true
-                        restoreState    = true
-                    }
-                },
-                icon  = { Icon(item.icon, contentDescription = label) },
-                label = { Text(label) }
+                onClick  = { onNavigate(item.route) },
+                icon     = { Icon(item.icon, contentDescription = label) },
+                label    = { Text(label) }
             )
         }
+    }
+}
+
+// ─────────────────────────────────────────────────────────────
+// Previews
+// ─────────────────────────────────────────────────────────────
+
+@Preview
+@Composable
+internal fun BasilBottomBarHomePreview() {
+    BasilTheme {
+        BasilBottomBar(currentRoute = AppRoute.Home.route, onNavigate = {})
+    }
+}
+
+@Preview
+@Composable
+internal fun BasilBottomBarProfilePreview() {
+    BasilTheme {
+        BasilBottomBar(currentRoute = AppRoute.Profile.route, onNavigate = {})
+    }
+}
+
+@Preview
+@Composable
+internal fun BasilBottomBarChatPreview() {
+    BasilTheme {
+        BasilBottomBar(currentRoute = AppRoute.Chat.route, onNavigate = {})
     }
 }

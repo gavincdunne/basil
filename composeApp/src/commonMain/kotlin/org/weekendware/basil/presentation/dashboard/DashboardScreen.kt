@@ -64,9 +64,37 @@ fun DashboardScreen() {
     val loggingViewModel = koinViewModel<LoggingViewModel>()
     val uiState by viewModel.state.collectAsState()
     val showSheet by viewModel.showLogSheet.collectAsState()
+
+    DashboardScreenContent(
+        state         = uiState,
+        onOpenLogSheet = {
+            loggingViewModel.reset()
+            viewModel.openLogSheet()
+        }
+    )
+
+    if (showSheet) {
+        LogEntrySheet(
+            viewModel = loggingViewModel,
+            onDismiss = { viewModel.closeLogSheet() }
+        )
+    }
+}
+
+/**
+ * Stateless dashboard content — the scrollable list and FAB.
+ *
+ * Separated from [DashboardScreen] so it can be independently previewed and tested.
+ */
+@Composable
+fun DashboardScreenContent(
+    state: DashboardState,
+    onOpenLogSheet: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     val spacing = MaterialTheme.basilSpacing
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(modifier = modifier.fillMaxSize()) {
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(
@@ -79,7 +107,7 @@ fun DashboardScreen() {
         ) {
             // ── Last reading summary ──────────────────────
             item {
-                LastReadingCard(entry = uiState.lastBgEntry)
+                LastReadingCard(entry = state.lastBgEntry)
             }
 
             // ── Today section header ──────────────────────
@@ -90,10 +118,10 @@ fun DashboardScreen() {
             }
 
             // ── Today's entries or empty state ────────────
-            if (uiState.todayEntries.isEmpty()) {
+            if (state.todayEntries.isEmpty()) {
                 item { EmptyTodayState() }
             } else {
-                items(uiState.todayEntries, key = { it.id }) { entry ->
+                items(state.todayEntries, key = { it.id }) { entry ->
                     LogEntryItem(entry = entry)
                 }
             }
@@ -101,23 +129,13 @@ fun DashboardScreen() {
 
         // ── FAB ───────────────────────────────────────────
         FloatingActionButton(
-            onClick = {
-                loggingViewModel.reset()
-                viewModel.openLogSheet()
-            },
+            onClick  = onOpenLogSheet,
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(BasilTokens.FabEdgePadding)
         ) {
             Icon(Icons.Default.Add, contentDescription = stringResource(Res.string.cd_log_entry))
         }
-    }
-
-    if (showSheet) {
-        LogEntrySheet(
-            viewModel = loggingViewModel,
-            onDismiss = { viewModel.closeLogSheet() }
-        )
     }
 }
 
@@ -382,5 +400,54 @@ internal fun LogEntryItemPreview() {
 internal fun EmptyTodayStatePreview() {
     BasilTheme {
         EmptyTodayState()
+    }
+}
+
+@Preview
+@Composable
+internal fun DashboardScreenEmptyPreview() {
+    BasilTheme {
+        DashboardScreenContent(
+            state          = DashboardState(),
+            onOpenLogSheet = {}
+        )
+    }
+}
+
+@Preview
+@Composable
+internal fun DashboardScreenWithDataPreview() {
+    BasilTheme {
+        DashboardScreenContent(
+            state = DashboardState(
+                lastBgEntry = LogEntry(
+                    id           = 1L,
+                    timestamp    = 1_746_000_000_000L,
+                    bgValue      = 7.4,
+                    bgUnit       = BgUnit.MMOLL,
+                    insulinUnits = null,
+                    carbsGrams   = null
+                ),
+                todayEntries = listOf(
+                    LogEntry(
+                        id           = 2L,
+                        timestamp    = 1_746_010_000_000L,
+                        bgValue      = 5.5,
+                        bgUnit       = BgUnit.MMOLL,
+                        insulinUnits = 4.0,
+                        carbsGrams   = 60.0
+                    ),
+                    LogEntry(
+                        id           = 3L,
+                        timestamp    = 1_746_000_000_000L,
+                        bgValue      = 7.4,
+                        bgUnit       = BgUnit.MMOLL,
+                        insulinUnits = null,
+                        carbsGrams   = null
+                    )
+                )
+            ),
+            onOpenLogSheet = {}
+        )
     }
 }

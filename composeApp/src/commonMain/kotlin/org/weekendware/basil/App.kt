@@ -13,6 +13,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -120,15 +121,24 @@ private fun MainApp() {
     Scaffold(
         topBar = {
             BasilTopAppBar(
-                navController = navController,
-                currentRoute = currentRoute
+                currentRoute    = currentRoute,
+                onSettingsClick = { navController.navigate(AppRoute.Settings.route) },
+                onBackClick     = { navController.popBackStack() }
             )
         },
         bottomBar = {
             if (currentRoute in AppRoute.tabRoutes) {
                 BasilBottomBar(
-                    navController = navController,
-                    currentRoute = currentRoute
+                    currentRoute = currentRoute,
+                    onNavigate   = { route ->
+                        navController.navigate(route) {
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                saveState = true
+                            }
+                            launchSingleTop = true
+                            restoreState    = true
+                        }
+                    }
                 )
             }
         }
