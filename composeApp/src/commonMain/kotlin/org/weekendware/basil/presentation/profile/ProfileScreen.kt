@@ -1,5 +1,6 @@
 package org.weekendware.basil.presentation.profile
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,8 +24,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -38,6 +37,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
@@ -115,12 +115,13 @@ fun ProfileScreenContent(
     ) {
         // ── Avatar + name header ──────────────────────────────
         ProfileHeader(
-            name             = state.name,
-            email            = state.email,
-            avatarUrl        = state.avatarUrl,
-            isUploading      = state.isUploadingAvatar,
-            onAvatarPicked   = onAvatarPicked,
-            onRemoveAvatar   = onRemoveAvatar
+            name               = state.name,
+            email              = state.email,
+            avatarUrl          = state.avatarUrl,
+            pendingAvatarBytes = state.pendingAvatarBytes,
+            isUploading        = state.isUploadingAvatar,
+            onAvatarPicked     = onAvatarPicked,
+            onRemoveAvatar     = onRemoveAvatar
         )
 
         // ── Account section ───────────────────────────────────
@@ -237,11 +238,14 @@ fun ProfileScreenContent(
 // Sub-composables
 // ─────────────────────────────────────────────────────────────
 
+private val AvatarSize = 96.dp
+
 @Composable
 private fun ProfileHeader(
     name: String,
     email: String,
     avatarUrl: String?,
+    pendingAvatarBytes: ByteArray?,
     isUploading: Boolean,
     onAvatarPicked: (ByteArray) -> Unit,
     onRemoveAvatar: () -> Unit
@@ -266,66 +270,85 @@ private fun ProfileHeader(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(spacing.sm)
     ) {
-        // Avatar with overlay controls
-        Box(contentAlignment = Alignment.BottomEnd) {
-            if (avatarUrl != null) {
-                AsyncImage(
-                    model             = avatarUrl,
+        // ── Avatar circle — entire circle is the tap target ──
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .size(AvatarSize)
+                .clip(CircleShape)
+                .clickable(enabled = !isUploading) { pickerLauncher.launch() }
+        ) {
+            // Image layer: pending bytes take priority over the remote URL
+            when {
+                pendingAvatarBytes != null -> AsyncImage(
+                    model              = pendingAvatarBytes,
                     contentDescription = stringResource(Res.string.cd_profile_avatar),
-                    contentScale      = ContentScale.Crop,
-                    modifier          = Modifier.size(72.dp).clip(CircleShape)
+                    contentScale       = ContentScale.Crop,
+                    modifier           = Modifier.fillMaxSize()
                 )
-            } else {
-                Surface(
-                    modifier  = Modifier.size(72.dp).clip(CircleShape),
-                    color     = MaterialTheme.colorScheme.primaryContainer
+                avatarUrl != null -> AsyncImage(
+                    model              = avatarUrl,
+                    contentDescription = stringResource(Res.string.cd_profile_avatar),
+                    contentScale       = ContentScale.Crop,
+                    modifier           = Modifier.fillMaxSize()
+                )
+                else -> Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color    = MaterialTheme.colorScheme.primaryContainer
                 ) {
-                    if (isUploading) {
-                        CircularProgressIndicator(
-                            modifier  = Modifier.padding(16.dp),
-                            color     = MaterialTheme.colorScheme.onPrimaryContainer,
-                            strokeWidth = 2.dp
-                        )
-                    } else {
-                        Text(
-                            text      = name.initials(),
-                            modifier  = Modifier.fillMaxSize().padding(top = 18.dp),
-                            textAlign = TextAlign.Center,
-                            style     = MaterialTheme.typography.headlineMedium,
-                            color     = MaterialTheme.colorScheme.onPrimaryContainer
-                        )
-                    }
+                    Text(
+                        text      = name.initials(),
+                        modifier  = Modifier.fillMaxSize().padding(top = 24.dp),
+                        textAlign = TextAlign.Center,
+                        style     = MaterialTheme.typography.headlineLarge,
+                        color     = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
                 }
             }
 
-            // Camera button (bottom-end of avatar)
+            // Semi-transparent bottom scrim with camera icon
             if (!isUploading) {
-                IconButton(
-                    onClick = { pickerLauncher.launch() },
-                    modifier = Modifier.size(28.dp),
-                    colors = IconButtonDefaults.iconButtonColors(
-                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                        contentColor   = MaterialTheme.colorScheme.onSecondaryContainer
-                    )
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(AvatarSize * 0.35f)
+                        .align(Alignment.BottomCenter)
                 ) {
+                    Surface(
+                        modifier = Modifier.fillMaxSize(),
+                        color    = Color.Black.copy(alpha = 0.45f)
+                    ) {}
                     Icon(
                         imageVector        = Icons.Default.AddAPhoto,
-                        contentDescription = stringResource(Res.string.profile_pick_photo),
-                        modifier           = Modifier.size(16.dp)
+                        contentDescription = null,
+                        tint               = Color.White,
+                        modifier           = Modifier.size(20.dp)
                     )
                 }
+            }
+
+            // Upload spinner overlay
+            if (isUploading) {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color    = Color.Black.copy(alpha = 0.45f)
+                ) {}
+                CircularProgressIndicator(
+                    modifier    = Modifier.size(32.dp),
+                    color       = Color.White,
+                    strokeWidth = 2.5.dp
+                )
             }
         }
 
-        // Remove photo button — only shown when an avatar exists
-        if (avatarUrl != null && !isUploading) {
-            TextButton(
-                onClick = onRemoveAvatar
-            ) {
+        // Remove photo — only when an image exists and not uploading
+        if ((pendingAvatarBytes != null || avatarUrl != null) && !isUploading) {
+            TextButton(onClick = onRemoveAvatar) {
                 Icon(
                     imageVector        = Icons.Default.Close,
                     contentDescription = null,
-                    modifier           = Modifier.size(16.dp)
+                    modifier           = Modifier.size(14.dp)
                 )
                 Spacer(Modifier.size(spacing.xs))
                 Text(
@@ -423,8 +446,8 @@ internal fun ProfileScreenContentPreview() {
             onTargetLowChange  = {},
             onTargetHighChange = {},
             onSaveClick        = {},
-            onAvatarPicked     = {},
-            onRemoveAvatar     = {}
+            onAvatarPicked = {},
+            onRemoveAvatar = {}
         )
     }
 }
@@ -447,8 +470,8 @@ internal fun ProfileScreenEditingPreview() {
             onTargetLowChange  = {},
             onTargetHighChange = {},
             onSaveClick        = {},
-            onAvatarPicked     = {},
-            onRemoveAvatar     = {}
+            onAvatarPicked = {},
+            onRemoveAvatar = {}
         )
     }
 }

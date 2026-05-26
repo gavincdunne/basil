@@ -96,16 +96,17 @@ class ProfileViewModel(
 
     fun onAvatarPicked(imageBytes: ByteArray) {
         val userId = getUser()?.id ?: return
-        _state.update { it.copy(isUploadingAvatar = true, error = null) }
+        // Show the picked image immediately before the upload completes
+        _state.update { it.copy(pendingAvatarBytes = imageBytes, isUploadingAvatar = true, error = null) }
         coroutineScope.launch {
             avatarRepository.uploadAvatar(userId, imageBytes)
                 .onSuccess { url ->
                     userRepository.updateAvatarUrl(userId, url)
-                    _state.update { it.copy(avatarUrl = url, isUploadingAvatar = false) }
+                    _state.update { it.copy(avatarUrl = url, pendingAvatarBytes = null, isUploadingAvatar = false) }
                 }
                 .onFailure {
                     _state.update {
-                        it.copy(isUploadingAvatar = false, error = Res.string.error_avatar_upload_failed)
+                        it.copy(pendingAvatarBytes = null, isUploadingAvatar = false, error = Res.string.error_avatar_upload_failed)
                     }
                 }
         }
@@ -144,6 +145,7 @@ data class ProfileState(
     val name: String               = "",
     val email: String              = "",
     val avatarUrl: String?         = null,
+    val pendingAvatarBytes: ByteArray? = null,
     val isUploadingAvatar: Boolean = false,
     val targetBgLow: String        = "",
     val targetBgHigh: String       = "",
