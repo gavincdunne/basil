@@ -60,6 +60,8 @@ import basil.composeapp.generated.resources.profile_remove_photo
 import basil.composeapp.generated.resources.profile_section_account
 import basil.composeapp.generated.resources.profile_section_health
 import coil3.compose.AsyncImage
+import coil3.compose.LocalPlatformContext as CoilPlatformContext
+import coil3.request.ImageRequest
 import com.mohamedrejeb.calf.core.LocalPlatformContext
 import com.mohamedrejeb.calf.io.readByteArray
 import com.mohamedrejeb.calf.picker.FilePickerFileType
@@ -254,6 +256,7 @@ private fun ProfileHeader(
     val spacing = MaterialTheme.basilSpacing
     val coroutineScope = rememberCoroutineScope()
     val platformContext = LocalPlatformContext.current
+    val coilContext = CoilPlatformContext.current
 
     val pickerLauncher = rememberFilePickerLauncher(
         type = FilePickerFileType.Image,
@@ -282,16 +285,18 @@ private fun ProfileHeader(
             // Image layer: pending bytes take priority over the remote URL
             when {
                 pendingAvatarBytes != null -> AsyncImage(
-                    model              = pendingAvatarBytes,
+                    model = ImageRequest.Builder(coilContext)
+                        .data(pendingAvatarBytes)
+                        .build(),
                     contentDescription = stringResource(Res.string.cd_profile_avatar),
                     contentScale       = ContentScale.Crop,
-                    modifier           = Modifier.fillMaxSize()
+                    modifier           = Modifier.fillMaxSize().clip(CircleShape)
                 )
                 avatarUrl != null -> AsyncImage(
                     model              = avatarUrl,
                     contentDescription = stringResource(Res.string.cd_profile_avatar),
                     contentScale       = ContentScale.Crop,
-                    modifier           = Modifier.fillMaxSize()
+                    modifier           = Modifier.fillMaxSize().clip(CircleShape)
                 )
                 else -> Surface(
                     modifier = Modifier.fillMaxSize(),
