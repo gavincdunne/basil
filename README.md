@@ -1,7 +1,9 @@
-# Basil – Type 1 Diabetes Management
+# Basil
 *Built by WeekendWare*
 
-Basil is a Kotlin Multiplatform app for managing life with Type 1 diabetes. One codebase, three targets — Android, iOS, and desktop — built with Compose Multiplatform and a clean layered architecture.
+Basil is an AI companion for people living with Type 1 Diabetes. Not a tracker. Not a charting tool. A companion — something that knows what your life with T1D actually feels like, remembers what you tell it, and is useful to talk to when you have a question, a rough day, or just need to process something.
+
+The name is intentional. Basil is a person you talk to, not a tool you log into.
 
 ---
 
@@ -38,21 +40,26 @@ Each layer depends only on the layer below it. ViewModels and use cases depend o
 
 ### What's built
 
-- **Dashboard** — last BG reading card with glucose status colouring, today's entry timeline, empty states
-- **Log entry** — bottom sheet for logging BG, insulin, and carbs; BG unit preference (mg/dL / mmol/L) persisted across sessions
-- **Profile** — name, email, profile photo (Supabase Storage), and target BG range with inline editing
-- **Settings** — BG unit toggle with persisted preference; notifications placeholder
+The current build is scaffolding for the companion experience. The primary product interaction — the check-in system — is not yet built.
+
+**App infrastructure**
+- **Auth** — Supabase sign-up / sign-in / session restoration with OS-level splash gate
 - **Navigation** — `NavHost`-based navigation with bottom tab bar (Home, Chat, Profile) and Settings destination
 - **Theme** — custom `BasilColors`, `BasilSpacing`, `BasilTypography`, `BasilShapes` wired into MaterialTheme
-- **Auth** — Supabase sign-up / sign-in / session restoration with OS-level splash gate
-- **AI chat** — streaming chat screen backed by a Rust/Axum API and the Anthropic API; chat history cleared on sign-out; HIPAA-safe context window cap
-- **Data layer** — `LogRepository`, `PreferencesRepository`, `UserRepository` backed by SQLDelight; `ChatRepository` via Ktor; `AvatarRepository` via Supabase Storage
 - **Crash reporting** — Sentry across all three targets with `PhiScrubber` stripping health data before any event leaves the device
 - **CI/CD** — GitHub Actions running Detekt, Android compile + test, and iOS framework build on every push
 
+**Data & context (optional, secondary)**
+- **Dashboard** — last BG reading card with glucose status colouring, today's entry timeline
+- **Log entry** — bottom sheet for logging BG, insulin, and carbs; BG unit preference persisted across sessions
+- **Profile** — name, email, profile photo (Supabase Storage), and target BG range
+
+**AI chat tab**
+- The chat UI and `ChatViewModel` are built. The backend (`basil-chat-api` — Rust/Axum + Anthropic) runs locally only and is not yet deployed. The tab is non-functional in production.
+
 ### Companion service
 
-The AI chat layer is backed by [`basil-chat-api`](https://github.com/gavincdunne/basil-chat-api) — a Rust/Axum service that proxies streaming requests to the Anthropic API. It enforces an API key gate and context window cap before any message reaches the model.
+[`basil-chat-api`](https://github.com/gavincdunne/basil-chat-api) — a Rust/Axum service that proxies streaming requests to the Anthropic API. Enforces an API key gate and context window cap. Local-only; not yet deployed.
 
 ### PHI Protection
 
@@ -61,29 +68,32 @@ T1D apps handle sensitive health data. Basil takes a conservative scrubbing appr
 - User identity is removed from every Sentry event
 - Exception messages from health-data packages (`logging`, `dashboard`, `data`, `auth`) are cleared — the exception *type* and *stack trace* are preserved for debugging
 - Breadcrumb data payloads are wiped — navigation category and type are kept
-- Event contexts are cleared
 
-The scrubbing logic has its own unit test suite ([`PhiScrubberTest`](composeApp/src/desktopTest/kotlin/org/weekendware/basil/crash/PhiScrubberTest.kt)) covering all health package variants, mixed exception lists, case sensitivity, and breadcrumb field preservation.
+The scrubbing logic has its own unit test suite covering all health package variants, mixed exception lists, case sensitivity, and breadcrumb field preservation.
 
 ---
 
 ## Roadmap
 
+**In progress / specced**
+
+- [ ] **Check-in system** *(spec approved — Architect not started)* — the core product interaction: a daily conversational prompt, free-text response, Basil reply, stored as the foundation for persistent memory
+- [ ] **Onboarding** *(spec approved — Architect not started)*
+- [ ] **Persistent memory** *(spec approved — Architect not started)* — Basil builds an understanding of this specific person over time
+
+**Infrastructure**
+
 - [x] Build flavors (dev / staging / prod)
 - [x] Supabase auth + user session
-- [x] Dashboard with BG status colouring and entry timeline
-- [x] Log entry sheet (BG, insulin, carbs) with persisted unit preference
-- [x] Profile screen (name, email, avatar, target BG range)
-- [x] Settings screen (BG unit toggle)
+- [x] Dashboard, log entry, profile, settings screens
 - [x] Sentry crash reporting with PHI scrubbing
-- [x] AI assistant chat (Basil tab) — streaming via Rust/Axum API + Anthropic
-- [ ] History and trends view with charting
+- [x] AI chat screen (UI + ViewModel)
+- [ ] Deploy `basil-chat-api` — chat tab currently local-only
 - [ ] Supabase data sync (currently local SQLDelight only)
-- [ ] Push notifications
-- [ ] User onboarding flow
-- [ ] RevenueCat subscription + message caps
 - [ ] HIPAA hardening (SQLCipher, session timeout, audit log)
 - [ ] Auth completion (password reset, email verification)
+- [ ] Push notifications
+- [ ] RevenueCat subscription + message caps
 - [ ] Desktop persistence (file-backed SQLite driver)
 
 ---
@@ -102,18 +112,18 @@ The scrubbing logic has its own unit test suite ([`PhiScrubberTest`](composeApp/
 
 **iOS** — open `iosApp/iosApp.xcodeproj` in Xcode and run on any iOS 18.2+ simulator.
 
-> Note: `Sentry.xcframework` (Sentry Cocoa 8.57.3) must be present at `iosApp/Sentry.xcframework`. Download from the [sentry-cocoa releases](https://github.com/getsentry/sentry-cocoa/releases/tag/8.57.3) and unzip into `iosApp/`.
+> `Sentry.xcframework` (Sentry Cocoa 8.57.3) must be present at `iosApp/Sentry.xcframework`. Download from the [sentry-cocoa releases](https://github.com/getsentry/sentry-cocoa/releases/tag/8.57.3) and unzip into `iosApp/`.
 
 **AI chat (local)**
 
-The chat tab requires `basil-chat-api` running locally. Add to `local.properties`:
+Add to `local.properties`:
 
 ```
 chat.api.url=http://localhost:8080
 chat.api.key=<your API key>
 ```
 
-Then start the service from the `basil-chat-api` directory:
+Start `basil-chat-api`:
 ```
 cargo run
 ```
