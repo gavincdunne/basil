@@ -3,8 +3,6 @@
 
 Basil is an AI companion for people living with Type 1 Diabetes. Not a tracker. Not a charting tool. A companion — something that knows what your life with T1D actually feels like, remembers what you tell it, and is useful to talk to when you have a question, a rough day, or just need to process something.
 
-The name is intentional. Basil is a person you talk to, not a tool you log into.
-
 ---
 
 ## Engineering
@@ -40,8 +38,6 @@ Each layer depends only on the layer below it. ViewModels and use cases depend o
 
 ### What's built
 
-The current build is scaffolding for the companion experience. The primary product interaction — the check-in system — is not yet built.
-
 **App infrastructure**
 - **Auth** — Supabase sign-up / sign-in / session restoration with OS-level splash gate
 - **Navigation** — `NavHost`-based navigation with bottom tab bar (Home, Chat, Profile) and Settings destination
@@ -55,11 +51,11 @@ The current build is scaffolding for the companion experience. The primary produ
 - **Profile** — name, email, profile photo (Supabase Storage), and target BG range
 
 **AI chat tab**
-- The chat UI and `ChatViewModel` are built. The backend (`basil-chat-api` — Rust/Axum + Anthropic) runs locally only and is not yet deployed. The tab is non-functional in production.
+- **Chat** — streaming chat screen, `ChatViewModel`, and `KtorChatRepository` wired end-to-end with `basil-chat-api`
 
 ### Companion service
 
-[`basil-chat-api`](https://github.com/gavincdunne/basil-chat-api) — a Rust/Axum service that proxies streaming requests to the Anthropic API. Enforces an API key gate and context window cap. Local-only; not yet deployed.
+[`basil-chat-api`](https://github.com/gavincdunne/basil-chat-api) — a Rust/Axum service that proxies streaming requests to the Anthropic API. Enforces an API key gate and context window cap.
 
 ### PHI Protection
 
@@ -75,20 +71,15 @@ The scrubbing logic has its own unit test suite covering all health package vari
 
 ## Roadmap
 
-**In progress / specced**
-
-- [ ] **Check-in system** *(spec approved — Architect not started)* — the core product interaction: a daily conversational prompt, free-text response, Basil reply, stored as the foundation for persistent memory
-- [ ] **Onboarding** *(spec approved — Architect not started)*
-- [ ] **Persistent memory** *(spec approved — Architect not started)* — Basil builds an understanding of this specific person over time
-
-**Infrastructure**
-
+- [ ] **Check-in system** — the core product interaction: a daily conversational prompt, free-text response, Basil reply, stored as the foundation for persistent memory
+- [ ] **Onboarding**
+- [ ] **Persistent memory** — Basil builds an understanding of this specific person over time
 - [x] Build flavors (dev / staging / prod)
 - [x] Supabase auth + user session
 - [x] Dashboard, log entry, profile, settings screens
 - [x] Sentry crash reporting with PHI scrubbing
 - [x] AI chat screen (UI + ViewModel)
-- [ ] Deploy `basil-chat-api` — chat tab currently local-only
+- [ ] Deploy `basil-chat-api`
 - [ ] Supabase data sync (currently local SQLDelight only)
 - [ ] HIPAA hardening (SQLCipher, session timeout, audit log)
 - [ ] Auth completion (password reset, email verification)
