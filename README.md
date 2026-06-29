@@ -51,11 +51,7 @@ Each layer depends only on the layer below it. ViewModels and use cases depend o
 - **Profile** — name, email, profile photo (Supabase Storage), and target BG range
 
 **AI chat tab**
-- **Chat** — streaming chat screen, `ChatViewModel`, and `KtorChatRepository` wired end-to-end with `basil-chat-api`
-
-### Companion service
-
-[`basil-chat-api`](https://github.com/gavincdunne/basil-chat-api) — a Rust/Axum service that proxies streaming requests to the Anthropic API. Enforces an API key gate and context window cap.
+- **Chat** — streaming chat screen, `ChatViewModel`, and `KtorChatRepository`
 
 ### PHI Protection
 
@@ -79,7 +75,6 @@ The scrubbing logic has its own unit test suite covering all health package vari
 - [x] Dashboard, log entry, profile, settings screens
 - [x] Sentry crash reporting with PHI scrubbing
 - [x] AI chat screen (UI + ViewModel)
-- [ ] Deploy `basil-chat-api`
 - [ ] Supabase data sync (currently local SQLDelight only)
 - [ ] HIPAA hardening (SQLCipher, session timeout, audit log)
 - [ ] Auth completion (password reset, email verification)
@@ -104,20 +99,6 @@ The scrubbing logic has its own unit test suite covering all health package vari
 **iOS** — open `iosApp/iosApp.xcodeproj` in Xcode and run on any iOS 18.2+ simulator.
 
 > `Sentry.xcframework` (Sentry Cocoa 8.57.3) must be present at `iosApp/Sentry.xcframework`. Download from the [sentry-cocoa releases](https://github.com/getsentry/sentry-cocoa/releases/tag/8.57.3) and unzip into `iosApp/`.
-
-**AI chat**
-
-Add to `local.properties`:
-
-```
-chat.api.url=http://localhost:8080
-chat.api.key=<your API key>
-```
-
-Start `basil-chat-api`:
-```
-cargo run
-```
 
 **Tests**
 ```
