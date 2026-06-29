@@ -45,7 +45,7 @@ Each layer depends only on the layer below it. ViewModels and use cases depend o
 - **Crash reporting** — Sentry across all three targets with `PhiScrubber` stripping health data before any event leaves the device
 - **CI/CD** — GitHub Actions running Detekt, Android compile + test, and iOS framework build on every push
 
-**Data & context (optional, secondary)**
+**Data & context**
 - **Dashboard** — last BG reading card with glucose status colouring, today's entry timeline
 - **Log entry** — bottom sheet for logging BG, insulin, and carbs; BG unit preference persisted across sessions
 - **Profile** — name, email, profile photo (Supabase Storage), and target BG range
@@ -105,7 +105,7 @@ The scrubbing logic has its own unit test suite covering all health package vari
 
 > `Sentry.xcframework` (Sentry Cocoa 8.57.3) must be present at `iosApp/Sentry.xcframework`. Download from the [sentry-cocoa releases](https://github.com/getsentry/sentry-cocoa/releases/tag/8.57.3) and unzip into `iosApp/`.
 
-**AI chat (local)**
+**AI chat**
 
 Add to `local.properties`:
 
