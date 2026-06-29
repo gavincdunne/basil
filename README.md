@@ -5,14 +5,6 @@ Basil is a Kotlin Multiplatform app for managing life with Type 1 diabetes. One 
 
 ---
 
-## Screenshots
-
-| Desktop | iOS | Android |
-|:---:|:---:|:---:|
-| ![Desktop](docs/screenshots/desktop.png) | ![iOS](docs/screenshots/ios.png) | ![Android](docs/screenshots/android.png) |
-
----
-
 ## Engineering
 
 ### Stack
@@ -24,6 +16,7 @@ Basil is a Kotlin Multiplatform app for managing life with Type 1 diabetes. One 
 | ViewModel | androidx.lifecycle 2.9.0 |
 | DI | Koin 4.0.4 |
 | Database | SQLDelight 2.0.1 |
+| Networking | Ktor |
 | Date/Time | kotlinx-datetime 0.6.0 |
 | Crash reporting | Sentry Kotlin Multiplatform 0.25.0 |
 | Static analysis | Detekt 1.23.7 + detekt-formatting |
@@ -35,8 +28,9 @@ Basil is a Kotlin Multiplatform app for managing life with Type 1 diabetes. One 
 presentation/          Compose UI + ViewModels (MVVM)
 domain/model/          Pure Kotlin domain models
 domain/usecase/        Single-responsibility use cases
-data/repository/       Repository interfaces + SQLDelight implementations
+data/repository/       Repository interfaces + SQLDelight / Supabase implementations
 data/local/database/   SQLDelight schema, queries, DatabaseDriverFactory
+data/remote/           Ktor-based API client (chat)
 di/                    Koin modules — shared + platform-specific
 ```
 
@@ -46,14 +40,19 @@ Each layer depends only on the layer below it. ViewModels and use cases depend o
 
 - **Dashboard** — last BG reading card with glucose status colouring, today's entry timeline, empty states
 - **Log entry** — bottom sheet for logging BG, insulin, and carbs; BG unit preference (mg/dL / mmol/L) persisted across sessions
-- **Profile** — name, email, and target BG range with inline editing
+- **Profile** — name, email, profile photo (Supabase Storage), and target BG range with inline editing
 - **Settings** — BG unit toggle with persisted preference; notifications placeholder
-- **Navigation** — `NavHost`-based navigation with bottom tab bar and settings destination
+- **Navigation** — `NavHost`-based navigation with bottom tab bar (Home, Chat, Profile) and Settings destination
 - **Theme** — custom `BasilColors`, `BasilSpacing`, `BasilTypography`, `BasilShapes` wired into MaterialTheme
 - **Auth** — Supabase sign-up / sign-in / session restoration with OS-level splash gate
-- **Data layer** — `LogRepository`, `PreferencesRepository`, `UserRepository` backed by SQLDelight
-- **Crash reporting** — Sentry across all three targets with `PhiScrubber` stripping health data (BG values, insulin doses, carbs) before any event leaves the device
+- **AI chat** — streaming chat screen backed by a Rust/Axum API and the Anthropic API; chat history cleared on sign-out; HIPAA-safe context window cap
+- **Data layer** — `LogRepository`, `PreferencesRepository`, `UserRepository` backed by SQLDelight; `ChatRepository` via Ktor; `AvatarRepository` via Supabase Storage
+- **Crash reporting** — Sentry across all three targets with `PhiScrubber` stripping health data before any event leaves the device
 - **CI/CD** — GitHub Actions running Detekt, Android compile + test, and iOS framework build on every push
+
+### Companion service
+
+The AI chat layer is backed by [`basil-chat-api`](https://github.com/gavincdunne/basil-chat-api) — a Rust/Axum service that proxies streaming requests to the Anthropic API. It enforces an API key gate and context window cap before any message reaches the model.
 
 ### PHI Protection
 
@@ -74,10 +73,10 @@ The scrubbing logic has its own unit test suite ([`PhiScrubberTest`](composeApp/
 - [x] Supabase auth + user session
 - [x] Dashboard with BG status colouring and entry timeline
 - [x] Log entry sheet (BG, insulin, carbs) with persisted unit preference
-- [x] Profile screen (name, email, target BG range)
+- [x] Profile screen (name, email, avatar, target BG range)
 - [x] Settings screen (BG unit toggle)
 - [x] Sentry crash reporting with PHI scrubbing
-- [ ] AI assistant chat (Basil tab) — Rust/Axum API + Anthropic
+- [x] AI assistant chat (Basil tab) — streaming via Rust/Axum API + Anthropic
 - [ ] History and trends view with charting
 - [ ] Supabase data sync (currently local SQLDelight only)
 - [ ] Push notifications
@@ -104,6 +103,20 @@ The scrubbing logic has its own unit test suite ([`PhiScrubberTest`](composeApp/
 **iOS** — open `iosApp/iosApp.xcodeproj` in Xcode and run on any iOS 18.2+ simulator.
 
 > Note: `Sentry.xcframework` (Sentry Cocoa 8.57.3) must be present at `iosApp/Sentry.xcframework`. Download from the [sentry-cocoa releases](https://github.com/getsentry/sentry-cocoa/releases/tag/8.57.3) and unzip into `iosApp/`.
+
+**AI chat (local)**
+
+The chat tab requires `basil-chat-api` running locally. Add to `local.properties`:
+
+```
+chat.api.url=http://localhost:8080
+chat.api.key=<your API key>
+```
+
+Then start the service from the `basil-chat-api` directory:
+```
+cargo run
+```
 
 **Tests**
 ```
