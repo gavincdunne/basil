@@ -1,7 +1,9 @@
 # Basil
 *Built by WeekendWare*
 
-Basil is an AI companion for people living with Type 1 Diabetes. Not a tracker. Not a charting tool. A companion — something that knows what your life with T1D actually feels like, remembers what you tell it, and is useful to talk to when you have a question, a rough day, or just need to process something.
+Most health apps treat you like a data point. Basil doesn't. It's a companion for people living with Type 1 Diabetes — something that knows what your days actually look like, remembers what you've shared, and is worth talking to when you have a question, a hard moment, or just need to think out loud.
+
+The conversation is the product. Everything else is infrastructure.
 
 ---
 
@@ -40,39 +42,36 @@ Each layer depends only on the layer below it. ViewModels and use cases depend o
 
 **App infrastructure**
 - **Auth** — Supabase sign-up / sign-in / session restoration with OS-level splash gate
-- **Navigation** — `NavHost`-based navigation with bottom tab bar (Home, Chat, Profile) and Settings destination
-- **Theme** — custom `BasilColors`, `BasilSpacing`, `BasilTypography`, `BasilShapes` wired into MaterialTheme
+- **Navigation** — `NavHost`-based bottom tab bar (Home, Chat, Profile) and Settings destination
+- **Theme** — `BasilColors`, `BasilSpacing`, `BasilTypography`, `BasilShapes` wired into MaterialTheme
 - **Crash reporting** — Sentry across all three targets with `PhiScrubber` stripping health data before any event leaves the device
 - **CI/CD** — GitHub Actions running Detekt, Android compile + test, and iOS framework build on every push
 
-**Data & context**
-- **Dashboard** — last BG reading card with glucose status colouring, today's entry timeline
-- **Log entry** — bottom sheet for logging BG, insulin, and carbs; BG unit preference persisted across sessions
-- **Profile** — name, email, profile photo (Supabase Storage), and target BG range
-
-**AI chat tab**
-- **Chat** — streaming chat screen, `ChatViewModel`, and `KtorChatRepository`
+**Screens**
+- **Chat** — streaming conversation screen wired to the companion API
+- **Profile** — name, email, and profile photo
+- **Settings** — notifications placeholder and app version
 
 ### PHI Protection
 
-T1D apps handle sensitive health data. Basil takes a conservative scrubbing approach via [`PhiScrubber`](composeApp/src/commonMain/kotlin/org/weekendware/basil/crash/PhiScrubber.kt):
+T1D apps handle sensitive health data. Basil scrubs it before it can leave the device via [`PhiScrubber`](composeApp/src/commonMain/kotlin/org/weekendware/basil/crash/PhiScrubber.kt):
 
 - User identity is removed from every Sentry event
-- Exception messages from health-data packages (`logging`, `dashboard`, `data`, `auth`) are cleared — the exception *type* and *stack trace* are preserved for debugging
+- Exception messages from health-related packages (`chat`, `data`, `auth`) are cleared — exception type and stack trace are preserved for debugging
 - Breadcrumb data payloads are wiped — navigation category and type are kept
-
-The scrubbing logic has its own unit test suite covering all health package variants, mixed exception lists, case sensitivity, and breadcrumb field preservation.
 
 ---
 
 ## Roadmap
 
-- [ ] **Check-in system** — the core product interaction: a daily conversational prompt, free-text response, Basil reply, stored as the foundation for persistent memory
-- [ ] **Onboarding**
-- [ ] **Persistent memory** — Basil builds an understanding of this specific person over time
+The foundation is in. What ships next is the core product.
+
+- [ ] **Check-in system** — Basil reaches out. You respond. That exchange is stored and becomes the basis for everything that follows.
+- [ ] **Onboarding** — first conversation, context setting, the moment Basil becomes yours
+- [ ] **Persistent memory** — Basil builds a real picture of this person over time
 - [x] Build flavors (dev / staging / prod)
 - [x] Supabase auth + user session
-- [x] Dashboard, log entry, profile, settings screens
+- [x] Profile and settings screens
 - [x] Sentry crash reporting with PHI scrubbing
 - [x] AI chat screen (UI + ViewModel)
 - [ ] Supabase data sync (currently local SQLDelight only)
