@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -14,19 +13,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddAPhoto
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -39,26 +34,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import basil.composeapp.generated.resources.Res
 import basil.composeapp.generated.resources.cd_profile_avatar
-import basil.composeapp.generated.resources.profile_action_cancel
-import basil.composeapp.generated.resources.profile_action_edit
-import basil.composeapp.generated.resources.profile_action_save
 import basil.composeapp.generated.resources.profile_label_email
 import basil.composeapp.generated.resources.profile_label_name
-import basil.composeapp.generated.resources.profile_label_target_high
-import basil.composeapp.generated.resources.profile_label_target_low
-import basil.composeapp.generated.resources.profile_label_target_range
 import basil.composeapp.generated.resources.profile_pick_photo
 import basil.composeapp.generated.resources.profile_placeholder_name
-import basil.composeapp.generated.resources.profile_placeholder_target
-import basil.composeapp.generated.resources.error_profile_save_failed
 import basil.composeapp.generated.resources.profile_remove_photo
 import basil.composeapp.generated.resources.profile_section_account
-import basil.composeapp.generated.resources.profile_section_health
 import coil3.compose.AsyncImage
 import com.mohamedrejeb.calf.core.LocalPlatformContext
 import com.mohamedrejeb.calf.io.readByteArray
@@ -72,35 +57,20 @@ import org.koin.compose.viewmodel.koinViewModel
 import org.weekendware.basil.presentation.theme.BasilTheme
 import org.weekendware.basil.presentation.theme.basilSpacing
 
-/**
- * Profile screen — shows account info, avatar, and the user's target BG range.
- */
 @Composable
 fun ProfileScreen() {
     val viewModel = koinViewModel<ProfileViewModel>()
     val state by viewModel.state.collectAsState()
     ProfileScreenContent(
-        state              = state,
-        onEditClick        = viewModel::onEditClick,
-        onCancelClick      = viewModel::onCancelClick,
-        onNameChange       = viewModel::onNameChange,
-        onTargetLowChange  = viewModel::onTargetLowChange,
-        onTargetHighChange = viewModel::onTargetHighChange,
-        onSaveClick        = viewModel::onSaveClick,
-        onAvatarPicked     = viewModel::onAvatarPicked,
-        onRemoveAvatar     = viewModel::onRemoveAvatar
+        state          = state,
+        onAvatarPicked = viewModel::onAvatarPicked,
+        onRemoveAvatar = viewModel::onRemoveAvatar
     )
 }
 
 @Composable
 fun ProfileScreenContent(
     state: ProfileState,
-    onEditClick: () -> Unit,
-    onCancelClick: () -> Unit,
-    onNameChange: (String) -> Unit,
-    onTargetLowChange: (String) -> Unit,
-    onTargetHighChange: (String) -> Unit,
-    onSaveClick: () -> Unit,
     onAvatarPicked: (ByteArray) -> Unit,
     onRemoveAvatar: () -> Unit,
     modifier: Modifier = Modifier
@@ -114,7 +84,6 @@ fun ProfileScreenContent(
             .padding(horizontal = spacing.lg, vertical = spacing.xl),
         verticalArrangement = Arrangement.spacedBy(spacing.xl)
     ) {
-        // ── Avatar + name header ──────────────────────────────
         ProfileHeader(
             name               = state.name,
             email              = state.email,
@@ -125,7 +94,6 @@ fun ProfileScreenContent(
             onRemoveAvatar     = onRemoveAvatar
         )
 
-        // ── Account section ───────────────────────────────────
         ProfileSection(title = stringResource(Res.string.profile_section_account)) {
             ProfileReadOnlyRow(
                 label = stringResource(Res.string.profile_label_name),
@@ -136,101 +104,6 @@ fun ProfileScreenContent(
                 label = stringResource(Res.string.profile_label_email),
                 value = state.email
             )
-        }
-
-        // ── Health profile section ────────────────────────────
-        ProfileSection(title = stringResource(Res.string.profile_section_health)) {
-            Text(
-                text  = stringResource(Res.string.profile_label_target_range),
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Spacer(Modifier.height(spacing.sm))
-
-            if (state.isEditing) {
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(spacing.md),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    OutlinedTextField(
-                        value         = state.targetBgLow,
-                        onValueChange = onTargetLowChange,
-                        label         = { Text(stringResource(Res.string.profile_label_target_low)) },
-                        placeholder   = { Text(stringResource(Res.string.profile_placeholder_target)) },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                        singleLine    = true,
-                        modifier      = Modifier.weight(1f)
-                    )
-                    OutlinedTextField(
-                        value         = state.targetBgHigh,
-                        onValueChange = onTargetHighChange,
-                        label         = { Text(stringResource(Res.string.profile_label_target_high)) },
-                        placeholder   = { Text(stringResource(Res.string.profile_placeholder_target)) },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                        singleLine    = true,
-                        modifier      = Modifier.weight(1f)
-                    )
-                }
-            } else {
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(spacing.xs),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text  = state.targetBgLow,
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    Text(
-                        text  = "–",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Text(
-                        text  = state.targetBgHigh,
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                }
-            }
-
-            // Error
-            state.error?.let { err ->
-                Spacer(Modifier.height(spacing.xs))
-                Text(
-                    text  = stringResource(err),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.error
-                )
-            }
-        }
-
-        // ── Actions ───────────────────────────────────────────
-        if (state.isEditing) {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(spacing.md),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                OutlinedButton(
-                    onClick  = onCancelClick,
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text(stringResource(Res.string.profile_action_cancel).uppercase())
-                }
-                Button(
-                    onClick  = onSaveClick,
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text(stringResource(Res.string.profile_action_save).uppercase())
-                }
-            }
-        } else {
-            TextButton(
-                onClick  = onEditClick,
-                modifier = Modifier.align(Alignment.End)
-            ) {
-                Text(stringResource(Res.string.profile_action_edit).uppercase())
-            }
         }
     }
 }
@@ -271,7 +144,6 @@ private fun ProfileHeader(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(spacing.sm)
     ) {
-        // ── Avatar circle — entire circle is the tap target ──
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier
@@ -279,7 +151,6 @@ private fun ProfileHeader(
                 .clip(CircleShape)
                 .clickable(enabled = !isUploading) { pickerLauncher.launch() }
         ) {
-            // Image layer: pending bytes take priority over the remote URL
             when {
                 pendingAvatarBytes != null -> AsyncImage(
                     model              = pendingAvatarBytes,
@@ -307,7 +178,6 @@ private fun ProfileHeader(
                 }
             }
 
-            // Semi-transparent bottom scrim with camera icon
             if (!isUploading) {
                 Box(
                     contentAlignment = Alignment.Center,
@@ -329,7 +199,6 @@ private fun ProfileHeader(
                 }
             }
 
-            // Upload spinner overlay
             if (isUploading) {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
@@ -343,7 +212,6 @@ private fun ProfileHeader(
             }
         }
 
-        // Remove photo — only when an image exists and not uploading
         if ((pendingAvatarBytes != null || avatarUrl != null) && !isUploading) {
             TextButton(onClick = onRemoveAvatar) {
                 Icon(
@@ -351,7 +219,6 @@ private fun ProfileHeader(
                     contentDescription = null,
                     modifier           = Modifier.size(14.dp)
                 )
-                Spacer(Modifier.size(spacing.xs))
                 Text(
                     text  = stringResource(Res.string.profile_remove_photo),
                     style = MaterialTheme.typography.labelMedium
@@ -434,70 +301,9 @@ private fun String.initials(): String =
 internal fun ProfileScreenContentPreview() {
     BasilTheme {
         ProfileScreenContent(
-            state = ProfileState(
-                name         = "Gavin Dunne",
-                email        = "gavin@weekendware.io",
-                targetBgLow  = "3.9",
-                targetBgHigh = "10.0",
-                isEditing    = false
-            ),
-            onEditClick        = {},
-            onCancelClick      = {},
-            onNameChange       = {},
-            onTargetLowChange  = {},
-            onTargetHighChange = {},
-            onSaveClick        = {},
+            state          = ProfileState(name = "Gavin Dunne", email = "gavin@weekendware.io"),
             onAvatarPicked = {},
             onRemoveAvatar = {}
-        )
-    }
-}
-
-@Preview
-@Composable
-internal fun ProfileScreenEditingPreview() {
-    BasilTheme {
-        ProfileScreenContent(
-            state = ProfileState(
-                name         = "Gavin Dunne",
-                email        = "gavin@weekendware.io",
-                targetBgLow  = "4.0",
-                targetBgHigh = "9.0",
-                isEditing    = true
-            ),
-            onEditClick        = {},
-            onCancelClick      = {},
-            onNameChange       = {},
-            onTargetLowChange  = {},
-            onTargetHighChange = {},
-            onSaveClick        = {},
-            onAvatarPicked = {},
-            onRemoveAvatar = {}
-        )
-    }
-}
-
-@Preview
-@Composable
-internal fun ProfileScreenErrorPreview() {
-    BasilTheme {
-        ProfileScreenContent(
-            state = ProfileState(
-                name         = "Gavin Dunne",
-                email        = "gavin@weekendware.io",
-                targetBgLow  = "10.0",
-                targetBgHigh = "4.0",
-                isEditing    = true,
-                error        = Res.string.error_profile_save_failed
-            ),
-            onEditClick        = {},
-            onCancelClick      = {},
-            onNameChange       = {},
-            onTargetLowChange  = {},
-            onTargetHighChange = {},
-            onSaveClick        = {},
-            onAvatarPicked     = {},
-            onRemoveAvatar     = {}
         )
     }
 }
