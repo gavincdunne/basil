@@ -6,8 +6,10 @@ package org.weekendware.basil.domain.model
  * @property id        Unique identifier (UUID string).
  * @property name      The user's display name.
  * @property email     The user's email address.
- * @property avatarUrl Public URL of the user's profile picture in Supabase
- *                     Storage, or null if no photo has been set.
+ * @property avatarUrl Storage path of the user's profile picture (e.g. `userId/avatar`),
+ *                     or null if no photo has been set. Never a public URL — the avatars
+ *                     bucket is private. Use [AvatarRepository.getSignedUrl] to obtain a
+ *                     displayable URL.
  */
 data class User(
     val id: String,
