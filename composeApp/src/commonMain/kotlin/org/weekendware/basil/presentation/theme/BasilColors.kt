@@ -44,13 +44,6 @@ internal object BasilPalette {
     val Stone800 = Color(0xFF2A2722)
     val Stone900 = Color(0xFF1A1816)
 
-    // Glucose semantics — intentionally distinct from brand palette
-    val GlucoseVeryHigh = Color(0xFFE05C1E)
-    val GlucoseHigh     = Color(0xFFE8943A)
-    val GlucoseInRange  = Color(0xFF5A9E6B)
-    val GlucoseLow      = Color(0xFFD4A017)
-    val GlucoseVeryLow  = Color(0xFFC42B2B)
-
     // Utility
     val White  = Color(0xFFFFFFFF)
     val Cream  = Color(0xFFFAF8F5)
@@ -89,11 +82,6 @@ internal object BasilPalette {
  * @property onSurface Content drawn on top of [surface].
  * @property surfaceVariant Slightly differentiated surface for layered UI.
  * @property onSurfaceVariant Content drawn on top of [surfaceVariant].
- * @property glucoseVeryHigh Semantic color for very-high glucose readings (> ~250 mg/dL).
- * @property glucoseHigh Semantic color for high glucose readings (~180–250 mg/dL).
- * @property glucoseInRange Semantic color for in-range glucose readings (~70–180 mg/dL).
- * @property glucoseLow Semantic color for low glucose readings (~54–70 mg/dL).
- * @property glucoseVeryLow Semantic color for very-low/urgent glucose readings (< ~54 mg/dL).
  * @property error Color for error states.
  * @property onError Content drawn on top of [error].
  * @property errorContainer Lightly-tinted surface for error messaging.
@@ -118,11 +106,6 @@ data class BasilColorScheme(
     val onSurface: Color,
     val surfaceVariant: Color,
     val onSurfaceVariant: Color,
-    val glucoseVeryHigh: Color,
-    val glucoseHigh: Color,
-    val glucoseInRange: Color,
-    val glucoseLow: Color,
-    val glucoseVeryLow: Color,
     val error: Color,
     val onError: Color,
     val errorContainer: Color,
@@ -157,11 +140,6 @@ fun basilLightColorScheme(): BasilColorScheme = BasilColorScheme(
     onSurface           = BasilPalette.Stone900,
     surfaceVariant      = BasilPalette.Sage50,
     onSurfaceVariant    = BasilPalette.Stone600,
-    glucoseVeryHigh     = BasilPalette.GlucoseVeryHigh,
-    glucoseHigh         = BasilPalette.GlucoseHigh,
-    glucoseInRange      = BasilPalette.GlucoseInRange,
-    glucoseLow          = BasilPalette.GlucoseLow,
-    glucoseVeryLow      = BasilPalette.GlucoseVeryLow,
     error               = BasilPalette.Error,
     onError             = BasilPalette.OnError,
     errorContainer      = BasilPalette.ErrorContainer,
@@ -192,11 +170,6 @@ fun basilDarkColorScheme(): BasilColorScheme = BasilColorScheme(
     onSurface           = BasilPalette.Stone100,
     surfaceVariant      = BasilPalette.Stone700,
     onSurfaceVariant    = BasilPalette.Stone300,
-    glucoseVeryHigh     = BasilPalette.GlucoseVeryHigh,
-    glucoseHigh         = BasilPalette.GlucoseHigh,
-    glucoseInRange      = BasilPalette.GlucoseInRange,
-    glucoseLow          = BasilPalette.GlucoseLow,
-    glucoseVeryLow      = BasilPalette.GlucoseVeryLow,
     error               = Color(0xFFFFB4AB),
     onError             = Color(0xFF690005),
     errorContainer      = Color(0xFF93000A),

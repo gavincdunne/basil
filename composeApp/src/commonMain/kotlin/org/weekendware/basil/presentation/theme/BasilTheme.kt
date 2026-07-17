@@ -67,10 +67,9 @@ fun BasilTheme(
 // ─────────────────────────────────────────────────────────────
 
 /**
- * The current [BasilColorScheme] from the composition, including app-specific
- * tokens such as the glucose semantic colors.
+ * The current [BasilColorScheme] from the composition.
  *
- * Usage: `MaterialTheme.basilColors.glucoseInRange`
+ * Usage: `MaterialTheme.basilColors.primary`
  */
 val MaterialTheme.basilColors: BasilColorScheme
     @Composable @ReadOnlyComposable

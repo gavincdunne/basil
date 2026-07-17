@@ -71,9 +71,4 @@ object BasilTokens {
     /** Size of the leaf mark inside the auth hero band. */
     val AuthHeroLeafSize = 38.dp
 
-    // ── Glucose indicator ─────────────────────────────────────
-    /** Diameter of the dot used in glucose trend indicators. */
-    val GlucoseDotSize = 12.dp
-    /** Height of the compact glucose status strip on the dashboard. */
-    val GlucoseStripHeight = 48.dp
 }

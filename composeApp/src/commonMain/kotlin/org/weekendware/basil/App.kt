@@ -24,7 +24,6 @@ import org.weekendware.basil.presentation.chat.ChatScreen
 import org.weekendware.basil.presentation.chat.ChatViewModel
 import org.weekendware.basil.presentation.components.BasilBottomBar
 import org.weekendware.basil.presentation.components.BasilTopAppBar
-import org.weekendware.basil.presentation.dashboard.DashboardScreen
 import org.weekendware.basil.presentation.profile.ProfileScreen
 import org.weekendware.basil.presentation.session.SessionState
 import org.weekendware.basil.presentation.session.SessionViewModel
@@ -145,7 +144,7 @@ private fun MainApp() {
     ) { innerPadding ->
         Surface(modifier = Modifier.padding(innerPadding)) {
             NavHost(navController = navController, startDestination = AppRoute.Home.route) {
-                composable(AppRoute.Home.route)     { DashboardScreen() }
+                composable(AppRoute.Home.route)     { ChatScreen() }
                 composable(AppRoute.Profile.route)  { ProfileScreen() }
                 composable(AppRoute.Chat.route)     { ChatScreen() }
                 composable(AppRoute.Settings.route) { SettingsScreen() }
