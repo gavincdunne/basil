@@ -3,13 +3,17 @@ package org.weekendware.basil.di
 import org.koin.core.module.Module
 import org.koin.dsl.module
 import org.weekendware.basil.data.local.database.DatabaseDriverFactory
+import org.weekendware.basil.data.local.database.DatabaseKeyProvider
 
 /**
  * iOS implementation of [platformModule].
  *
- * Binds [DatabaseDriverFactory] as a singleton. No platform dependencies
- * are required on iOS — the factory uses [NativeSqliteDriver] directly.
+ * Registers [DatabaseKeyProvider] (Keychain) and [DatabaseDriverFactory]
+ * (SQLCipher-backed) as singletons. No additional platform dependencies required
+ * beyond the iOS Keychain (always available) and SQLCipher SPM package (see
+ * [DatabaseDriverFactory] for the Xcode linking requirement).
  */
 actual val platformModule: Module = module {
-    single { DatabaseDriverFactory() }
+    single { DatabaseKeyProvider() }
+    single { DatabaseDriverFactory(get()) }
 }
