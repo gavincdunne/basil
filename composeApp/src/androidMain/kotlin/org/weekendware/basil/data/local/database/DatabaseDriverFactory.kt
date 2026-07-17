@@ -3,21 +3,32 @@ package org.weekendware.basil.data.local.database
 import android.content.Context
 import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.android.AndroidSqliteDriver
+import net.zetetic.android.database.sqlcipher.SupportOpenHelperFactory
 import org.weekendware.basil.database.BasilDatabase
 
 /**
  * Android implementation of [DatabaseDriverFactory].
  *
- * Creates an [AndroidSqliteDriver] backed by a named SQLite file (`basil.db`)
- * in the app's private data directory. Data persists across app sessions and
- * is managed by the Android SQLite framework, including automatic schema
- * migrations when the database version is incremented.
+ * Opens `basil.db` via SQLCipher using [AndroidSqliteDriver] with a
+ * [SupportOpenHelperFactory]. The encryption passphrase is managed by
+ * [DatabaseKeyProvider] (Android Keystore via [EncryptedSharedPreferences]).
  *
- * @param context The application [Context], used to locate the database file.
+ * @param context     The application [Context], used to locate the database file.
+ * @param keyProvider Supplies the stable per-device encryption passphrase.
  */
-actual class DatabaseDriverFactory(private val context: Context) {
+actual class DatabaseDriverFactory(
+    private val context: Context,
+    private val keyProvider: DatabaseKeyProvider,
+) {
 
-    /** Creates and returns the [AndroidSqliteDriver] for [BasilDatabase]. */
-    actual fun createDriver(): SqlDriver =
-        AndroidSqliteDriver(BasilDatabase.Schema, context, "basil.db")
+    /** Creates and returns the encrypted [AndroidSqliteDriver] for [BasilDatabase]. */
+    actual fun createDriver(): SqlDriver {
+        val passphrase = keyProvider.getOrCreateKey().toByteArray(Charsets.UTF_8)
+        return AndroidSqliteDriver(
+            schema  = BasilDatabase.Schema,
+            context = context,
+            name    = "basil.db",
+            factory = SupportOpenHelperFactory(passphrase),
+        )
+    }
 }

@@ -7,7 +7,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -76,7 +76,7 @@ sealed class AppRoute(val route: String) {
 fun App() {
     BasilTheme {
         val sessionViewModel = koinViewModel<SessionViewModel>()
-        val sessionState by sessionViewModel.state.collectAsState()
+        val sessionState by sessionViewModel.state.collectAsStateWithLifecycle()
         val chatViewModel = koinViewModel<ChatViewModel>()
 
         // Clear all in-memory chat history whenever the session ends.

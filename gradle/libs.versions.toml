@@ -29,6 +29,8 @@ sentry = "0.25.0"
 ktor = "3.1.2"
 coil = "3.1.0"
 calf = "0.7.0"
+sqlcipher-android = "4.5.4"
+security-crypto = "1.0.0"
 
 
 [libraries]
@@ -64,6 +66,8 @@ supabase-storage = { module = "io.github.jan-tennert.supabase:storage-kt", versi
 coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" }
 coil-network-ktor = { module = "io.coil-kt.coil3:coil-network-ktor3", version.ref = "coil" }
 calf-file-picker = { module = "com.mohamedrejeb.calf:calf-file-picker", version.ref = "calf" }
+sqlcipher-android = { module = "net.zetetic:sqlcipher-android", version.ref = "sqlcipher-android" }
+androidx-security-crypto = { module = "androidx.security:security-crypto", version.ref = "security-crypto" }
 sentry-kmp = { module = "io.sentry:sentry-kotlin-multiplatform", version.ref = "sentry" }
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
 ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }

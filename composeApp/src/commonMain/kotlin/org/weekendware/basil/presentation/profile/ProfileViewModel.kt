@@ -32,10 +32,27 @@ class ProfileViewModel(
         val user = getUser()
         _state.update {
             it.copy(
-                name      = user?.name ?: "",
-                email     = user?.email ?: "",
-                avatarUrl = user?.avatarUrl
+                name  = user?.name ?: "",
+                email = user?.email ?: "",
             )
+        }
+        // avatarUrl in the database stores the storage path, not a URL.
+        // Generate a signed URL for display; if the stored value looks like
+        // a legacy public URL (pre-private-bucket migration), clear it so
+        // the user can re-upload.
+        val storedPath = user?.avatarUrl
+        if (storedPath != null) {
+            if (storedPath.startsWith("http")) {
+                coroutineScope.launch {
+                    userRepository.updateAvatarUrl(user.id, null)
+                }
+            } else {
+                coroutineScope.launch {
+                    avatarRepository.getSignedUrl(storedPath).onSuccess { signedUrl ->
+                        _state.update { it.copy(avatarUrl = signedUrl) }
+                    }
+                }
+            }
         }
     }
 
@@ -44,9 +61,15 @@ class ProfileViewModel(
         _state.update { it.copy(pendingAvatarBytes = imageBytes, isUploadingAvatar = true, error = null) }
         coroutineScope.launch {
             avatarRepository.uploadAvatar(userId, imageBytes)
-                .onSuccess { url ->
-                    userRepository.updateAvatarUrl(userId, url)
-                    _state.update { it.copy(avatarUrl = url, pendingAvatarBytes = null, isUploadingAvatar = false) }
+                .onSuccess { path ->
+                    userRepository.updateAvatarUrl(userId, path)
+                    avatarRepository.getSignedUrl(path)
+                        .onSuccess { signedUrl ->
+                            _state.update { it.copy(avatarUrl = signedUrl, pendingAvatarBytes = null, isUploadingAvatar = false) }
+                        }
+                        .onFailure {
+                            _state.update { it.copy(pendingAvatarBytes = null, isUploadingAvatar = false) }
+                        }
                 }
                 .onFailure {
                     _state.update {

@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Basil — Architect Compliance Report</title>
+<style>
+  :root {
+    --bg: #0f0f11; --surface: #18181c; --surface2: #1f1f25;
+    --border: #2a2a33; --text: #e8e8f0; --muted: #7a7a8c;
+    --green: #4fd18a; --green-dim: #4fd18a18;
+    --yellow: #f0a04f; --yellow-dim: #f0a04f18;
+    --red: #f04f58; --red-dim: #f04f5818;
+    --blue: #4fa8f0; --blue-dim: #4fa8f015;
+    --mono: "JetBrains Mono", "Fira Code", monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 14px; line-height: 1.7; }
+  main { max-width: 860px; margin: 0 auto; padding: 52px 40px; }
+
+  .report-header { margin-bottom: 40px; padding-bottom: 28px; border-bottom: 1px solid var(--border); }
+  .eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--red); margin-bottom: 8px; }
+  h1 { font-size: 30px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 6px; }
+  .meta { color: var(--muted); font-size: 13px; }
+
+  .scorecard { display: flex; gap: 16px; margin-top: 24px; flex-wrap: wrap; }
+  .score-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px 20px; min-width: 120px; }
+  .score-rule { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+  .score-verdict { font-size: 20px; font-weight: 700; }
+  .score-verdict.pass { color: var(--green); }
+  .score-verdict.partial { color: var(--yellow); }
+  .score-verdict.fail { color: var(--red); }
+
+  .blockers { background: #f04f580d; border: 1px solid #f04f5840; border-radius: 10px; padding: 20px 24px; margin-bottom: 40px; }
+  .blockers-label { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--red); margin-bottom: 10px; }
+  .blocker-item { font-size: 13px; color: var(--text); padding: 8px 0; border-bottom: 1px solid #f04f5820; display: flex; gap: 10px; align-items: baseline; }
+  .blocker-item:last-child { border-bottom: none; }
+  .blocker-id { font-family: var(--mono); font-size: 11px; color: var(--red); font-weight: 700; flex-shrink: 0; }
+
+  .section { margin-bottom: 48px; }
+  .section-header { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
+  .section-header h2 { font-size: 18px; font-weight: 700; }
+  .verdict-badge { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 3px 8px; border-radius: 5px; }
+  .pass   { background: var(--green-dim);  color: var(--green);  border: 1px solid #4fd18a30; }
+  .partial { background: var(--yellow-dim); color: var(--yellow); border: 1px solid #f0a04f30; }
+  .fail   { background: var(--red-dim);   color: var(--red);    border: 1px solid #f04f5830; }
+  .na     { background: var(--surface2);   color: var(--muted);  border: 1px solid var(--border); }
+  .section-desc { color: var(--muted); font-size: 13px; margin-bottom: 20px; max-width: 620px; }
+
+  .rule-table { width: 100%; border-collapse: collapse; }
+  .rule-table thead tr { border-bottom: 1px solid var(--border); }
+  .rule-table th { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); padding: 8px 12px; text-align: left; }
+  .rule-table td { padding: 11px 12px; font-size: 13px; border-bottom: 1px solid #1e1e24; vertical-align: top; }
+  .rule-table tr:last-child td { border-bottom: none; }
+  .rule-table tr:hover td { background: var(--surface); }
+  .rule-id { font-family: var(--mono); font-size: 11px; color: var(--muted); white-space: nowrap; font-weight: 600; }
+  .rule-name { color: var(--text); font-weight: 500; }
+  .rule-finding { color: var(--muted); line-height: 1.5; }
+  .rule-finding code { font-family: var(--mono); font-size: 11px; background: var(--surface2); padding: 1px 5px; border-radius: 3px; color: #a8a8d0; }
+
+  .actions { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 24px 28px; }
+  .actions h2 { font-size: 16px; font-weight: 700; margin-bottom: 16px; }
+  .action { display: flex; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--border); }
+  .action:last-child { border-bottom: none; }
+  .action-priority { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 3px 8px; border-radius: 4px; flex-shrink: 0; height: fit-content; margin-top: 2px; }
+  .p-critical { background: var(--red-dim); color: var(--red); border: 1px solid #f04f5830; }
+  .p-high     { background: var(--yellow-dim); color: var(--yellow); border: 1px solid #f0a04f30; }
+  .p-medium   { background: var(--blue-dim); color: var(--blue); border: 1px solid #4fa8f030; }
+  .p-low      { background: var(--surface2); color: var(--muted); border: 1px solid var(--border); }
+  .action-body { flex: 1; }
+  .action-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+  .action-detail { font-size: 13px; color: var(--muted); line-height: 1.5; }
+  .action-detail code { font-family: var(--mono); font-size: 11px; background: var(--surface2); padding: 1px 5px; border-radius: 3px; color: #a8a8d0; }
+
+  hr { border: none; border-top: 1px solid var(--border); margin: 40px 0; }
+</style>
+</head>
+<body>
+<main>
+
+  <div class="report-header">
+    <div class="eyebrow">Architect &middot; Compliance Audit</div>
+    <h1>Basil &mdash; Architect Compliance Report</h1>
+    <div class="meta">16 July 2026 &nbsp;&middot;&nbsp; Sections: FS &middot; A &middot; L &middot; B &middot; QA &middot; S &nbsp;&middot;&nbsp; 55 rules audited</div>
+    <div class="scorecard">
+      <div class="score-card">
+        <div class="score-rule">FS Folder Structure</div>
+        <div class="score-verdict pass">&#10003; Pass</div>
+      </div>
+      <div class="score-card">
+        <div class="score-rule">A Architecture</div>
+        <div class="score-verdict partial">&#9888; Partial</div>
+      </div>
+      <div class="score-card">
+        <div class="score-rule">L Lackner 2026</div>
+        <div class="score-verdict fail">&#10007; Fail</div>
+      </div>
+      <div class="score-card">
+        <div class="score-rule">B Build &amp; DevOps</div>
+        <div class="score-verdict partial">&#9888; Partial</div>
+      </div>
+      <div class="score-card">
+        <div class="score-rule">QA Testing</div>
+        <div class="score-verdict partial">&#9888; Partial</div>
+      </div>
+      <div class="score-card">
+        <div class="score-rule">S Security</div>
+        <div class="score-verdict partial">&#9888; Partial</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="blockers">
+    <div class="blockers-label">Pre-launch blockers &mdash; must be resolved before real users are onboarded</div>
+    <div class="blocker-item">
+      <span class="blocker-id">B-09 / S-14</span>
+      SQLCipher not present &mdash; local SQLDelight database is unencrypted at rest. PHI stored on-device has no at-rest protection.
+    </div>
+    <div class="blocker-item">
+      <span class="blocker-id">S-02</span>
+      Avatar storage bucket is configured as <strong>public</strong>. Rule requires private buckets + signed URLs. Public buckets expose any avatar to anyone who knows the path.
+    </div>
+    <div class="blocker-item">
+      <span class="blocker-id">L-02</span>
+      <code>collectAsState()</code> used in four files &mdash; must be <code>collectAsStateWithLifecycle()</code>. On Android, collectAsState continues collecting while the app is backgrounded, causing unnecessary work and potential PHI exposure in memory.
+    </div>
+  </div>
+
+  <!-- FS -->
+  <div class="section">
+    <div class="section-header">
+      <h2>Folder Structure &mdash; FS-01 to FS-07</h2>
+      <span class="verdict-badge pass">&#10003; Pass</span>
+    </div>
+    <p class="section-desc">Source set structure is correct: androidMain/iosMain/desktopMain are thin (3&ndash;4 files each), all shared logic is in commonMain. Layer separation and DI isolation are clean.</p>
+    <table class="rule-table">
+      <thead><tr><th>Rule</th><th>Name</th><th>Status</th><th>Finding</th></tr></thead>
+      <tbody>
+        <tr>
+          <td class="rule-id">FS-01</td>
+          <td class="rule-name">KMP source sets</td>
+          <td><span class="verdict-badge pass">&#10003; Pass</span></td>
+          <td class="rule-finding">androidMain (4 files), iosMain (3 files), desktopMain (3 files) &mdash; all thin. Shared logic in commonMain only.</td>
+        </tr>
+        <tr>
+          <td class="rule-id">FS-02</td>
+          <td class="rule-name">Feature packages</td>
+          <td><span class="verdict-badge pass">&#10003; Pass</span></td>
+          <td class="rule-finding">Clean per-feature packages: <code>auth</code>, <code>chat</code>, <code>profile</code>, <code>session</code>, <code>settings</code>, <code>dashboard</code>, <code>splash</code>, <code>components</code>.</td>
+        </tr>
+        <tr>
+          <td class="rule-id">FS-03</td>
+          <td class="rule-name">Layer separation</td>
+          <td><span class="verdict-badge pass">&#10003; Pass</span></td>
+          <td class="rule-finding"><code>data/</code>, <code>domain/</code>, <code>presentation/</code> are cleanly separated with no cross-contamination between layers.</td>
+        </tr>
+        <tr>
+          <td class="rule-id">FS-04</td>
+          <td class="rule-name">DI isolation</td>
+          <td><span class="verdict-badge pass">&#10003; Pass</span></td>
+          <td class="rule-finding">All Koin module declarations live in <code>di/</code>: SharedModule, KoinStartup, PlatformModule. No module definitions outside this package.</td>
+        </tr>
+        <tr>
+          <td class="rule-id">FS-05</td>
+          <td class="rule-name">Repository pattern</td>
+          <td><span class="verdict-badge pass">&#10003; Pass</span></td>
+          <td class="rule-finding">Interfaces and implementations both in <code>data/repository/</code>. Four interfaces, four implementations &mdash; clean pairing.</td>
+        </tr>
+        <tr>
+          <td class="rule-id">FS-06</td>
+          <td class="rule-name">SQLDelight schema</td>
+          <td><span class="verdict-badge pass">&#10003; Pass</span></td>
+          <td class="rule-finding"><code>BasilDatabase.sq</code>, <code>User.sq</code>, migration file <code>1.sqm</code>. Schema-first, one file per table.</td>
+        </tr>
+        <tr>
+          <td class="rule-id">FS-07</td>
+          <td class="rule-name">Assets in platform sets</td>
+          <td><span class="verdict-badge pass">&#10003; Pass</span></td>
+          <td class="rule-finding">No raw assets in commonMain source tree. Only <code>.kt</code> files found in all source sets.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- A -->
+  <div class="section">
+    <div class="section-header">
+      <h2>Architecture &mdash; A-01 to A-15</h2>
+      <span class="verdict-badge partial">&#9888; Partial</span>
+    </div>
+    <p class="section-desc">MVVM+UDF and repository abstraction are solid. Issues: ProfileScreen.error never rendered, domain use cases import from the data package, and ChatState uses <code>@Stable</code> instead of <code>@Immutable</code>.</p>
+    <table class="rule-table">
+      <thead><tr><th>Rule</th><th>Name</th><th>Status</th><th>Finding</th></tr></thead>
+      <tbody>
+        <tr>
+          <td class="rule-id">A-01</td>
+          <td class="rule-name">MVVM + UDF</td>
+          <td><span class="verdict-badge pass">&#10003; Pass</span></td>
+          <td class="rule-finding">All five ViewModels expose a single <code>StateFlow&lt;UiState&gt;</code>. No business logic in Composables. UI calls only ViewModel methods.</td>
+        </tr>
+        <tr>
+          <td class="rule-id">A-02</td>
+          <td class="rule-name">UiState immutability</td>
+          <td><span class="verdict-badge partial">&#9888; Partial</span></td>
+          <td class="rule-finding"><code>AuthFormState</code>, <code>ProfileState</code>, <code>SettingsState</code> are <code>@Immutable</code> &#10003;. <code>ChatState</code> uses <code>@Stable</code> &mdash; acceptable but inconsistent. No <code>mutableStateOf</code> in any ViewModel.</td>
+        </tr>
+        <tr>
+          <td class="rule-id">A-03</td>
+          <td class="rule-name">Single source of truth</td>
+          <td><span class="verdict-badge pass">&#10003; Pass</span></td>
+          <td class="rule-finding">StateFlow is the only state source in all ViewModels. No LiveData, no SharedFlow for UI state.</td>
+        </tr>
+        <tr>
+          <td class="rule-id">A-04</td>
+          <td class="rule-name">Unidirectional data flow</td>
+          <td><span class="verdict-badge pass">&#10003; Pass</span></td>
+          <td class="rule-finding">Events go up (UI &rarr; ViewModel methods), state flows down (StateFlow &rarr; UI). Pattern consistent across all five ViewModels.</td>
+        </tr>
+        <tr>
+          <td class="rule-id">A-05</td>
+          <td class="rule-name">Repository abstraction</td>
+          <td><span class="verdict-badge pass">&#10003; Pass</span></td>
+          <td class="rule-finding">All ViewModels depend on repository interfaces only. No ViewModel imports a concrete implementation class.</td>
+        </tr>
+        <tr>
+          <td class="rule-id">A-06</td>
+          <td class="rule-name">@Preview coverage</td>
+          <td><span class="verdict-badge partial">&#9888; Partial</span></td>
+          <td class="rule-finding">Auth (4 previews) and Chat (9 previews) are exemplary. Profile missing uploading/error previews. Dashboard has zero previews. See Design report for detail.</td>
+        </tr>
+        <tr>
+          <td class="rule-id">A-07</td>
+          <td class="rule-name">No Android imports in commonMain</td>
+          <td><span class="verdict-badge pass">&#10003; Pass</span></td>
+          <td class="rule-finding">No <code>android.*</code> imports in commonMain. <code>androidx.*</code> lifecycle imports are KMP-compatible via the compose-multiplatform lifecycle library.</td>
+        </tr>
+        <tr>
+          <td class="rule-id">A-08</td>
+          <td class="rule-name">Design artefact before code</td>
+          <td><span class="verdict-badge partial">&#9888; Partial</span></td>
+          <td class="rule-finding">Auth, Chat, Profile, Settings have prior design artefacts. Dashboard is an empty placeholder with no design. Check-in / Onboarding / Memory have PM specs but no design artefacts yet. See Design report.</td>
+        </tr>
+        <tr>
+          <td class="rule-id">A-09</td>
+          <td class="rule-name">No hardcoded dimensions</td>
+          <td><span class="verdict-badge partial">&#9888; Partial</span></td>
+          <td class="rule-finding">AuthScreen (11 hardcoded <code>.dp</code>), ChatScreen (13), ProfileScreen (6), SplashScreen (2). Token system exists but is underused. See Design report for per-file breakdown.</td>
+        </tr>
+        <tr>
+          <td class="rule-id">A-10</td>
+          <td class="rule-name">Error states rendered</td>
+          <td><span class="verdict-badge fail">&#10007; Fail</span></td>
+          <td class="rule-finding"><code>ProfileState.error</code> is set on avatar upload/remove failure in ProfileViewModel but never rendered in <code>ProfileScreenContent</code> &mdash; avatar failures are silently swallowed. See Design report.</td>
+        </tr>
+        <tr>
+          <td class="rule-id">A-11</td>
+          <td class="rule-name">Navigation in NavHost</td>
+          <td><span class="verdict-badge pass">&#10003; Pass</span></td>
+          <td class="rule-finding">All navigation in <code>App.kt</code> via NavHost and <code>AppRoute</code> sealed class. No <code>navController.navigate()</code> calls inside individual screen Composables.</td>
+        </tr>
+        <tr>
+          <td class="rule-id">A-12</td>
+          <td class="rule-name">Use cases for domain logic</td>
+          <td><span class="verdict-badge pass">&#10003; Pass</span></td>
+          <td class="rule-finding"><code>GetUserUseCase</code> and <code>SendMessageUseCase</code> in <code>domain/usecase/</code>. ViewModels delegate to use cases, not repositories directly.</td>
+        </tr>
+        <tr>
+          <td class="rule-id">A-13</td>
+          <td class="rule-name">Dependency direction</td>
+          <td><span class="verdict-badge partial">&#9888; Partial</span></td>
+          <td class="rule-finding">Use cases import repository interfaces from <code>data/repository/</code> &mdash; those interfaces belong in <code>domain/</code> under strict clean architecture. Creates an upward dependency from domain into data. Not blocking today but should be corrected before the codebase scales.</td>
+        </tr>
+        <tr>
+          <td class="rule-id">A-14</td>
+          <td class="rule-name">Coroutines scope</td>
+          <td><span class="verdict-badge pass">&#10003; Pass</span></td>
+          <td class="rule-finding">All ViewModels use <code>viewModelScope</code>. ProfileViewModel and ChatViewModel accept an injected test scope. No <code>GlobalScope</code> found anywhere.</td>
+        </tr>
+        <tr>
+          <td class="rule-id">A-15</td>
+          <td class="rule-name">No direct Supabase calls from UI</td>
+          <td><span class="verdict-badge pass">&#10003; Pass</span></td>
+          <td class="rule-finding">No Supabase types imported in any screen or composable. UI touches only ViewModels; Supabase stays behind repository implementations.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- L -->
+  <div class="section">
+    <div class="section-header">
+      <h2>Lackner 2026 &mdash; L-01 to L-04</h2>
+      <span class="verdict-badge fail">&#10007; Fail</span>
+    </div>
+    <p class="section-desc">StateFlow is used correctly throughout. Two Lackner rules are violated across the whole codebase: <code>collectAsState()</code> instead of <code>collectAsStateWithLifecycle()</code>, and no <code>rememberSaveable</code> usage anywhere.</p>
+    <table class="rule-table">
+      <thead><tr><th>Rule</th><th>Name</th><th>Status</th><th>Finding</th></tr></thead>
+      <tbody>
+        <tr>
+          <td class="rule-id">L-01</td>
+          <td class="rule-name">StateFlow not SharedFlow for UI state</td>
+          <td><span class="verdict-badge pass">&#10003; Pass</span></td>
+          <td class="rule-finding">All ViewModels expose <code>StateFlow&lt;UiState&gt;</code>. No SharedFlow used for UI state. SessionViewModel uses <code>stateIn(SharingStarted.Eagerly)</code> correctly.</td>
+        </tr>
+        <tr>
+          <td class="rule-id">L-02</td>
+          <td class="rule-name">collectAsStateWithLifecycle</td>
+          <td><span class="verdict-badge fail">&#10007; Fail</span></td>
+          <td class="rule-finding"><code>collectAsState()</code> used in four files: <code>App.kt:79</code>, <code>ChatScreen.kt:70</code>, <code>AuthScreen.kt:68</code>, <code>ProfileScreen.kt:65</code>. On Android this collects while the app is backgrounded. Replace with <code>collectAsStateWithLifecycle()</code> from <code>lifecycle-runtime-compose</code> (already in deps).</td>
+        </tr>
+        <tr>
+          <td class="rule-id">L-03</td>
+          <td class="rule-name">rememberSaveable for process death</td>
+          <td><span class="verdict-badge fail">&#10007; Fail</span></td>
+          <td class="rule-finding">No <code>rememberSaveable</code> usage found anywhere. <code>App.kt:94</code> uses <code>remember { mutableStateOf(false) }</code> for <code>splashDone</code> &mdash; this is lost on process death, causing the splash to replay when the OS restores the process.</td>
+        </tr>
+        <tr>
+          <td class="rule-id">L-04</td>
+          <td class="rule-name">Compose Styles API</td>
+          <td><span class="verdict-badge na">&mdash; N/A</span></td>
+          <td class="rule-finding">API is experimental and opt-in. No component library at sufficient scale to warrant it yet. Revisit when building the check-in screen component set.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- B -->
+  <div class="section">
+    <div class="section-header">
+      <h2>Build &amp; DevOps &mdash; B-01 to B-10</h2>
+      <span class="verdict-badge partial">&#9888; Partial</span>
+    </div>
+    <p class="section-desc">BuildKonfig, flavors, Detekt, and Sentry are all correctly wired. Two gaps: SQLCipher is missing (pre-launch blocker), and CI only runs on <code>main</code> &mdash; pushes to <code>develop</code> and <code>staging</code> have no CI coverage.</p>
+    <table class="rule-table">
+      <thead><tr><th>Rule</th><th>Name</th><th>Status</th><th>Finding</th></tr></thead>
+      <tbody>
+        <tr>
+          <td class="rule-id">B-01</td>
+          <td class="rule-name">Java 21</td>
+          <td><span class="verdict-badge pass">&#10003; Pass</span></td>
+          <td class="rule-finding">CI uses <code>setup-java@v5</code> with <code>java-version: '21'</code> on all three jobs. <code>jvmTarget = "11"</code> is the output bytecode compatibility target &mdash; separate from the JDK version used to run the build.</td>
+        </tr>
+        <tr>
+          <td class="rule-id">B-02</td>
+          <td class="rule-name">BuildKonfig for secrets</td>
+          <td><span class="verdict-badge pass">&#10003; Pass</span></td>
+          <td class="rule-finding">All five secrets (<code>SUPABASE_URL</code>, <code>SUPABASE_ANON_KEY</code>, <code>SENTRY_DSN</code>, <code>CHAT_API_URL</code>, <code>CHAT_API_KEY</code>) read from <code>local.properties</code> and injected via BuildKonfig at compile time.</td>
+        </tr>
+        <tr>
+          <td class="rule-id">B-03</td>
+          <td class="rule-name">dev / staging / prod flavors</td>
+          <td><span class="verdict-badge pass">&#10003; Pass</span></td>
+          <td class="rule-finding">Three product flavors with distinct <code>applicationIdSuffix</code> and per-flavor BuildKonfig overrides for Supabase URL and anon key. Desktop run tasks also expose per-flavor variants.</td>
+        </tr>
+        <tr>
+          <td class="rule-id">B-04</td>
+          <td class="rule-name">CI on every push</td>
+          <td><span class="verdict-badge partial">&#9888; Partial</span></td>
+          <td class="rule-finding">CI triggers on <code>push: [main]</code> and <code>pull_request: [main]</code> only. The three-branch rule runs development through <code>develop</code> and <code>staging</code> &mdash; issues can reach staging undetected before CI runs.</td>
+        </tr>
+        <tr>
+          <td class="rule-id">B-05</td>
+          <td class="rule-name">Detekt in CI</td>
+          <td><span class="verdict-badge pass">&#10003; Pass</span></td>
+          <td class="rule-finding">Dedicated <code>detekt</code> job in <code>ci.yml</code>. Report uploaded as artifact with 14-day retention.</td>
+        </tr>
+        <tr>
+          <td class="rule-id">B-06</td>
+          <td class="rule-name">Android compile + test in CI</td>
+          <td><span class="verdict-badge pass">&#10003; Pass</span></td>
+          <td class="rule-finding"><code>compileDebugKotlinAndroid</code> and <code>desktopTest</code> run in the Android job. Debug APK assembled and uploaded as artifact.</td>
+        </tr>
+        <tr>
+          <td class="rule-id">B-07</td>
+          <td class="rule-name">iOS framework build in CI</td>
+          <td><span class="verdict-badge pass">&#10003; Pass</span></td>
+          <td class="rule-finding"><code>linkDebugFrameworkIosSimulatorArm64</code> runs on <code>macos-14</code>. iOS test step present with graceful fallback for the no-tests-yet state.</td>
+        </tr>
+        <tr>
+          <td class="rule-id">B-08</td>
+          <td class="rule-name">No secrets in code</td>
+          <td><span class="verdict-badge pass">&#10003; Pass</span></td>
+          <td class="rule-finding">Grep confirms no hardcoded credentials in any source file. All secrets reference <code>BuildKonfig.*</code> only.</td>
+        </tr>
+        <tr>
+          <td class="rule-id">B-09</td>
+          <td class="rule-name">SQLCipher &mdash; at-rest encryption</td>
+          <td><span class="verdict-badge fail">&#10007; Fail</span></td>
+          <td class="rule-finding"><strong>Pre-launch blocker.</strong> No SQLCipher dependency in <code>libs.versions.toml</code> or <code>build.gradle.kts</code>. Local SQLDelight database containing user data is unencrypted on-device.</td>
+        </tr>
+        <tr>
+          <td class="rule-id">B-10</td>
+          <td class="rule-name">Sentry + PhiScrubber</td>
+          <td><span class="verdict-badge pass">&#10003; Pass</span></td>
+          <td class="rule-finding"><code>sentry-kmp 0.25.0</code> in <code>libs.versions.toml</code>. <code>PhiScrubber</code> wired to <code>beforeSend</code> and <code>beforeBreadcrumb</code> in <code>SentryService.kt</code>. 17 PhiScrubber unit tests all covering the scrubbing contract.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- QA -->
+  <div class="section">
+    <div class="section-header">
+      <h2>QA &mdash; QA-01 to QA-07</h2>
+      <span class="verdict-badge partial">&#9888; Partial</span>
+    </div>
+    <p class="section-desc">Auth, Chat, Session, and PhiScrubber tests are well-written. ProfileViewModel has no test file. Turbine is absent. The in-memory SQLDelight driver is declared but no database-layer tests exist.</p>
+    <table class="rule-table">
+      <thead><tr><th>Rule</th><th>Name</th><th>Status</th><th>Finding</th></tr></thead>
+      <tbody>
+        <tr>
+          <td class="rule-id">QA-01</td>
+          <td class="rule-name">TDD alongside implementation</td>
+          <td><span class="verdict-badge partial">&#9888; Partial</span></td>
+          <td class="rule-finding">AuthViewModel &#10003;, ChatViewModel &#10003; (15 tests), SessionViewModel &#10003;, PhiScrubber &#10003; (17 tests). Missing: ProfileViewModelTest, GetUserUseCaseTest, SendMessageUseCaseTest, SqlDelightUserRepositoryTest.</td>
+        </tr>
+        <tr>
+          <td class="rule-id">QA-02</td>
+          <td class="rule-name">Turbine for StateFlow testing</td>
+          <td><span class="verdict-badge fail">&#10007; Fail</span></td>
+          <td class="rule-finding">No Turbine in <code>libs.versions.toml</code>. Tests use <code>runTest</code> + <code>advanceUntilIdle()</code> which works but loses Turbine's sequential assertion model and timeout detection for complex emission sequences.</td>
+        </tr>
+        <tr>
+          <td class="rule-id">QA-03</td>
+          <td class="rule-name">runComposeUiTest</td>
+          <td><span class="verdict-badge na">&mdash; N/A</span></td>
+          <td class="rule-finding">CMP version is 1.8.1; <code>runComposeUiTest</code> requires CMP 1.11.0. All current tests are unit tests. Rule becomes applicable when CMP is upgraded.</td>
+        </tr>
+        <tr>
+          <td class="rule-id">QA-04</td>
+          <td class="rule-name">StandardTestDispatcher</td>
+          <td><span class="verdict-badge partial">&#9888; Partial</span></td>
+          <td class="rule-finding">ChatViewModelTest uses <code>runTest</code> + <code>advanceUntilIdle()</code> &#10003;. AuthViewModelTest and SessionViewModelTest use <code>UnconfinedTestDispatcher</code> which auto-advances &mdash; correct but not StandardTestDispatcher as specified by the rule.</td>
+        </tr>
+        <tr>
+          <td class="rule-id">QA-05</td>
+          <td class="rule-name">In-memory SQLDelight driver</td>
+          <td><span class="verdict-badge partial">&#9888; Partial</span></td>
+          <td class="rule-finding"><code>sqlite-driver</code> (in-memory) is in <code>desktopTest</code> dependencies &#10003;. However, no SQLDelight repository test files exist &mdash; the driver is declared but never exercised.</td>
+        </tr>
+        <tr>
+          <td class="rule-id">QA-06</td>
+          <td class="rule-name">Test coverage per ViewModel and use case</td>
+          <td><span class="verdict-badge partial">&#9888; Partial</span></td>
+          <td class="rule-finding">AuthViewModel &#10003;, ChatViewModel &#10003;, SessionViewModel &#10003;. Missing: ProfileViewModelTest. GetUserUseCase and SendMessageUseCase are tested only indirectly through ChatViewModelTest.</td>
+        </tr>
+        <tr>
+          <td class="rule-id">QA-07</td>
+          <td class="rule-name">No mocks for database</td>
+          <td><span class="verdict-badge pass">&#10003; Pass</span></td>
+          <td class="rule-finding">Tests mock repository interfaces (correct abstraction level), not the SQLDelight driver. FakeAuthRepository is a hand-written fake. No Mockito usage at the database layer.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- S -->
+  <div class="section">
+    <div class="section-header">
+      <h2>Security &mdash; S-01 to S-16</h2>
+      <span class="verdict-badge partial">&#9888; Partial</span>
+    </div>
+    <p class="section-desc">Sentry PHI scrubbing, BuildKonfig secrets, and HTTPS enforcement are strong. Critical gaps: public avatar bucket, missing SQLCipher, and four Supabase dashboard settings still unchecked in the pre-launch list.</p>
+    <table class="rule-table">
+      <thead><tr><th>Rule</th><th>Name</th><th>Status</th><th>Finding</th></tr></thead>
+      <tbody>
+        <tr>
+          <td class="rule-id">S-01</td>
+          <td class="rule-name">JWT auth on API calls</td>
+          <td><span class="verdict-badge partial">&#9888; Partial</span></td>
+          <td class="rule-finding">Companion API uses a static <code>CHAT_API_KEY</code>, not a per-user Supabase JWT. This is intentional by design &mdash; the backend holds the Anthropic key &mdash; but means the API cannot verify which user is making the request.</td>
+        </tr>
+        <tr>
+          <td class="rule-id">S-02</td>
+          <td class="rule-name">Private storage buckets + signed URLs</td>
+          <td><span class="verdict-badge fail">&#10007; Fail</span></td>
+          <td class="rule-finding"><strong>Pre-launch blocker.</strong> <code>SupabaseAvatarRepository</code> explicitly configures the <code>avatars</code> bucket as public and calls <code>publicUrl()</code>. Must switch to a private bucket with <code>createSignedUrl()</code> and a short TTL.</td>
+        </tr>
+        <tr>
+          <td class="rule-id">S-03</td>
+          <td class="rule-name">RLS on all tables</td>
+          <td><span class="verdict-badge na">&mdash; N/A</span></td>
+          <td class="rule-finding">Cannot verify from code &mdash; Supabase dashboard setting. Listed as unchecked in the project pre-launch checklist. Must be verified before real users are onboarded.</td>
+        </tr>
+        <tr>
+          <td class="rule-id">S-04</td>
+          <td class="rule-name">No service role key in client</td>
+          <td><span class="verdict-badge pass">&#10003; Pass</span></td>
+          <td class="rule-finding">Only <code>SUPABASE_ANON_KEY</code> in <code>SupabaseClientProvider.kt</code>. No service role key found anywhere in source.</td>
+        </tr>
+        <tr>
+          <td class="rule-id">S-05</td>
+          <td class="rule-name">KVault / Kassaforte secure token storage</td>
+          <td><span class="verdict-badge partial">&#9888; Partial</span></td>
+          <td class="rule-finding">No KVault or Kassaforte in <code>libs.versions.toml</code>. <code>SupabaseAuthRepository</code> notes supabase-kt handles tokens internally using platform-native secure storage (Keychain/EncryptedSharedPreferences). Acceptable short-term but no explicit KMP secure storage library is present.</td>
+        </tr>
+        <tr>
+          <td class="rule-id">S-06</td>
+          <td class="rule-name">Supabase rate limiting</td>
+          <td><span class="verdict-badge na">&mdash; N/A</span></td>
+          <td class="rule-finding">Dashboard setting. Unchecked in <code>CLAUDE.md</code> pre-launch checklist.</td>
+        </tr>
+        <tr>
+          <td class="rule-id">S-07</td>
+          <td class="rule-name">Email confirmation</td>
+          <td><span class="verdict-badge na">&mdash; N/A</span></td>
+          <td class="rule-finding">Dashboard setting. Unchecked in <code>CLAUDE.md</code> pre-launch checklist.</td>
+        </tr>
+        <tr>
+          <td class="rule-id">S-08</td>
+          <td class="rule-name">CAPTCHA on signup</td>
+          <td><span class="verdict-badge na">&mdash; N/A</span></td>
+          <td class="rule-finding">Dashboard setting. Unchecked in <code>CLAUDE.md</code> pre-launch checklist.</td>
+        </tr>
+        <tr>
+          <td class="rule-id">S-09</td>
+          <td class="rule-name">No PHI in logs</td>
+          <td><span class="verdict-badge pass">&#10003; Pass</span></td>
+          <td class="rule-finding">No health data logged. <code>KtorChatRepository</code> explicitly documents "No HTTP logging" and has no Ktor logging plugin. PhiScrubber strips Sentry data before it leaves the device.</td>
+        </tr>
+        <tr>
+          <td class="rule-id">S-10</td>
+          <td class="rule-name">Sentry PHI scrubber</td>
+          <td><span class="verdict-badge pass">&#10003; Pass</span></td>
+          <td class="rule-finding"><code>SentryService.kt</code> wires <code>PhiScrubber.scrubEvent</code> to <code>beforeSend</code> and <code>PhiScrubber.scrubBreadcrumb</code> to <code>beforeBreadcrumb</code>. User identity, health-module exception messages, and breadcrumb data payloads are all stripped.</td>
+        </tr>
+        <tr>
+          <td class="rule-id">S-11</td>
+          <td class="rule-name">No hardcoded credentials</td>
+          <td><span class="verdict-badge pass">&#10003; Pass</span></td>
+          <td class="rule-finding">Grep confirms zero hardcoded credentials in any source file. All secrets in <code>local.properties</code> &rarr; BuildKonfig. <code>local.properties</code> is in <code>.gitignore</code>.</td>
+        </tr>
+        <tr>
+          <td class="rule-id">S-12</td>
+          <td class="rule-name">HTTPS only</td>
+          <td><span class="verdict-badge pass">&#10003; Pass</span></td>
+          <td class="rule-finding"><code>KtorChatRepository</code> has an explicit HTTPS guard for staging and prod. Dev flavor is exempt for localhost. No <code>http://</code> URLs found in source.</td>
+        </tr>
+        <tr>
+          <td class="rule-id">S-13</td>
+          <td class="rule-name">Input validation</td>
+          <td><span class="verdict-badge partial">&#9888; Partial</span></td>
+          <td class="rule-finding">Auth validates email non-blank and password length via <code>canSubmit</code>. Chat checks for blank input. No max-length enforcement on chat messages before sending to the API.</td>
+        </tr>
+        <tr>
+          <td class="rule-id">S-14</td>
+          <td class="rule-name">SQLCipher &mdash; at-rest encryption</td>
+          <td><span class="verdict-badge fail">&#10007; Fail</span></td>
+          <td class="rule-finding"><strong>Pre-launch blocker.</strong> Same as B-09. Local database unencrypted. User data stored on-device is readable on a rooted device.</td>
+        </tr>
+        <tr>
+          <td class="rule-id">S-15</td>
+          <td class="rule-name">Per-variant secrets</td>
+          <td><span class="verdict-badge pass">&#10003; Pass</span></td>
+          <td class="rule-finding">BuildKonfig <code>targetConfigs</code> for dev and staging inject separate Supabase URLs and keys. Three completely isolated Supabase projects.</td>
+        </tr>
+        <tr>
+          <td class="rule-id">S-16</td>
+          <td class="rule-name">No PII in crash reports</td>
+          <td><span class="verdict-badge pass">&#10003; Pass</span></td>
+          <td class="rule-finding">User identity, exception messages from health modules, and all breadcrumb data payloads stripped by <code>PhiScrubber</code> before events leave the device.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <hr>
+
+  <div class="actions">
+    <h2>Actions required &mdash; ordered by priority</h2>
+
+    <div class="action">
+      <span class="action-priority p-critical">Critical</span>
+      <div class="action-body">
+        <div class="action-title">Add SQLCipher &mdash; local database is unencrypted at rest</div>
+        <div class="action-detail">Add <code>sqlcipher-android</code> for Android and <code>SQLCipher.xcframework</code> for iOS to <code>libs.versions.toml</code>. Replace <code>AndroidSqliteDriver</code> and <code>NativeSqliteDriver</code> with SQLCipher-backed equivalents in platform <code>DatabaseDriverFactory</code>. Key derived from user credential &mdash; not stored alongside the database. Owner: Architect TDD &rarr; Backend Builder.</div>
+      </div>
+    </div>
+
+    <div class="action">
+      <span class="action-priority p-critical">Critical</span>
+      <div class="action-body">
+        <div class="action-title">Switch avatar bucket to private &mdash; replace publicUrl() with createSignedUrl()</div>
+        <div class="action-detail">Change the <code>avatars</code> bucket to private in the Supabase dashboard. Update <code>SupabaseAvatarRepository.uploadAvatar()</code> to call <code>createSignedUrl(path, expiresIn = 3600)</code>. Update <code>ProfileState.avatarUrl</code> to refresh the signed URL on session restore. Owner: Backend Builder.</div>
+      </div>
+    </div>
+
+    <div class="action">
+      <span class="action-priority p-critical">Critical</span>
+      <div class="action-body">
+        <div class="action-title">Replace collectAsState() with collectAsStateWithLifecycle() in four files</div>
+        <div class="action-detail">Files: <code>App.kt:79</code>, <code>ChatScreen.kt:70</code>, <code>AuthScreen.kt:68</code>, <code>ProfileScreen.kt:65</code>. Import from <code>androidx.lifecycle.compose</code> (already in deps via <code>lifecycle-runtime-compose</code>). Stops StateFlow collection in the background. Owner: Frontend Builder.</div>
+      </div>
+    </div>
+
+    <div class="action">
+      <span class="action-priority p-critical">Critical</span>
+      <div class="action-body">
+        <div class="action-title">ProfileScreen &mdash; wire error state to UI</div>
+        <div class="action-detail"><code>ProfileState.error</code> is set on avatar upload/remove failure but never rendered. Add <code>LaunchedEffect(state.error)</code> to show a Snackbar and call <code>viewModel.clearError()</code>, matching the pattern in <code>ChatScreen.kt</code>. Owner: Frontend Builder. Also listed in Design report.</div>
+      </div>
+    </div>
+
+    <div class="action">
+      <span class="action-priority p-high">High</span>
+      <div class="action-body">
+        <div class="action-title">Verify Supabase dashboard pre-launch checklist (S-03, S-06, S-07, S-08)</div>
+        <div class="action-detail">Four items in <code>projects/basil/CLAUDE.md</code> are unchecked: RLS on all tables, rate limiting, email confirmation, CAPTCHA. These are Supabase dashboard settings with no code changes needed. Must be done before any real user is onboarded. Owner: Gavin.</div>
+      </div>
+    </div>
+
+    <div class="action">
+      <span class="action-priority p-high">High</span>
+      <div class="action-body">
+        <div class="action-title">Extend CI to trigger on develop and staging branch pushes</div>
+        <div class="action-detail">In <code>.github/workflows/ci.yml</code>, add <code>develop</code> and <code>staging</code> to the <code>push: branches</code> list. Feature branches merge into <code>develop</code> first &mdash; CI must run there before code reaches staging. Owner: DevOps.</div>
+      </div>
+    </div>
+
+    <div class="action">
+      <span class="action-priority p-high">High</span>
+      <div class="action-body">
+        <div class="action-title">Add ProfileViewModelTest and direct use case tests</div>
+        <div class="action-detail">Create <code>desktopTest/.../profile/ProfileViewModelTest.kt</code> covering: avatar upload success/failure, remove avatar success/failure, error cleared after clearError(), initial state loaded from GetUserUseCase. Also add unit tests for <code>GetUserUseCase</code> and <code>SendMessageUseCase</code>. Owner: QA.</div>
+      </div>
+    </div>
+
+    <div class="action">
+      <span class="action-priority p-medium">Medium</span>
+      <div class="action-body">
+        <div class="action-title">Add Turbine to dependencies</div>
+        <div class="action-detail">Add <code>app.cash.turbine:turbine</code> to <code>libs.versions.toml</code> and <code>desktopTest</code> dependencies. Migrate StateFlow assertions in ChatViewModelTest and SessionViewModelTest to use <code>turbine.awaitItem()</code> and <code>turbine.expectNoEvents()</code>. Owner: QA.</div>
+      </div>
+    </div>
+
+    <div class="action">
+      <span class="action-priority p-medium">Medium</span>
+      <div class="action-body">
+        <div class="action-title">Add SqlDelightUserRepository integration test using in-memory driver</div>
+        <div class="action-detail"><code>sqlite-driver</code> for in-memory testing is in <code>desktopTest</code> dependencies but unused. Create <code>desktopTest/.../data/repository/SqlDelightUserRepositoryTest.kt</code> using <code>JdbcSqliteDriver(JdbcSqliteDriver.IN_MEMORY)</code>. Owner: QA.</div>
+      </div>
+    </div>
+
+    <div class="action">
+      <span class="action-priority p-medium">Medium</span>
+      <div class="action-body">
+        <div class="action-title">Replace splashDone remember with rememberSaveable</div>
+        <div class="action-detail">In <code>App.kt:94</code>, change <code>remember { mutableStateOf(false) }</code> to <code>rememberSaveable { mutableStateOf(false) }</code> so the splash doesn't replay when the OS kills and restores the process. Owner: Frontend Builder.</div>
+      </div>
+    </div>
+
+    <div class="action">
+      <span class="action-priority p-medium">Medium</span>
+      <div class="action-body">
+        <div class="action-title">Move repository interfaces to domain layer</div>
+        <div class="action-detail">Move <code>AuthRepository</code>, <code>AvatarRepository</code>, <code>ChatRepository</code>, <code>UserRepository</code> interfaces from <code>data/repository/</code> to <code>domain/repository/</code>. Implementations stay in <code>data/repository/</code>. Eliminates upward dependency from domain into data. Owner: Architect.</div>
+      </div>
+    </div>
+
+    <div class="action">
+      <span class="action-priority p-low">Low</span>
+      <div class="action-body">
+        <div class="action-title">Change ChatState from @Stable to @Immutable</div>
+        <div class="action-detail"><code>ChatState</code> is a plain data class &mdash; qualifies as <code>@Immutable</code> if <code>ChatMessage</code> is also immutable. Matches every other UiState in the codebase and provides a stronger stability contract. Owner: Frontend Builder.</div>
+      </div>
+    </div>
+
+    <div class="action">
+      <span class="action-priority p-low">Low</span>
+      <div class="action-body">
+        <div class="action-title">Add chat message max-length validation</div>
+        <div class="action-detail"><code>ChatViewModel.sendMessage()</code> checks for blank input but no max-length cap. Add a character limit before sending to the API to prevent accidental large payloads. Owner: Backend Builder.</div>
+      </div>
+    </div>
+
+  </div>
+
+</main>
+</body>
+</html>
