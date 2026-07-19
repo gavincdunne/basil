@@ -3,6 +3,7 @@ package org.weekendware.basil.data.remote
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.Auth
 import io.github.jan.supabase.createSupabaseClient
+import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.storage.Storage
 import org.weekendware.basil.BuildKonfig
 
@@ -19,4 +20,5 @@ fun createSupabaseClient(): SupabaseClient = createSupabaseClient(
 ) {
     install(Auth)
     install(Storage)
+    install(Postgrest)
 }

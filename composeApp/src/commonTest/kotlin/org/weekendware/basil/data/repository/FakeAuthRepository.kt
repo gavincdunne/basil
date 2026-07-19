@@ -5,7 +5,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 
 class FakeAuthRepository : AuthRepository {
 
-    private val _sessionFlow = MutableStateFlow(true)
+    private val _sessionFlow = MutableStateFlow(false)
     override val sessionFlow: Flow<Boolean> = _sessionFlow
 
     var signInResult: Result<Unit> = Result.success(Unit)

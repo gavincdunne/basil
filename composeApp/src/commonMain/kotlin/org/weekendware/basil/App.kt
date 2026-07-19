@@ -1,5 +1,10 @@
 package org.weekendware.basil
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -24,6 +29,8 @@ import org.weekendware.basil.presentation.chat.ChatScreen
 import org.weekendware.basil.presentation.chat.ChatViewModel
 import org.weekendware.basil.presentation.components.BasilBottomBar
 import org.weekendware.basil.presentation.components.BasilTopAppBar
+import org.weekendware.basil.presentation.onboarding.OnboardingScreen
+import org.weekendware.basil.presentation.onboarding.OnboardingViewModel
 import org.weekendware.basil.presentation.profile.ProfileScreen
 import org.weekendware.basil.presentation.session.SessionState
 import org.weekendware.basil.presentation.session.SessionViewModel
@@ -99,9 +106,27 @@ fun App() {
         } else {
             when (sessionState) {
                 SessionState.Unauthenticated -> AuthScreen()
-                SessionState.Authenticated   -> MainApp()
+                SessionState.Authenticated   -> AuthenticatedRoot()
                 SessionState.Loading         -> Box(Modifier.fillMaxSize()) // unreachable
             }
+        }
+    }
+}
+
+@Composable
+private fun AuthenticatedRoot() {
+    val onboardingViewModel = koinViewModel<OnboardingViewModel>()
+    val onboardingState by onboardingViewModel.state.collectAsStateWithLifecycle()
+
+    AnimatedContent(
+        targetState = onboardingState.isComplete,
+        transitionSpec = { fadeIn(tween(400)) togetherWith fadeOut(tween(400)) },
+        label = "onboarding_transition"
+    ) { isComplete ->
+        if (isComplete) {
+            MainApp()
+        } else {
+            OnboardingScreen(viewModel = onboardingViewModel)
         }
     }
 }

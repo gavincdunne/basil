@@ -2,6 +2,7 @@ package org.weekendware.basil.data.repository
 
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.storage.storage
+import kotlin.time.Duration.Companion.seconds
 
 /**
  * [AvatarRepository] backed by Supabase Storage.
@@ -34,7 +35,7 @@ class SupabaseAvatarRepository(private val client: SupabaseClient) : AvatarRepos
      */
     override suspend fun getSignedUrl(path: String): Result<String> =
         runCatching {
-            client.storage.from(bucket).createSignedUrl(path, expiresIn = 3600L)
+            client.storage.from(bucket).createSignedUrl(path, expiresIn = 3600.seconds)
         }
 
     /**

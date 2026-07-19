@@ -26,7 +26,7 @@ class OnboardingViewModelTest {
     private fun makeVm(
         localRepo: FakeOnboardingLocalRepository = FakeOnboardingLocalRepository(),
         profileRepo: FakeProfileRepository = FakeProfileRepository(),
-        authRepo: FakeAuthRepository = FakeAuthRepository(),
+        authRepo: FakeAuthRepository = FakeAuthRepository().also { it.setSignedIn(true) },
         userRepo: FakeUserRepository = FakeUserRepository(),
         scope: kotlinx.coroutines.CoroutineScope
     ) = OnboardingViewModel(localRepo, profileRepo, authRepo, userRepo, coroutineScope = scope)
@@ -341,7 +341,7 @@ class OnboardingViewModelTest {
             )
         )
         val userRepo = FakeUserRepository()
-        val authRepo = FakeAuthRepository()
+        val authRepo = FakeAuthRepository().also { it.setSignedIn(true) }
         val vm = makeVm(localRepo = localRepo, userRepo = userRepo, authRepo = authRepo, scope = this)
         advanceUntilIdle()
 

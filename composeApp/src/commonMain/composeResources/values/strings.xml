@@ -42,6 +42,8 @@
     <string name="settings_section_notifications">Notifications</string>
     <string name="settings_section_about">About</string>
     <string name="settings_label_version">Version</string>
+    <string name="settings_label_reminders">Daily reminders</string>
+    <string name="settings_label_reminders_hint">Check in once a day</string>
     <string name="settings_notifications_coming_soon">Notification settings coming soon</string>
 
     <!-- ── Screens ───────────────────────────────────────────── -->
@@ -58,9 +60,38 @@
     <string name="chat_empty_subtitle">Ask me anything, or just say hi.</string>
     <string name="cd_send_message">Send message</string>
 
+    <!-- ── Onboarding ────────────────────────────────────── -->
+    <string name="onboarding_opening">Hey. I\'m Basil. I\'m here to talk, and I\'ve got time. What should I call you?</string>
+    <string name="onboarding_resume_with_name">Good to have you back, %s.</string>
+    <string name="onboarding_resume_without_name">Good to have you back — let\'s pick up where we left off.</string>
+    <string name="onboarding_step2_question">Good to meet you, %s. How do you manage your T1D?</string>
+    <string name="onboarding_step2_subtext">Helps me understand what your days look like.</string>
+    <string name="onboarding_chip_injections">Injections</string>
+    <string name="onboarding_chip_pump">Pump</string>
+    <string name="onboarding_chip_closed_loop">Closed loop</string>
+    <string name="onboarding_step3_question">Got it. How long have you been living with it?</string>
+    <string name="onboarding_step3_subtext">This helps me understand where you\'re at.</string>
+    <string name="onboarding_chip_less_than_year">Less than a year</string>
+    <string name="onboarding_chip_one_to_five">1–5 years</string>
+    <string name="onboarding_chip_five_to_ten">5–10 years</string>
+    <string name="onboarding_chip_ten_plus">10+ years</string>
+    <string name="onboarding_step4_question">Last one — what are you hoping to get from Basil?</string>
+    <string name="onboarding_step4_subtext">No wrong answer here.</string>
+    <string name="onboarding_chip_someone_gets_it">Someone who gets it</string>
+    <string name="onboarding_chip_patterns">Making sense of patterns</string>
+    <string name="onboarding_chip_vent">Somewhere to vent</string>
+    <string name="onboarding_chip_not_sure">Not sure yet</string>
+    <string name="onboarding_complete">That\'s everything I needed, %s. What\'s on your mind?</string>
+    <string name="onboarding_saving">Saving…</string>
+    <string name="onboarding_input_hint">Your reply…</string>
+    <string name="onboarding_send">Send</string>
+    <string name="onboarding_retry">Try again</string>
+
     <!-- ── Error messages ──────────────────────────────────── -->
     <string name="error_auth_failed">Authentication failed</string>
     <string name="error_chat_failed">Something went wrong. Please try again.</string>
+    <string name="onboarding_error_network">No connection. Check your signal and try again.</string>
+    <string name="onboarding_error_server">Something went wrong on our end. Try again in a moment.</string>
 
     <!-- ── Relative time labels ──────────────────────────────── -->
     <string name="relative_time_just_now">just now</string>
