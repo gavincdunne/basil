@@ -5,6 +5,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ReadOnlyComposable
+import kotlinx.datetime.Clock
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 
 /**
  * The root theme composable for the Basil app.
@@ -21,26 +24,29 @@ import androidx.compose.runtime.ReadOnlyComposable
  *    components (Button, TextField, NavigationBar, etc.) automatically adopt
  *    the Basil palette, typography scale, and corner radii.
  *
- * ### Dark mode
- * Pass `darkTheme = true` to force dark mode in previews or tests; by default
- * [isSystemInDarkTheme] is used so the OS setting is respected.
+ * ### Color scheme
+ * The palette is determined by two independent signals: the local clock hour
+ * (morning / day / evening / night) and the system dark-mode preference.
+ * Pass `darkTheme = true` or a specific `hour` to override in previews or tests.
  *
  * ### Customising tokens
- * - **Colors** → [BasilColors.kt] — edit [basilLightColorScheme] / [basilDarkColorScheme].
+ * - **Colors** → [BasilColors.kt] — edit the eight [basilSchemeForHour] variants.
  * - **Typography** → [BasilTypography.kt] — edit [basilTypography].
  * - **Shapes** → [BasilShapes.kt] — edit the defaults on [BasilShapes].
  * - **Spacing** → [BasilSpacing.kt] — edit the defaults on [BasilSpacing].
  * - **Component sizes/elevations** → [BasilTokens.kt].
  *
- * @param darkTheme Whether to use the dark color scheme. Defaults to the system setting.
- * @param content The composable tree to theme.
+ * @param darkTheme Whether to use the dark variant. Defaults to the system setting.
+ * @param hour     Current hour (0–23). Defaults to the device clock. Override in previews.
+ * @param content  The composable tree to theme.
  */
 @Composable
 fun BasilTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
+    hour: Int = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).hour,
     content: @Composable () -> Unit
 ) {
-    val colors = if (darkTheme) basilDarkColorScheme() else basilLightColorScheme()
+    val colors = basilSchemeForHour(hour, isDark = darkTheme)
     val shapes = BasilShapes()
 
     CompositionLocalProvider(

@@ -317,22 +317,150 @@ fun basilNightColorScheme(): BasilColorScheme = BasilColorScheme(
 )
 
 // ─────────────────────────────────────────────────────────────
-// Time-of-day scheme selector
+// Dark-mode counterparts (system dark theme active)
 //
-// Call basilSchemeForHour(LocalTime.now().hour) in BasilTheme.
-// Transitions between schemes should be animated via animateColorAsState
-// at the BasilTheme composable level — not implemented here.
+// Each time slot has a dark variant. The hue character and warmth
+// of the time slot survive — only brightness shifts down.
 // ─────────────────────────────────────────────────────────────
 
 /**
- * Returns the appropriate [BasilColorScheme] for the given [hour] (0–23).
- * Wire this in BasilTheme and animate transitions with animateColorAsState.
+ * Morning dark (5am–10am, system dark). Dark amber-forest: the warm amber
+ * character of dawn survives against a deep background.
  */
-fun basilSchemeForHour(hour: Int): BasilColorScheme = when (hour) {
-    in 5..9   -> basilMorningColorScheme()
-    in 10..17 -> basilDayColorScheme()
-    in 18..20 -> basilEveningColorScheme()
-    else      -> basilNightColorScheme()
+fun basilMorningDarkColorScheme(): BasilColorScheme = BasilColorScheme(
+    primary              = BasilSagePalette.shade300,
+    onPrimary            = BasilSagePalette.shade900,
+    primaryContainer     = BasilSagePalette.shade700,
+    onPrimaryContainer   = BasilSagePalette.shade100,
+    secondary            = BasilStonePalette.shade300,
+    onSecondary          = BasilStonePalette.shade900,
+    secondaryContainer   = BasilStonePalette.shade700,
+    onSecondaryContainer = BasilStonePalette.shade100,
+    background           = hslToColor(35f, 0.22f, 0.09f),  // deep amber-forest
+    onBackground         = hslToColor(35f, 0.30f, 0.90f),  // warm near-white
+    surface              = hslToColor(35f, 0.18f, 0.12f),
+    onSurface            = hslToColor(35f, 0.28f, 0.88f),
+    surfaceVariant       = hslToColor(35f, 0.14f, 0.16f),
+    onSurfaceVariant     = hslToColor(35f, 0.12f, 0.60f),
+    error                = Color(0xFFFFB4AB),
+    onError              = Color(0xFF690005),
+    errorContainer       = Color(0xFF93000A),
+    onErrorContainer     = Color(0xFFFFDAD6),
+    outline              = hslToColor(35f, 0.18f, 0.30f),
+    outlineVariant       = hslToColor(35f, 0.14f, 0.20f),
+    scrim                = BasilPalette.Scrim,
+    isDark               = true,
+    warmAccent           = BasilAmberPalette.shade400,
+    onWarmAccent         = BasilPalette.Stone900,
+)
+
+/**
+ * Day dark (10am–6pm, system dark). Cool dark forest: midday quality
+ * palette, just dark. Clean sage-green character with no warm tint.
+ */
+fun basilDayDarkColorScheme(): BasilColorScheme = BasilColorScheme(
+    primary              = BasilSagePalette.shade300,
+    onPrimary            = BasilSagePalette.shade900,
+    primaryContainer     = BasilSagePalette.shade700,
+    onPrimaryContainer   = BasilSagePalette.shade100,
+    secondary            = BasilStonePalette.shade300,
+    onSecondary          = BasilStonePalette.shade900,
+    secondaryContainer   = BasilStonePalette.shade700,
+    onSecondaryContainer = BasilStonePalette.shade100,
+    background           = hslToColor(130f, 0.09f, 0.09f), // dark cool forest
+    onBackground         = BasilStonePalette.shade100,
+    surface              = BasilStonePalette.shade800,
+    onSurface            = BasilStonePalette.shade100,
+    surfaceVariant       = BasilStonePalette.shade700,
+    onSurfaceVariant     = BasilStonePalette.shade300,
+    error                = Color(0xFFFFB4AB),
+    onError              = Color(0xFF690005),
+    errorContainer       = Color(0xFF93000A),
+    onErrorContainer     = Color(0xFFFFDAD6),
+    outline              = BasilStonePalette.shade500,
+    outlineVariant       = BasilStonePalette.shade700,
+    scrim                = BasilPalette.Scrim,
+    isDark               = true,
+)
+
+/**
+ * Evening dark (6pm–9pm, system dark). Rich deep olive-forest: the golden-olive
+ * warmth of dusk compressed into darkness. Amber accent survives.
+ */
+fun basilEveningDarkColorScheme(): BasilColorScheme = BasilColorScheme(
+    primary              = BasilSagePalette.shade300,
+    onPrimary            = BasilSagePalette.shade900,
+    primaryContainer     = BasilSagePalette.shade700,
+    onPrimaryContainer   = BasilSagePalette.shade100,
+    secondary            = BasilStonePalette.shade300,
+    onSecondary          = BasilStonePalette.shade900,
+    secondaryContainer   = BasilStonePalette.shade700,
+    onSecondaryContainer = BasilStonePalette.shade100,
+    background           = hslToColor(75f, 0.15f, 0.09f),  // deep olive-forest
+    onBackground         = hslToColor(40f, 0.25f, 0.90f),  // warm-gold near-white
+    surface              = hslToColor(75f, 0.12f, 0.12f),
+    onSurface            = hslToColor(40f, 0.22f, 0.88f),
+    surfaceVariant       = hslToColor(75f, 0.09f, 0.16f),
+    onSurfaceVariant     = hslToColor(40f, 0.10f, 0.62f),
+    error                = Color(0xFFFFB4AB),
+    onError              = Color(0xFF690005),
+    errorContainer       = Color(0xFF93000A),
+    onErrorContainer     = Color(0xFFFFDAD6),
+    outline              = hslToColor(75f, 0.14f, 0.30f),
+    outlineVariant       = hslToColor(75f, 0.10f, 0.20f),
+    scrim                = BasilPalette.Scrim,
+    isDark               = true,
+    warmAccent           = BasilAmberPalette.shade300,
+    onWarmAccent         = BasilPalette.Stone900,
+)
+
+/**
+ * Night dark (9pm–5am, system dark). Deepest forest: the floor of the forest
+ * at its most compressed. Barely any hue remains — just depth.
+ */
+fun basilNightDarkColorScheme(): BasilColorScheme = BasilColorScheme(
+    primary              = BasilSagePalette.shade200,
+    onPrimary            = BasilSagePalette.shade900,
+    primaryContainer     = BasilSagePalette.shade800,
+    onPrimaryContainer   = BasilSagePalette.shade100,
+    secondary            = BasilStonePalette.shade200,
+    onSecondary          = BasilStonePalette.shade900,
+    secondaryContainer   = BasilStonePalette.shade800,
+    onSecondaryContainer = BasilStonePalette.shade100,
+    background           = hslToColor(130f, 0.06f, 0.07f), // deepest forest
+    onBackground         = BasilStonePalette.shade100,
+    surface              = hslToColor(130f, 0.05f, 0.09f),
+    onSurface            = BasilStonePalette.shade100,
+    surfaceVariant       = hslToColor(130f, 0.04f, 0.12f),
+    onSurfaceVariant     = BasilStonePalette.shade300,
+    error                = Color(0xFFFFB4AB),
+    onError              = Color(0xFF690005),
+    errorContainer       = Color(0xFF93000A),
+    onErrorContainer     = Color(0xFFFFDAD6),
+    outline              = BasilStonePalette.shade600,
+    outlineVariant       = hslToColor(130f, 0.04f, 0.16f),
+    scrim                = BasilPalette.Scrim,
+    isDark               = true,
+)
+
+// ─────────────────────────────────────────────────────────────
+// Time-of-day scheme selector
+//
+// Call basilSchemeForHour(hour, isDark) in BasilTheme.
+// isDark comes from isSystemInDarkTheme() — it is independent of
+// the time slot. A user at noon with dark mode on still sees the
+// midday character palette, just dark.
+// ─────────────────────────────────────────────────────────────
+
+/**
+ * Returns the appropriate [BasilColorScheme] for the given [hour] (0–23)
+ * and [isDark] system preference.
+ */
+fun basilSchemeForHour(hour: Int, isDark: Boolean = false): BasilColorScheme = when (hour) {
+    in 5..9   -> if (isDark) basilMorningDarkColorScheme() else basilMorningColorScheme()
+    in 10..17 -> if (isDark) basilDayDarkColorScheme()     else basilDayColorScheme()
+    in 18..20 -> if (isDark) basilEveningDarkColorScheme() else basilEveningColorScheme()
+    else      -> if (isDark) basilNightDarkColorScheme()   else basilNightColorScheme()
 }
 
 // ─────────────────────────────────────────────────────────────
