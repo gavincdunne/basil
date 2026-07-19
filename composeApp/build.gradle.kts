@@ -76,6 +76,8 @@ kotlin {
         commonTest.dependencies {
             implementation(libs.kotlin.test)
             implementation(libs.kotlinx.datetime)
+            implementation(libs.kotlinx.coroutinesTest)
+            implementation(libs.turbine)
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
