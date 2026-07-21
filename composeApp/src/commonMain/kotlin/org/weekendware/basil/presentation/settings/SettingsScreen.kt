@@ -15,9 +15,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import basil.composeapp.generated.resources.Res
+import basil.composeapp.generated.resources.profile_label_email
+import basil.composeapp.generated.resources.profile_label_name
 import basil.composeapp.generated.resources.settings_label_reminders
 import basil.composeapp.generated.resources.settings_label_reminders_hint
 import basil.composeapp.generated.resources.settings_label_version
@@ -26,16 +30,27 @@ import basil.composeapp.generated.resources.settings_section_about
 import basil.composeapp.generated.resources.settings_section_notifications
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import org.koin.compose.viewmodel.koinViewModel
+import org.weekendware.basil.presentation.profile.ProfileViewModel
 import org.weekendware.basil.presentation.theme.BasilTheme
 import org.weekendware.basil.presentation.theme.basilSpacing
 
 @Composable
 fun SettingsScreen() {
-    SettingsScreenContent()
+    val profileViewModel = koinViewModel<ProfileViewModel>()
+    val profileState by profileViewModel.state.collectAsStateWithLifecycle()
+    SettingsScreenContent(
+        userName  = profileState.name,
+        userEmail = profileState.email,
+    )
 }
 
 @Composable
-fun SettingsScreenContent(modifier: Modifier = Modifier) {
+fun SettingsScreenContent(
+    userName: String = "",
+    userEmail: String = "",
+    modifier: Modifier = Modifier,
+) {
     val spacing = MaterialTheme.basilSpacing
 
     Column(
@@ -45,6 +60,18 @@ fun SettingsScreenContent(modifier: Modifier = Modifier) {
             .padding(horizontal = spacing.lg, vertical = spacing.xl),
         verticalArrangement = Arrangement.spacedBy(spacing.xl)
     ) {
+        SettingsSection(title = "Account") {
+            SettingsRow(
+                label = stringResource(Res.string.profile_label_name),
+                value = userName.ifBlank { "—" },
+            )
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+            SettingsRow(
+                label = stringResource(Res.string.profile_label_email),
+                value = userEmail.ifBlank { "—" },
+            )
+        }
+
         SettingsSection(title = stringResource(Res.string.settings_section_notifications)) {
             Row(
                 modifier              = Modifier.fillMaxWidth(),
@@ -99,6 +126,26 @@ fun SettingsScreenContent(modifier: Modifier = Modifier) {
 }
 
 @Composable
+private fun SettingsRow(label: String, value: String) {
+    Row(
+        modifier              = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment     = Alignment.CenterVertically
+    ) {
+        Text(
+            text  = label,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Text(
+            text  = value,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+    }
+}
+
+@Composable
 private fun SettingsSection(
     title: String,
     modifier: Modifier = Modifier,
@@ -124,6 +171,6 @@ private fun SettingsSection(
 @Composable
 internal fun SettingsScreenPreview() {
     BasilTheme {
-        SettingsScreenContent()
+        SettingsScreenContent(userName = "Gavin Dunne", userEmail = "gavin@weekendware.io")
     }
 }

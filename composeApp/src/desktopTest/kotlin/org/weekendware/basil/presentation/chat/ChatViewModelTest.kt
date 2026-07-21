@@ -251,6 +251,34 @@ class ChatViewModelTest {
         assertTrue(lastMsg == null || lastMsg.role == "user")
     }
 
+    // ── setGreeting ───────────────────────────────────────────
+
+    @Test
+    fun `setGreeting inserts greeting as first assistant message when conversation is empty`() {
+        val vm = makeVm()
+
+        vm.setGreeting("Morning, Gavin.")
+
+        val msg = vm.state.value.messages.single()
+        assertEquals("assistant", msg.role)
+        assertEquals("Morning, Gavin.", msg.content)
+    }
+
+    @Test
+    fun `setGreeting does nothing when messages already exist`() = runTest {
+        whenever(chatRepository.streamChat(any())).thenReturn(flowOf("Hi there"))
+        val vm = ChatViewModel(sendMessage, coroutineScope = this)
+        vm.onInputChange("Hello")
+        vm.sendMessage()
+        advanceUntilIdle()
+        val countBefore = vm.state.value.messages.size
+
+        vm.setGreeting("Should be ignored")
+
+        assertEquals(countBefore, vm.state.value.messages.size)
+        assertTrue(vm.state.value.messages.none { it.content == "Should be ignored" })
+    }
+
     // ── clearError ────────────────────────────────────────────
 
     @Test

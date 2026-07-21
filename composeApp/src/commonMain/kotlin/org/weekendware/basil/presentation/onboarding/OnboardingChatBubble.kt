@@ -1,6 +1,7 @@
 package org.weekendware.basil.presentation.onboarding
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
@@ -10,6 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.weekendware.basil.presentation.theme.BasilTheme
@@ -22,16 +24,17 @@ fun OnboardingChatBubble(
     subtext: String? = null,
 ) {
     val shape = RoundedCornerShape(
-        topStart = 4.dp,
-        topEnd = 16.dp,
-        bottomEnd = 16.dp,
-        bottomStart = 16.dp
+        topStart = 18.dp,
+        topEnd = 18.dp,
+        bottomEnd = 18.dp,
+        bottomStart = 4.dp
     )
     Column(
         modifier = modifier
             .widthIn(max = 280.dp)
             .clip(shape)
-            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .background(MaterialTheme.colorScheme.secondaryContainer)
+            .border(1.dp, MaterialTheme.colorScheme.outline, shape)
             .padding(
                 horizontal = MaterialTheme.basilSpacing.md,
                 vertical = MaterialTheme.basilSpacing.sm
@@ -40,13 +43,13 @@ fun OnboardingChatBubble(
         Text(
             text = text,
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = MaterialTheme.colorScheme.onSecondaryContainer
         )
         if (subtext != null) {
             Text(
                 text = subtext,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                style = MaterialTheme.typography.bodySmall.copy(fontStyle = FontStyle.Italic),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(top = MaterialTheme.basilSpacing.xs)
             )
         }
@@ -59,19 +62,19 @@ fun OnboardingUserBubble(
     text: String,
 ) {
     val shape = RoundedCornerShape(
-        topStart = 16.dp,
-        topEnd = 4.dp,
-        bottomEnd = 16.dp,
-        bottomStart = 16.dp
+        topStart = 18.dp,
+        topEnd = 18.dp,
+        bottomEnd = 4.dp,
+        bottomStart = 18.dp
     )
     Text(
         text = text,
         style = MaterialTheme.typography.bodyMedium,
-        color = MaterialTheme.colorScheme.onPrimaryContainer,
+        color = MaterialTheme.colorScheme.onPrimary,
         modifier = modifier
             .widthIn(max = 280.dp)
             .clip(shape)
-            .background(MaterialTheme.colorScheme.primaryContainer)
+            .background(MaterialTheme.colorScheme.primary)
             .padding(
                 horizontal = MaterialTheme.basilSpacing.md,
                 vertical = MaterialTheme.basilSpacing.sm

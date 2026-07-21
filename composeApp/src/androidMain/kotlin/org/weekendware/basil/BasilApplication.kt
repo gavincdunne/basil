@@ -2,7 +2,6 @@ package org.weekendware.basil
 
 import android.app.Application
 import android.content.Context
-import net.zetetic.android.database.sqlcipher.SQLiteDatabase
 import org.koin.dsl.module
 import org.weekendware.basil.crash.initSentry
 import org.weekendware.basil.di.initKoin
@@ -20,7 +19,7 @@ class BasilApplication : Application() {
     override fun onCreate() {
         super.onCreate()
 
-        SQLiteDatabase.loadLibs(this)
+        System.loadLibrary("sqlcipher")
         initSentry()
 
         initKoin {

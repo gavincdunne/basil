@@ -1,34 +1,63 @@
 package org.weekendware.basil
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ChatBubble
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.MoreHoriz
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.navigation.NavGraph.Companion.findStartDestination
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import basil.composeapp.generated.resources.Res
+import basil.composeapp.generated.resources.cd_close
+import basil.composeapp.generated.resources.cd_settings
+import basil.composeapp.generated.resources.chat_return_day
+import basil.composeapp.generated.resources.chat_return_evening
+import basil.composeapp.generated.resources.chat_return_morning
+import basil.composeapp.generated.resources.chat_return_night
+import basil.composeapp.generated.resources.nav_chat
+import basil.composeapp.generated.resources.nav_more
+import basil.composeapp.generated.resources.nav_profile
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.weekendware.basil.presentation.auth.AuthScreen
 import org.weekendware.basil.presentation.chat.ChatScreen
-import org.weekendware.basil.presentation.chat.ChatViewModel
-import org.weekendware.basil.presentation.components.BasilBottomBar
-import org.weekendware.basil.presentation.components.BasilTopAppBar
+import org.weekendware.basil.presentation.more.MoreScreen
 import org.weekendware.basil.presentation.onboarding.OnboardingScreen
 import org.weekendware.basil.presentation.onboarding.OnboardingViewModel
 import org.weekendware.basil.presentation.profile.ProfileScreen
@@ -37,143 +66,238 @@ import org.weekendware.basil.presentation.session.SessionViewModel
 import org.weekendware.basil.presentation.settings.SettingsScreen
 import org.weekendware.basil.presentation.splash.SplashScreen
 import org.weekendware.basil.presentation.theme.BasilTheme
+import org.weekendware.basil.presentation.theme.BasilThemeViewModel
+import org.weekendware.basil.presentation.theme.backgroundBrush
+import org.weekendware.basil.presentation.theme.basilColors
+import org.weekendware.basil.presentation.theme.dmSerifDisplayFamily
 
-/**
- * Returns true when the splash screen should be shown.
- *
- * The splash remains visible in two cases:
- * 1. The session is still loading — we have not yet heard from Supabase.
- * 2. The session has resolved but the splash fade animation has not completed —
- *    we hold the screen briefly to avoid a jarring cut.
- *
- * @param sessionState   The current authentication session state.
- * @param splashFadeDone Whether the fade-out animation has completed.
- */
+enum class BasilTab { Profile, Chat, More }
+
 fun shouldShowSplash(sessionState: SessionState, splashFadeDone: Boolean): Boolean =
     sessionState == SessionState.Loading || !splashFadeDone
 
-/** Compile-safe navigation destinations for the app. */
-sealed class AppRoute(val route: String) {
-    data object Home     : AppRoute("home")
-    data object Profile  : AppRoute("profile")
-    data object Chat     : AppRoute("chat")
-    data object Settings : AppRoute("settings")
-
-    companion object {
-        /** Routes that show the bottom navigation bar. */
-        val tabRoutes = setOf(Home.route, Profile.route, Chat.route)
-    }
-}
-
-/**
- * Root composable for the Basil application.
- *
- * Observes [SessionViewModel] to decide which graph to display:
- * - [SessionState.Loading] — [SplashScreen] while the SDK restores a stored session.
- *   Once the session resolves AND the splash fade completes, the appropriate
- *   screen is shown.
- * - [SessionState.Unauthenticated] — [AuthScreen]; no scaffold, no back stack.
- * - [SessionState.Authenticated]   — full app scaffold with [NavHost].
- *
- * Auth and main-app navigation are kept in separate sub-trees so the back stack
- * can never return to the sign-in screen from inside the app.
- */
 @Composable
 fun App() {
-    BasilTheme {
-        val sessionViewModel = koinViewModel<SessionViewModel>()
-        val sessionState by sessionViewModel.state.collectAsStateWithLifecycle()
-        val chatViewModel = koinViewModel<ChatViewModel>()
+    val sessionViewModel = koinViewModel<SessionViewModel>()
+    val sessionState by sessionViewModel.state.collectAsStateWithLifecycle()
+    var splashDone by remember { mutableStateOf(false) }
+    val showSplash = shouldShowSplash(sessionState, splashDone)
 
-        // Clear all in-memory chat history whenever the session ends.
-        // This ensures no PHI from a previous session persists in memory
-        // when the user signs out or a different user signs in on the same device.
-        LaunchedEffect(sessionState) {
-            if (sessionState == SessionState.Unauthenticated) {
-                chatViewModel.clearHistory()
-            }
-        }
+    val themeViewModel = koinViewModel<BasilThemeViewModel>()
+    val themeHour by themeViewModel.hour.collectAsStateWithLifecycle()
 
-        // Track whether the splash fade animation has finished. We wait for
-        // both: the session to resolve *and* the splash to fade out before
-        // showing the next screen, preventing any jarring cut.
-        var splashDone by remember { mutableStateOf(false) }
-
-        val showSplash = shouldShowSplash(sessionState, splashDone)
-
-        if (showSplash) {
-            SplashScreen(onFadeComplete = { splashDone = true })
-        } else {
-            when (sessionState) {
-                SessionState.Unauthenticated -> AuthScreen()
-                SessionState.Authenticated   -> AuthenticatedRoot()
-                SessionState.Loading         -> Box(Modifier.fillMaxSize()) // unreachable
+    BasilTheme(hour = themeHour) {
+        val bgBrush = MaterialTheme.basilColors.backgroundBrush()
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(bgBrush)
+        ) {
+            AnimatedContent(
+                targetState  = showSplash,
+                transitionSpec = {
+                    fadeIn(tween(400)) togetherWith fadeOut(tween(0))
+                },
+                label = "splash_to_content",
+            ) { splashVisible ->
+                if (splashVisible) {
+                    SplashScreen(onFadeComplete = { splashDone = true })
+                } else {
+                    when (sessionState) {
+                        SessionState.Unauthenticated -> AuthScreen()
+                        SessionState.Authenticated   -> AuthenticatedRoot(themeHour = themeHour)
+                        SessionState.Loading         -> Box(Modifier.fillMaxSize())
+                    }
+                }
             }
         }
     }
 }
 
 @Composable
-private fun AuthenticatedRoot() {
+private fun AuthenticatedRoot(themeHour: Int) {
+    val hour = themeHour
+
     val onboardingViewModel = koinViewModel<OnboardingViewModel>()
     val onboardingState by onboardingViewModel.state.collectAsStateWithLifecycle()
 
-    AnimatedContent(
-        targetState = onboardingState.isComplete,
-        transitionSpec = { fadeIn(tween(400)) togetherWith fadeOut(tween(400)) },
-        label = "onboarding_transition"
-    ) { isComplete ->
-        if (isComplete) {
-            MainApp()
-        } else {
-            OnboardingScreen(viewModel = onboardingViewModel)
+    var selectedTab by remember { mutableStateOf(BasilTab.Chat) }
+    var isSettingsOpen by remember { mutableStateOf(false) }
+    val name = onboardingState.name ?: ""
+    val returnGreeting = if (onboardingState.isComplete) {
+        when (hour) {
+            in 5..9   -> stringResource(Res.string.chat_return_morning, name)
+            in 10..17 -> stringResource(Res.string.chat_return_day)
+            in 18..20 -> stringResource(Res.string.chat_return_evening, name)
+            else      -> stringResource(Res.string.chat_return_night)
+        }
+    } else null
+
+    Column(modifier = Modifier.fillMaxSize()) {
+        BasilTopBar(
+            isSettingsOpen   = isSettingsOpen,
+            onToggleSettings = { isSettingsOpen = !isSettingsOpen },
+        )
+
+        Box(modifier = Modifier.weight(1f)) {
+            AnimatedContent(
+                targetState  = selectedTab,
+                transitionSpec = {
+                    val direction = if (targetState.ordinal > initialState.ordinal) 1 else -1
+                    slideInHorizontally(tween(300)) { it * direction } togetherWith
+                        slideOutHorizontally(tween(300)) { -it * direction }
+                },
+                label    = "tab_content",
+                modifier = Modifier.fillMaxSize(),
+            ) { tab ->
+                when (tab) {
+                    BasilTab.Profile -> ProfileScreen()
+                    BasilTab.Chat    -> when {
+                        onboardingState.isLoading && !onboardingState.isComplete ->
+                            Box(Modifier.fillMaxSize())
+                        onboardingState.isComplete ->
+                            ChatScreen(initialGreeting = returnGreeting)
+                        else ->
+                            OnboardingScreen(
+                                viewModel = onboardingViewModel,
+                                modifier  = Modifier.fillMaxSize(),
+                            )
+                    }
+                    BasilTab.More    -> MoreScreen()
+                }
+            }
+
+            // Settings overlay: graphicsLayer offset avoids AnimatedVisibility scope issues
+            // in nested Box/Column context. 0f = on screen, 1f = fully below screen.
+            val settingsSlide by animateFloatAsState(
+                targetValue   = if (isSettingsOpen) 0f else 1f,
+                animationSpec = tween(if (isSettingsOpen) 350 else 280),
+                label         = "settings_slide",
+            )
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .graphicsLayer { translationY = size.height * settingsSlide }
+                    .background(MaterialTheme.basilColors.backgroundBrush())
+            ) {
+                SettingsScreen()
+            }
+        }
+
+        // ColumnScope.AnimatedVisibility — valid here as a direct Column child
+        AnimatedVisibility(
+            visible = onboardingState.isComplete,
+            enter   = fadeIn(tween(600)),
+        ) {
+            BasilNavBar(
+                selectedTab   = selectedTab,
+                onTabSelected = { selectedTab = it },
+            )
         }
     }
 }
 
-/**
- * The main application scaffold, shown only when the user is authenticated.
- *
- * Contains the [NavHost] for all primary destinations and the top/bottom bars.
- */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun MainApp() {
-    val navController = rememberNavController()
-    val backStackEntry by navController.currentBackStackEntryAsState()
-    val currentRoute = backStackEntry?.destination?.route
-
-    Scaffold(
-        topBar = {
-            BasilTopAppBar(
-                currentRoute    = currentRoute,
-                onSettingsClick = { navController.navigate(AppRoute.Settings.route) },
-                onBackClick     = { navController.popBackStack() }
-            )
-        },
-        bottomBar = {
-            if (currentRoute in AppRoute.tabRoutes) {
-                BasilBottomBar(
-                    currentRoute = currentRoute,
-                    onNavigate   = { route ->
-                        navController.navigate(route) {
-                            popUpTo(navController.graph.findStartDestination().id) {
-                                saveState = true
-                            }
-                            launchSingleTop = true
-                            restoreState    = true
+private fun BasilTopBar(
+    isSettingsOpen: Boolean = false,
+    onToggleSettings: () -> Unit = {},
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.surface)
+    ) {
+        CenterAlignedTopAppBar(
+            title = {
+                Text(
+                    text          = "basil",
+                    fontFamily    = dmSerifDisplayFamily(),
+                    fontWeight    = FontWeight.Normal,
+                    fontSize      = 22.sp,
+                    letterSpacing = (-0.01).sp,
+                    color         = MaterialTheme.colorScheme.onSurface,
+                )
+            },
+            actions = {
+                IconButton(onClick = onToggleSettings) {
+                    Crossfade(
+                        targetState   = isSettingsOpen,
+                        animationSpec = tween(250),
+                        label         = "cog_x",
+                    ) { open ->
+                        if (open) {
+                            Icon(
+                                imageVector        = Icons.Default.Close,
+                                contentDescription = stringResource(Res.string.cd_close),
+                                tint               = MaterialTheme.colorScheme.primary,
+                            )
+                        } else {
+                            Icon(
+                                imageVector        = Icons.Default.Settings,
+                                contentDescription = stringResource(Res.string.cd_settings),
+                                tint               = MaterialTheme.colorScheme.primary.copy(alpha = 0.65f),
+                            )
                         }
                     }
-                )
-            }
-        }
-    ) { innerPadding ->
-        Surface(modifier = Modifier.padding(innerPadding)) {
-            NavHost(navController = navController, startDestination = AppRoute.Home.route) {
-                composable(AppRoute.Home.route)     { ChatScreen() }
-                composable(AppRoute.Profile.route)  { ProfileScreen() }
-                composable(AppRoute.Chat.route)     { ChatScreen() }
-                composable(AppRoute.Settings.route) { SettingsScreen() }
-            }
+                }
+            },
+            colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                containerColor    = MaterialTheme.colorScheme.surface,
+                titleContentColor = MaterialTheme.colorScheme.onSurface,
+            ),
+            expandedHeight = 52.dp,
+        )
+        HorizontalDivider(
+            color     = MaterialTheme.colorScheme.outlineVariant,
+            thickness = 1.dp
+        )
+    }
+}
+
+@Composable
+private fun BasilNavBar(
+    selectedTab: BasilTab,
+    onTabSelected: (BasilTab) -> Unit,
+) {
+    val itemColors = NavigationBarItemDefaults.colors(
+        indicatorColor      = MaterialTheme.colorScheme.primaryContainer,
+        selectedIconColor   = MaterialTheme.colorScheme.primary,
+        selectedTextColor   = MaterialTheme.colorScheme.primary,
+        unselectedIconColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.65f),
+        unselectedTextColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.80f),
+    )
+
+    Column(modifier = Modifier.fillMaxWidth()) {
+        HorizontalDivider(
+            color     = MaterialTheme.colorScheme.outlineVariant,
+            thickness = 1.dp
+        )
+        NavigationBar(
+            containerColor = MaterialTheme.colorScheme.surface,
+            tonalElevation = 0.dp,
+        ) {
+            NavigationBarItem(
+                selected = selectedTab == BasilTab.Profile,
+                onClick  = { onTabSelected(BasilTab.Profile) },
+                icon     = { Icon(Icons.Default.Person, contentDescription = null) },
+                label    = { Text(stringResource(Res.string.nav_profile)) },
+                colors   = itemColors,
+            )
+            NavigationBarItem(
+                selected = selectedTab == BasilTab.Chat,
+                onClick  = { onTabSelected(BasilTab.Chat) },
+                icon     = { Icon(Icons.Default.ChatBubble, contentDescription = null) },
+                label    = { Text(stringResource(Res.string.nav_chat)) },
+                colors   = itemColors,
+            )
+            NavigationBarItem(
+                selected = selectedTab == BasilTab.More,
+                onClick  = { onTabSelected(BasilTab.More) },
+                icon     = { Icon(Icons.Default.MoreHoriz, contentDescription = null) },
+                label    = { Text(stringResource(Res.string.nav_more)) },
+                colors   = itemColors,
+            )
         }
     }
 }

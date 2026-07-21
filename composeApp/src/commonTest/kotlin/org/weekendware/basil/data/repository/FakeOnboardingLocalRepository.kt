@@ -24,6 +24,7 @@ class FakeOnboardingLocalRepository : OnboardingLocalRepository {
     val saveDiagnosisDurationCalls = mutableListOf<DiagnosisDuration>()
     val saveGoalCalls = mutableListOf<Goal>()
     var markCompleteCalled = false
+    var clearCalled = false
 
     fun setState(state: OnboardingPersistedState) {
         _state.value = state
@@ -60,6 +61,7 @@ class FakeOnboardingLocalRepository : OnboardingLocalRepository {
     }
 
     override suspend fun clear(): Result<Unit> {
+        clearCalled = true
         _state.value = OnboardingPersistedState()
         return Result.success(Unit)
     }

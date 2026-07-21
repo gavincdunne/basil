@@ -12,7 +12,7 @@
 
 /* Begin PBXFileReference section */
 		B9DA97B12DC1472C00A4DA20 /* Basil.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Basil.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		ED32DDA3CF544393A575CD10 /* Sentry.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = Sentry.xcframework; sourceTree = "<group>"; };
+		ED32DDA3CF544393A575CD10 /* Sentry.xcframework */ = {isa = PBXFileReference; expectedSignature = "AppleDeveloperProgram:97JCY7859U:GetSentry LLC"; lastKnownFileType = wrapper.xcframework; path = Sentry.xcframework; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */

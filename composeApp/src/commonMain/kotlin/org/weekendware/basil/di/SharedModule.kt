@@ -28,6 +28,7 @@ import org.weekendware.basil.presentation.onboarding.OnboardingViewModel
 import org.weekendware.basil.presentation.profile.ProfileViewModel
 import org.weekendware.basil.presentation.session.SessionViewModel
 import org.weekendware.basil.presentation.settings.SettingsViewModel
+import org.weekendware.basil.presentation.theme.BasilThemeViewModel
 
 val chatModule = module {
     single {
@@ -68,4 +69,5 @@ val sharedModule = module {
     viewModel { ProfileViewModel(get(), get(), get()) }
     viewModel { ChatViewModel(get()) }
     viewModel { SettingsViewModel() }
+    viewModel { BasilThemeViewModel() }
 }

@@ -116,6 +116,12 @@ android {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
+        jniLibs {
+            // SQLCipher and Sentry native libs are not yet 16 KB page-aligned.
+            // Compress them in the APK so they're extracted at install time rather
+            // than memory-mapped directly (which requires 16 KB alignment on API 35+).
+            useLegacyPackaging = true
+        }
     }
     flavorDimensions += "environment"
     productFlavors {

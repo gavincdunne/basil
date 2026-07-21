@@ -43,10 +43,10 @@ class OnboardingViewModelTest {
         assertFalse(vm.state.value.isResuming)
     }
 
-    // ── ONB-002: returning user, DataStore complete ───────────────────────────
+    // ── ONB-002: stale DataStore from previous user ───────────────────────────
 
     @Test
-    fun `ONB-002 DataStore isComplete true sets isComplete in state and skips Supabase fetch`() = runTest {
+    fun `ONB-002 stale DataStore with isComplete true and no Supabase row starts fresh`() = runTest {
         val localRepo = FakeOnboardingLocalRepository()
         localRepo.setState(
             OnboardingPersistedState(
@@ -58,11 +58,35 @@ class OnboardingViewModelTest {
             )
         )
         val profileRepo = FakeProfileRepository()
+        profileRepo.fetchResult = Result.success(null)
+        val vm = makeVm(localRepo = localRepo, profileRepo = profileRepo, scope = this)
+        advanceUntilIdle()
+
+        assertFalse(vm.state.value.isComplete)
+        assertEquals(OnboardingStep.NAME, vm.state.value.currentStep)
+        assertTrue(localRepo.clearCalled)
+    }
+
+    // ── ONB-002b: offline returning user ─────────────────────────────────────
+
+    @Test
+    fun `ONB-002b offline returning user with complete local state sets isComplete true`() = runTest {
+        val localRepo = FakeOnboardingLocalRepository()
+        localRepo.setState(
+            OnboardingPersistedState(
+                name = "Alice",
+                managementType = ManagementType.PUMP,
+                diagnosisDuration = DiagnosisDuration.ONE_TO_FIVE,
+                goal = Goal.SOMEONE_WHO_GETS_IT,
+                isComplete = true
+            )
+        )
+        val profileRepo = FakeProfileRepository()
+        profileRepo.fetchResult = Result.failure(RuntimeException("network error"))
         val vm = makeVm(localRepo = localRepo, profileRepo = profileRepo, scope = this)
         advanceUntilIdle()
 
         assertTrue(vm.state.value.isComplete)
-        assertEquals(0, profileRepo.fetchCallCount)
     }
 
     // ── ONB-003: new device, Supabase complete row ────────────────────────────
@@ -113,6 +137,7 @@ class OnboardingViewModelTest {
         val localRepo = FakeOnboardingLocalRepository()
         localRepo.setState(OnboardingPersistedState(name = "Alice"))
         val profileRepo = FakeProfileRepository()
+        profileRepo.fetchResult = Result.success(OnboardingPersistedState(name = "Alice"))
         profileRepo.upsertResult = Result.failure(RuntimeException("network error"))
         val vm = makeVm(localRepo = localRepo, profileRepo = profileRepo, scope = this)
         advanceUntilIdle()
@@ -188,7 +213,15 @@ class OnboardingViewModelTest {
                 diagnosisDuration = DiagnosisDuration.TEN_PLUS
             )
         )
-        val vm = makeVm(localRepo = localRepo, scope = this)
+        val profileRepo = FakeProfileRepository()
+        profileRepo.fetchResult = Result.success(
+            OnboardingPersistedState(
+                name = "Alice",
+                managementType = ManagementType.CLOSED_LOOP,
+                diagnosisDuration = DiagnosisDuration.TEN_PLUS
+            )
+        )
+        val vm = makeVm(localRepo = localRepo, profileRepo = profileRepo, scope = this)
         advanceUntilIdle()
 
         vm.onGoalSelected(Goal.NOT_SURE)
@@ -238,6 +271,7 @@ class OnboardingViewModelTest {
         val localRepo = FakeOnboardingLocalRepository()
         localRepo.setState(OnboardingPersistedState(name = "Alice"))
         val profileRepo = FakeProfileRepository()
+        profileRepo.fetchResult = Result.success(OnboardingPersistedState(name = "Alice"))
         profileRepo.upsertResult = Result.failure(RuntimeException("network"))
         val vm = makeVm(localRepo = localRepo, profileRepo = profileRepo, scope = this)
         advanceUntilIdle()
@@ -254,10 +288,10 @@ class OnboardingViewModelTest {
         assertNull(vm.state.value.error)
     }
 
-    // ── ONB-026: DataStore partial state → resume ─────────────────────────────
+    // ── ONB-026: Supabase null clears stale local state ──────────────────────
 
     @Test
-    fun `ONB-026 DataStore with name only resumes at MANAGEMENT_TYPE and sets isResuming true`() = runTest {
+    fun `ONB-026 Supabase returns null clears stale local state and starts fresh`() = runTest {
         val localRepo = FakeOnboardingLocalRepository()
         localRepo.setState(OnboardingPersistedState(name = "Alice"))
         val profileRepo = FakeProfileRepository()
@@ -265,9 +299,10 @@ class OnboardingViewModelTest {
         val vm = makeVm(localRepo = localRepo, profileRepo = profileRepo, scope = this)
         advanceUntilIdle()
 
-        assertEquals(OnboardingStep.MANAGEMENT_TYPE, vm.state.value.currentStep)
-        assertTrue(vm.state.value.isResuming)
-        assertEquals("Alice", vm.state.value.name)
+        assertEquals(OnboardingStep.NAME, vm.state.value.currentStep)
+        assertFalse(vm.state.value.isResuming)
+        assertNull(vm.state.value.name)
+        assertTrue(localRepo.clearCalled)
     }
 
     // ── ONB-027: Supabase partial row → resume ────────────────────────────────
@@ -340,9 +375,17 @@ class OnboardingViewModelTest {
                 diagnosisDuration = DiagnosisDuration.ONE_TO_FIVE
             )
         )
+        val profileRepo = FakeProfileRepository()
+        profileRepo.fetchResult = Result.success(
+            OnboardingPersistedState(
+                name = "Alice",
+                managementType = ManagementType.PUMP,
+                diagnosisDuration = DiagnosisDuration.ONE_TO_FIVE
+            )
+        )
         val userRepo = FakeUserRepository()
         val authRepo = FakeAuthRepository().also { it.setSignedIn(true) }
-        val vm = makeVm(localRepo = localRepo, userRepo = userRepo, authRepo = authRepo, scope = this)
+        val vm = makeVm(localRepo = localRepo, profileRepo = profileRepo, userRepo = userRepo, authRepo = authRepo, scope = this)
         advanceUntilIdle()
 
         vm.onGoalSelected(Goal.SOMEONE_WHO_GETS_IT)
@@ -403,7 +446,9 @@ class OnboardingViewModelTest {
     fun `onManagementTypeSelected advances to DIAGNOSIS_DURATION step`() = runTest {
         val localRepo = FakeOnboardingLocalRepository()
         localRepo.setState(OnboardingPersistedState(name = "Alice"))
-        val vm = makeVm(localRepo = localRepo, scope = this)
+        val profileRepo = FakeProfileRepository()
+        profileRepo.fetchResult = Result.success(OnboardingPersistedState(name = "Alice"))
+        val vm = makeVm(localRepo = localRepo, profileRepo = profileRepo, scope = this)
         advanceUntilIdle()
 
         vm.onManagementTypeSelected(ManagementType.CLOSED_LOOP)
@@ -418,7 +463,11 @@ class OnboardingViewModelTest {
         localRepo.setState(
             OnboardingPersistedState(name = "Alice", managementType = ManagementType.INJECTIONS)
         )
-        val vm = makeVm(localRepo = localRepo, scope = this)
+        val profileRepo = FakeProfileRepository()
+        profileRepo.fetchResult = Result.success(
+            OnboardingPersistedState(name = "Alice", managementType = ManagementType.INJECTIONS)
+        )
+        val vm = makeVm(localRepo = localRepo, profileRepo = profileRepo, scope = this)
         advanceUntilIdle()
 
         vm.onDiagnosisDurationSelected(DiagnosisDuration.FIVE_TO_TEN)

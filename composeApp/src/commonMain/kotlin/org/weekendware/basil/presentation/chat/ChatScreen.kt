@@ -1,6 +1,7 @@
 package org.weekendware.basil.presentation.chat
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,7 +30,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -65,8 +65,14 @@ import org.weekendware.basil.presentation.theme.basilSpacing
  * acknowledges it.
  */
 @Composable
-fun ChatScreen() {
+fun ChatScreen(initialGreeting: String? = null) {
     val viewModel = koinViewModel<ChatViewModel>()
+    // setGreeting is idempotent (no-ops when messages already exist). Calling it
+    // synchronously here means collectAsStateWithLifecycle() reads the greeting
+    // in its initial StateFlow.value on the first composition — no empty-state flash.
+    remember(initialGreeting) {
+        if (initialGreeting != null) viewModel.setGreeting(initialGreeting)
+    }
     val state by viewModel.state.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -80,10 +86,10 @@ fun ChatScreen() {
     }
 
     ChatScreenContent(
-        state            = state,
+        state             = state,
         snackbarHostState = snackbarHostState,
-        onInputChange    = viewModel::onInputChange,
-        onSend           = viewModel::sendMessage
+        onInputChange     = viewModel::onInputChange,
+        onSend            = viewModel::sendMessage
     )
 }
 
@@ -124,7 +130,7 @@ fun ChatScreenContent(
                         state = listState,
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(horizontal = spacing.md),
+                            .padding(horizontal = spacing.lg),
                         verticalArrangement = Arrangement.spacedBy(spacing.sm),
                         contentPadding = PaddingValues(
                             top    = spacing.md,
@@ -199,35 +205,42 @@ internal fun ChatEmptyState(modifier: Modifier = Modifier) {
 internal fun MessageBubble(message: ChatMessage) {
     val isUser     = message.role == "user"
     val bubbleColor = if (isUser)
-        MaterialTheme.colorScheme.primaryContainer
+        MaterialTheme.colorScheme.primary
     else
         MaterialTheme.colorScheme.secondaryContainer
     val textColor = if (isUser)
-        MaterialTheme.colorScheme.onPrimaryContainer
+        MaterialTheme.colorScheme.onPrimary
     else
         MaterialTheme.colorScheme.onSecondaryContainer
     val alignment  = if (isUser) Alignment.End else Alignment.Start
     val bubbleShape = if (isUser) {
-        RoundedCornerShape(topStart = 16.dp, topEnd = 4.dp, bottomStart = 16.dp, bottomEnd = 16.dp)
+        RoundedCornerShape(topStart = 18.dp, topEnd = 18.dp, bottomStart = 18.dp, bottomEnd = 4.dp)
     } else {
-        RoundedCornerShape(topStart = 4.dp, topEnd = 16.dp, bottomStart = 16.dp, bottomEnd = 16.dp)
+        RoundedCornerShape(topStart = 18.dp, topEnd = 18.dp, bottomStart = 4.dp, bottomEnd = 18.dp)
     }
 
     Column(
         modifier            = Modifier.fillMaxWidth(),
         horizontalAlignment = alignment,
     ) {
-        Surface(
-            modifier       = Modifier.widthIn(max = 280.dp),
-            shape          = bubbleShape,
-            color          = bubbleColor,
-            tonalElevation = 1.dp,
-        ) {
+        val bubbleModifier = if (!isUser) {
+            Modifier
+                .widthIn(max = 280.dp)
+                .clip(bubbleShape)
+                .background(bubbleColor)
+                .border(1.dp, MaterialTheme.colorScheme.outline, bubbleShape)
+        } else {
+            Modifier
+                .widthIn(max = 280.dp)
+                .clip(bubbleShape)
+                .background(bubbleColor)
+        }
+        Box(modifier = bubbleModifier) {
             Text(
                 text     = if (message.isStreaming) message.content + "▋" else message.content,
                 style    = MaterialTheme.typography.bodyMedium,
                 color    = textColor,
-                modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
             )
         }
     }
@@ -280,17 +293,13 @@ internal fun ChatInputBar(
     isSendEnabled: Boolean,
 ) {
     val spacing = MaterialTheme.basilSpacing
-    Surface(
-        modifier       = Modifier.fillMaxWidth(),
-        tonalElevation = 3.dp,
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = spacing.lg, vertical = 10.dp),
+        verticalAlignment     = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(spacing.sm),
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = spacing.md, vertical = spacing.sm),
-            verticalAlignment     = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(spacing.sm),
-        ) {
             OutlinedTextField(
                 value         = input,
                 onValueChange = onInputChange,
@@ -320,7 +329,6 @@ internal fun ChatInputBar(
                         MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
                 )
             }
-        }
     }
 }
 

@@ -1,6 +1,6 @@
 package org.weekendware.basil.presentation.onboarding
 
-import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -30,6 +30,11 @@ fun <T> OnboardingChipGroup(
     isEnabled: Boolean = true,
 ) {
     val chipShape = RoundedCornerShape(50)
+    val borderColor = if (isEnabled) {
+        MaterialTheme.colorScheme.outline
+    } else {
+        MaterialTheme.colorScheme.outline.copy(alpha = 0.38f)
+    }
     FlowRow(
         modifier = modifier,
         horizontalArrangement = Arrangement.spacedBy(MaterialTheme.basilSpacing.sm),
@@ -40,7 +45,7 @@ fun <T> OnboardingChipGroup(
                 text = label,
                 style = MaterialTheme.typography.labelLarge,
                 color = if (isEnabled) {
-                    MaterialTheme.colorScheme.onSecondaryContainer
+                    MaterialTheme.colorScheme.onBackground
                 } else {
                     MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
                 },
@@ -48,13 +53,7 @@ fun <T> OnboardingChipGroup(
                     .minimumInteractiveComponentSize()
                     .widthIn(min = 56.dp)
                     .clip(chipShape)
-                    .background(
-                        if (isEnabled) {
-                            MaterialTheme.colorScheme.secondaryContainer
-                        } else {
-                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f)
-                        }
-                    )
+                    .border(1.5.dp, borderColor, chipShape)
                     .clickable(enabled = isEnabled) { onSelect(value) }
                     .padding(
                         horizontal = MaterialTheme.basilSpacing.lg,

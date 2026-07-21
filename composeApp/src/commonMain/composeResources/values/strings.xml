@@ -19,9 +19,9 @@
     <string name="auth_toggle_to_signin">Already have an account? Sign in</string>
 
     <!-- ── Bottom navigation ─────────────────────────────────── -->
-    <string name="nav_home">Home</string>
     <string name="nav_profile">Profile</string>
-    <string name="nav_chat">Basil</string>
+    <string name="nav_chat">Chat</string>
+    <string name="nav_more">More</string>
 
     <!-- ── Profile screen ──────────────────────────────────── -->
     <string name="profile_section_account">Account</string>
@@ -56,21 +56,26 @@
     <!-- ── Chat screen ─────────────────────────────────────── -->
     <string name="chat_input_placeholder">Ask Basil anything…</string>
     <string name="chat_send">Send</string>
-    <string name="chat_empty_title">Hi, I\'m Basil</string>
+    <string name="chat_empty_title">Hi, I'm Basil</string>
     <string name="chat_empty_subtitle">Ask me anything, or just say hi.</string>
     <string name="cd_send_message">Send message</string>
+    <!-- Return greetings — hour-based spectrum -->
+    <string name="chat_return_night">Hey. I'm here.</string>
+    <string name="chat_return_morning">Morning, %1$s.</string>
+    <string name="chat_return_day">Good to see you. What's been going on?</string>
+    <string name="chat_return_evening">Hey, %1$s. What's on your mind?</string>
 
     <!-- ── Onboarding ────────────────────────────────────── -->
-    <string name="onboarding_opening">Hey. I\'m Basil. I\'m here to talk, and I\'ve got time. What should I call you?</string>
-    <string name="onboarding_resume_with_name">Good to have you back, %s.</string>
-    <string name="onboarding_resume_without_name">Good to have you back — let\'s pick up where we left off.</string>
-    <string name="onboarding_step2_question">Good to meet you, %s. How do you manage your T1D?</string>
+    <string name="onboarding_opening">Hey. I'm Basil. I'm here to talk, and I've got time. What should I call you?</string>
+    <string name="onboarding_resume_with_name">Good to have you back, %1$s.</string>
+    <string name="onboarding_resume_without_name">Good to have you back — let's pick up where we left off.</string>
+    <string name="onboarding_step2_question">Good to meet you, %1$s. How do you manage your T1D?</string>
     <string name="onboarding_step2_subtext">Helps me understand what your days look like.</string>
     <string name="onboarding_chip_injections">Injections</string>
     <string name="onboarding_chip_pump">Pump</string>
     <string name="onboarding_chip_closed_loop">Closed loop</string>
     <string name="onboarding_step3_question">Got it. How long have you been living with it?</string>
-    <string name="onboarding_step3_subtext">This helps me understand where you\'re at.</string>
+    <string name="onboarding_step3_subtext">This helps me understand where you're at.</string>
     <string name="onboarding_chip_less_than_year">Less than a year</string>
     <string name="onboarding_chip_one_to_five">1–5 years</string>
     <string name="onboarding_chip_five_to_ten">5–10 years</string>
@@ -81,7 +86,7 @@
     <string name="onboarding_chip_patterns">Making sense of patterns</string>
     <string name="onboarding_chip_vent">Somewhere to vent</string>
     <string name="onboarding_chip_not_sure">Not sure yet</string>
-    <string name="onboarding_complete">That\'s everything I needed, %s. What\'s on your mind?</string>
+    <string name="onboarding_complete">That's everything I needed, %1$s. What's on your mind?</string>
     <string name="onboarding_saving">Saving…</string>
     <string name="onboarding_input_hint">Your reply…</string>
     <string name="onboarding_send">Send</string>

@@ -4,6 +4,7 @@ import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import kotlin.math.abs
 
@@ -193,127 +194,144 @@ data class BasilColorScheme(
     // Evening-specific warm accent; defaults to outline so other schemes are unaffected.
     val warmAccent: Color = outline,
     val onWarmAccent: Color = onSurface,
+    // Vertical gradient endpoints for the full-screen background.
+    // When both equal background the result is a flat fill.
+    val backgroundGradientTop: Color = background,
+    val backgroundGradientBottom: Color = background,
 )
+
+/** Returns a top-to-bottom gradient brush for the screen background. */
+fun BasilColorScheme.backgroundBrush(): Brush =
+    Brush.verticalGradient(colors = listOf(backgroundGradientTop, backgroundGradientBottom))
 
 // ─────────────────────────────────────────────────────────────
 // Day/night scheme constructors
 // ─────────────────────────────────────────────────────────────
 
 /**
- * Morning scheme (~5am–10am). Lighter sage, slightly cool.
- * The plant is waking up — pale, fresh, hopeful.
+ * Morning scheme (5am–10am). Warm wheat-gold: dawn light through dew.
+ * Gradient top #DDD0A0 → bottom #F8F3E4. Chrome #F5EDD0, borders #C8A84A.
  */
 fun basilMorningColorScheme(): BasilColorScheme = BasilColorScheme(
-    primary              = BasilPalette.Sage500,
-    onPrimary            = BasilPalette.White,
-    primaryContainer     = BasilPalette.Sage100,
-    onPrimaryContainer   = BasilPalette.Sage900,
-    secondary            = BasilPalette.Stone400,
-    onSecondary          = BasilPalette.White,
-    secondaryContainer   = BasilPalette.Stone100,
-    onSecondaryContainer = BasilPalette.Stone900,
-    background           = hslToColor(130f, 0.06f, 0.96f), // pale sage-tinted cream
-    onBackground         = BasilPalette.Stone900,
-    surface              = BasilPalette.White,
-    onSurface            = BasilPalette.Stone900,
-    surfaceVariant       = BasilPalette.Sage50,
-    onSurfaceVariant     = BasilPalette.Stone500,
-    error                = BasilPalette.Error,
-    onError              = BasilPalette.OnError,
-    errorContainer       = BasilPalette.ErrorContainer,
-    onErrorContainer     = BasilPalette.OnErrorContainer,
-    outline              = BasilPalette.Stone200,
-    outlineVariant       = BasilPalette.Stone100,
-    scrim                = BasilPalette.Scrim,
-    isDark               = false,
+    primary                  = Color(0xFF546857), // constant sage — user bubbles, send btn
+    onPrimary                = Color(0xFFFFFFFF),
+    primaryContainer         = Color(0xFFC8D4A8), // nav active indicator pill
+    onPrimaryContainer       = Color(0xFF546857),
+    secondary                = Color(0xFF706020), // inactive nav icons
+    onSecondary              = Color(0xFFFFFFFF),
+    secondaryContainer       = Color(0xFFFDFBF0), // Basil bubble background
+    onSecondaryContainer     = Color(0xFF2C2000), // Basil bubble text
+    background               = Color(0xFFF8F3E4),
+    onBackground             = Color(0xFF2C2000),
+    surface                  = Color(0xFFF5EDD0), // top bar, nav, input bar
+    onSurface                = Color(0xFF2C2000),
+    surfaceVariant           = Color(0xFFFDFBF0), // input field background
+    onSurfaceVariant         = Color(0xFF706020), // subtext, cog, secondary labels
+    error                    = BasilPalette.Error,
+    onError                  = BasilPalette.OnError,
+    errorContainer           = BasilPalette.ErrorContainer,
+    onErrorContainer         = BasilPalette.OnErrorContainer,
+    outline                  = Color(0xFFC8A84A), // bubble borders, field borders
+    outlineVariant           = Color(0xFFC8A84A), // structural dividers
+    scrim                    = BasilPalette.Scrim,
+    isDark                   = false,
+    backgroundGradientTop    = Color(0xFFDDD0A0),
+    backgroundGradientBottom = Color(0xFFF8F3E4),
 )
 
 /**
- * Day scheme (10am–6pm). The reference state — clean cream, full sage.
+ * Day scheme (10am–6pm). Barely-green wash to cream — just enough to say
+ * "plant" without saying it. Gradient top #DFF0E4 → bottom #FAF8F5.
  */
 fun basilDayColorScheme(): BasilColorScheme = BasilColorScheme(
-    primary              = BasilPalette.Sage600,
-    onPrimary            = BasilPalette.White,
-    primaryContainer     = BasilPalette.Sage100,
-    onPrimaryContainer   = BasilPalette.Sage900,
-    secondary            = BasilPalette.Stone500,
-    onSecondary          = BasilPalette.White,
-    secondaryContainer   = BasilPalette.Stone100,
-    onSecondaryContainer = BasilPalette.Stone900,
-    background           = BasilPalette.Cream,
-    onBackground         = BasilPalette.Stone900,
-    surface              = BasilPalette.White,
-    onSurface            = BasilPalette.Stone900,
-    surfaceVariant       = BasilPalette.Sage50,
-    onSurfaceVariant     = BasilPalette.Stone600,
-    error                = BasilPalette.Error,
-    onError              = BasilPalette.OnError,
-    errorContainer       = BasilPalette.ErrorContainer,
-    onErrorContainer     = BasilPalette.OnErrorContainer,
-    outline              = BasilPalette.Stone300,
-    outlineVariant       = BasilPalette.Stone200,
-    scrim                = BasilPalette.Scrim,
-    isDark               = false,
+    primary                  = Color(0xFF546857),
+    onPrimary                = Color(0xFFFFFFFF),
+    primaryContainer         = Color(0xFFD4E8D6), // nav active indicator pill
+    onPrimaryContainer       = Color(0xFF546857),
+    secondary                = Color(0xFF7A9478), // inactive nav icons
+    onSecondary              = Color(0xFFFFFFFF),
+    secondaryContainer       = Color(0xFFFFFFFF), // Basil bubble background
+    onSecondaryContainer     = Color(0xFF1A1816),
+    background               = Color(0xFFFAF8F5),
+    onBackground             = Color(0xFF1A1816),
+    surface                  = Color(0xFFFFFFFF), // top bar, nav, input bar
+    onSurface                = Color(0xFF1A1816),
+    surfaceVariant           = Color(0xFFFAF8F5), // input field background
+    onSurfaceVariant         = Color(0xFF4E6A50), // subtext, cog, secondary labels
+    error                    = BasilPalette.Error,
+    onError                  = BasilPalette.OnError,
+    errorContainer           = BasilPalette.ErrorContainer,
+    onErrorContainer         = BasilPalette.OnErrorContainer,
+    outline                  = Color(0xFF858078),
+    outlineVariant           = Color(0xFF858078),
+    scrim                    = BasilPalette.Scrim,
+    isDark                   = false,
+    backgroundGradientTop    = Color(0xFFDFF0E4),
+    backgroundGradientBottom = Color(0xFFFAF8F5),
 )
 
 /**
- * Evening scheme (6pm–9pm). Cream pulls warm; amber accent on borders.
- * Golden hour on the leaves.
+ * Evening scheme (6pm–9pm). Olive-gold: golden hour light through foliage.
+ * Gradient top #C4BA4C → bottom #F0E8BC. Chrome #EEE5B0, borders #A89830.
  */
 fun basilEveningColorScheme(): BasilColorScheme = BasilColorScheme(
-    primary              = BasilPalette.Sage600,
-    onPrimary            = BasilPalette.White,
-    primaryContainer     = BasilPalette.Sage100,
-    onPrimaryContainer   = BasilPalette.Sage900,
-    secondary            = BasilPalette.Stone500,
-    onSecondary          = BasilPalette.White,
-    secondaryContainer   = BasilPalette.Stone100,
-    onSecondaryContainer = BasilPalette.Stone900,
-    background           = hslToColor(35f, 0.20f, 0.96f), // warm amber-cream
-    onBackground         = BasilPalette.Stone900,
-    surface              = hslToColor(35f, 0.10f, 0.99f), // barely-warm white
-    onSurface            = BasilPalette.Stone900,
-    surfaceVariant       = hslToColor(35f, 0.15f, 0.93f), // warm tint on surface variant
-    onSurfaceVariant     = BasilPalette.Stone600,
-    error                = BasilPalette.Error,
-    onError              = BasilPalette.OnError,
-    errorContainer       = BasilPalette.ErrorContainer,
-    onErrorContainer     = BasilPalette.OnErrorContainer,
-    outline              = BasilPalette.Stone300,
-    outlineVariant       = BasilPalette.Stone200,
-    scrim                = BasilPalette.Scrim,
-    isDark               = false,
-    warmAccent           = BasilAmberPalette.shade400,   // muted gold for borders/accents
-    onWarmAccent         = BasilPalette.Stone900,
+    primary                  = Color(0xFF546857),
+    onPrimary                = Color(0xFFFFFFFF),
+    primaryContainer         = Color(0xFFC8D090), // nav active indicator pill (olive)
+    onPrimaryContainer       = Color(0xFF405440),
+    secondary                = Color(0xFF605810), // inactive nav icons
+    onSecondary              = Color(0xFFFFFFFF),
+    secondaryContainer       = Color(0xFFFDFAE8), // Basil bubble background
+    onSecondaryContainer     = Color(0xFF1A1800),
+    background               = Color(0xFFF0E8BC),
+    onBackground             = Color(0xFF1A1800),
+    surface                  = Color(0xFFEEE5B0), // top bar, nav, input bar
+    onSurface                = Color(0xFF1A1800),
+    surfaceVariant           = Color(0xFFFDFAE8), // input field background
+    onSurfaceVariant         = Color(0xFF605810), // subtext, cog, secondary labels
+    error                    = BasilPalette.Error,
+    onError                  = BasilPalette.OnError,
+    errorContainer           = BasilPalette.ErrorContainer,
+    onErrorContainer         = BasilPalette.OnErrorContainer,
+    outline                  = Color(0xFFA89830),
+    outlineVariant           = Color(0xFFA89830),
+    scrim                    = BasilPalette.Scrim,
+    isDark                   = false,
+    warmAccent               = Color(0xFFA89830),
+    onWarmAccent             = Color(0xFF1A1800),
+    backgroundGradientTop    = Color(0xFFC4BA4C),
+    backgroundGradientBottom = Color(0xFFF0E8BC),
 )
 
 /**
- * Night scheme (9pm–5am). Deep stone backgrounds; sage becomes luminous.
- * Intimate and still — someone is still there.
+ * Night scheme (9pm–5am). Deep forest: the plant comes fully home at night.
+ * Gradient top #0C1A0E → bottom #162418. Chrome #131E14, dividers #1E3020.
  */
 fun basilNightColorScheme(): BasilColorScheme = BasilColorScheme(
-    primary              = BasilPalette.Sage300,
-    onPrimary            = BasilPalette.Sage900,
-    primaryContainer     = BasilPalette.Sage700,
-    onPrimaryContainer   = BasilPalette.Sage100,
-    secondary            = BasilPalette.Stone300,
-    onSecondary          = BasilPalette.Stone900,
-    secondaryContainer   = BasilPalette.Stone700,
-    onSecondaryContainer = BasilPalette.Stone100,
-    background           = BasilPalette.Stone900,
-    onBackground         = BasilPalette.Stone100,
-    surface              = BasilPalette.Stone800,
-    onSurface            = BasilPalette.Stone100,
-    surfaceVariant       = BasilPalette.Stone700,
-    onSurfaceVariant     = BasilPalette.Stone300,
-    error                = Color(0xFFFFB4AB),
-    onError              = Color(0xFF690005),
-    errorContainer       = Color(0xFF93000A),
-    onErrorContainer     = Color(0xFFFFDAD6),
-    outline              = BasilPalette.Stone500,
-    outlineVariant       = BasilPalette.Stone700,
-    scrim                = BasilPalette.Scrim,
-    isDark               = true,
+    primary                  = Color(0xFF8FA08B), // muted luminous sage
+    onPrimary                = Color(0xFF0C1A0E),
+    primaryContainer         = Color(0x3F8FA08B), // nav active pill at 25% opacity
+    onPrimaryContainer       = Color(0xFF8FA08B),
+    secondary                = Color(0xFF6A9470), // inactive nav icons
+    onSecondary              = Color(0xFF0C1A0E),
+    secondaryContainer       = Color(0xFF141E16), // Basil bubble background
+    onSecondaryContainer     = Color(0xFFB8D4B8), // Basil bubble text
+    background               = Color(0xFF0C1A0E),
+    onBackground             = Color(0xFFB8D4B8),
+    surface                  = Color(0xFF131E14), // top bar, nav, input bar
+    onSurface                = Color(0xFF8FA08B),
+    surfaceVariant           = Color(0xFF141E16),
+    onSurfaceVariant         = Color(0xFF6A9470), // subtext, cog, secondary labels
+    error                    = Color(0xFFFFB4AB),
+    onError                  = Color(0xFF690005),
+    errorContainer           = Color(0xFF93000A),
+    onErrorContainer         = Color(0xFFFFDAD6),
+    outline                  = Color(0xFF5A8060), // bubble borders, field borders
+    outlineVariant           = Color(0xFF1E3020), // structural dividers (subtle)
+    scrim                    = BasilPalette.Scrim,
+    isDark                   = true,
+    backgroundGradientTop    = Color(0xFF0C1A0E),
+    backgroundGradientBottom = Color(0xFF162418),
 )
 
 // ─────────────────────────────────────────────────────────────

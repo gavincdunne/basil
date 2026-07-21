@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import basil.composeapp.generated.resources.Res
 import basil.composeapp.generated.resources.onboarding_error_network
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
@@ -23,6 +24,8 @@ import org.weekendware.basil.domain.model.OnboardingPersistedState
 
 enum class OnboardingStep { NAME, MANAGEMENT_TYPE, DIAGNOSIS_DURATION, GOAL, COMPLETE }
 
+private const val TYPING_DELAY_MS = 1200L
+
 @Immutable
 data class OnboardingUiState(
     val name: String? = null,
@@ -31,6 +34,7 @@ data class OnboardingUiState(
     val goal: Goal? = null,
     val isComplete: Boolean = false,
     val isLoading: Boolean = false,
+    val isTyping: Boolean = false,
     val isResuming: Boolean = false,
     val error: StringResource? = null
 ) {
@@ -54,7 +58,8 @@ class OnboardingViewModel(
 
     private val scope = coroutineScope ?: viewModelScope
 
-    private val _state = MutableStateFlow(OnboardingUiState())
+    // Start loading so the UI shows a spinner while we determine the user's path.
+    private val _state = MutableStateFlow(OnboardingUiState(isLoading = true))
     val state: StateFlow<OnboardingUiState> = _state
 
     init {
@@ -62,57 +67,65 @@ class OnboardingViewModel(
     }
 
     private suspend fun loadStartupState() {
-        val localState = localRepo.state.first()
-
-        if (localState.isComplete) {
-            _state.update { it.copy(isComplete = true) }
+        val userId = authRepo.currentUserId() ?: run {
+            _state.update { it.copy(isLoading = false) }
             return
         }
-
-        val hasLocalProgress = localState.name != null
-
-        val userId = authRepo.currentUserId() ?: return
 
         profileRepo.fetchProfile(userId).fold(
             onSuccess = { remote ->
                 if (remote != null) {
                     seedLocalFromRemote(remote)
                     val seeded = localRepo.state.first()
-                    if (seeded.isComplete) {
-                        _state.update { it.copy(isComplete = true) }
-                    } else if (seeded.name != null) {
-                        _state.update {
-                            it.copy(
+                    _state.update {
+                        when {
+                            seeded.isComplete -> it.copy(
                                 name = seeded.name,
                                 managementType = seeded.managementType,
                                 diagnosisDuration = seeded.diagnosisDuration,
                                 goal = seeded.goal,
-                                isResuming = true
+                                isComplete = true,
+                                isLoading = false,
                             )
+                            seeded.name != null -> it.copy(
+                                name = seeded.name,
+                                managementType = seeded.managementType,
+                                diagnosisDuration = seeded.diagnosisDuration,
+                                goal = seeded.goal,
+                                isResuming = true,
+                                isLoading = false,
+                            )
+                            else -> it.copy(isLoading = false)
                         }
                     }
-                } else if (hasLocalProgress) {
-                    _state.update {
-                        it.copy(
-                            name = localState.name,
-                            managementType = localState.managementType,
-                            diagnosisDuration = localState.diagnosisDuration,
-                            goal = localState.goal,
-                            isResuming = true
-                        )
-                    }
+                } else {
+                    // No Supabase row = new user.
+                    localRepo.clear()
+                    _state.update { it.copy(isLoading = false) }
                 }
             },
             onFailure = {
-                if (hasLocalProgress) {
-                    _state.update {
-                        it.copy(
+                // Network error — fall back to local state for offline returning users.
+                val localState = localRepo.state.first()
+                _state.update {
+                    when {
+                        localState.isComplete -> it.copy(
                             name = localState.name,
                             managementType = localState.managementType,
                             diagnosisDuration = localState.diagnosisDuration,
                             goal = localState.goal,
-                            isResuming = true
+                            isComplete = true,
+                            isLoading = false,
                         )
+                        localState.name != null -> it.copy(
+                            name = localState.name,
+                            managementType = localState.managementType,
+                            diagnosisDuration = localState.diagnosisDuration,
+                            goal = localState.goal,
+                            isResuming = true,
+                            isLoading = false,
+                        )
+                        else -> it.copy(isLoading = false)
                     }
                 }
             }
@@ -131,15 +144,16 @@ class OnboardingViewModel(
         if (name.isBlank()) return
         val userId = authRepo.currentUserId() ?: return
         scope.launch {
-            _state.update { it.copy(isLoading = true, error = null) }
-            val pending = OnboardingPersistedState(name = name)
-            profileRepo.upsertStep(userId, pending).fold(
+            // Optimistic: show user bubble immediately and start typing indicator
+            _state.update { it.copy(name = name, isTyping = true, error = null) }
+            profileRepo.upsertStep(userId, OnboardingPersistedState(name = name)).fold(
                 onSuccess = {
                     localRepo.saveName(name)
-                    _state.update { it.copy(name = name, isLoading = false) }
+                    delay(TYPING_DELAY_MS)
+                    _state.update { it.copy(isTyping = false) }
                 },
                 onFailure = {
-                    _state.update { it.copy(isLoading = false, error = Res.string.onboarding_error_network) }
+                    _state.update { it.copy(name = null, isTyping = false, error = Res.string.onboarding_error_network) }
                 }
             )
         }
@@ -148,19 +162,19 @@ class OnboardingViewModel(
     fun onManagementTypeSelected(type: ManagementType) {
         val userId = authRepo.currentUserId() ?: return
         scope.launch {
-            _state.update { it.copy(isLoading = true, error = null) }
             val current = _state.value
-            val pending = OnboardingPersistedState(
+            _state.update { it.copy(managementType = type, isTyping = true, error = null) }
+            profileRepo.upsertStep(userId, OnboardingPersistedState(
                 name = current.name,
                 managementType = type
-            )
-            profileRepo.upsertStep(userId, pending).fold(
+            )).fold(
                 onSuccess = {
                     localRepo.saveManagementType(type)
-                    _state.update { it.copy(managementType = type, isLoading = false) }
+                    delay(TYPING_DELAY_MS)
+                    _state.update { it.copy(isTyping = false) }
                 },
                 onFailure = {
-                    _state.update { it.copy(isLoading = false, error = Res.string.onboarding_error_network) }
+                    _state.update { it.copy(managementType = null, isTyping = false, error = Res.string.onboarding_error_network) }
                 }
             )
         }
@@ -169,20 +183,20 @@ class OnboardingViewModel(
     fun onDiagnosisDurationSelected(duration: DiagnosisDuration) {
         val userId = authRepo.currentUserId() ?: return
         scope.launch {
-            _state.update { it.copy(isLoading = true, error = null) }
             val current = _state.value
-            val pending = OnboardingPersistedState(
+            _state.update { it.copy(diagnosisDuration = duration, isTyping = true, error = null) }
+            profileRepo.upsertStep(userId, OnboardingPersistedState(
                 name = current.name,
                 managementType = current.managementType,
                 diagnosisDuration = duration
-            )
-            profileRepo.upsertStep(userId, pending).fold(
+            )).fold(
                 onSuccess = {
                     localRepo.saveDiagnosisDuration(duration)
-                    _state.update { it.copy(diagnosisDuration = duration, isLoading = false) }
+                    delay(TYPING_DELAY_MS)
+                    _state.update { it.copy(isTyping = false) }
                 },
                 onFailure = {
-                    _state.update { it.copy(isLoading = false, error = Res.string.onboarding_error_network) }
+                    _state.update { it.copy(diagnosisDuration = null, isTyping = false, error = Res.string.onboarding_error_network) }
                 }
             )
         }
@@ -191,8 +205,8 @@ class OnboardingViewModel(
     fun onGoalSelected(goal: Goal) {
         val userId = authRepo.currentUserId() ?: return
         scope.launch {
-            _state.update { it.copy(isLoading = true, error = null) }
             val current = _state.value
+            _state.update { it.copy(goal = goal, isTyping = true, error = null) }
             val finalState = OnboardingPersistedState(
                 name = current.name,
                 managementType = current.managementType,
@@ -209,10 +223,11 @@ class OnboardingViewModel(
                         name = current.name.orEmpty(),
                         email = authRepo.currentUserEmail().orEmpty()
                     )
-                    _state.update { it.copy(goal = goal, isComplete = true, isLoading = false) }
+                    delay(TYPING_DELAY_MS)
+                    _state.update { it.copy(isTyping = false, isComplete = true) }
                 },
                 onFailure = {
-                    _state.update { it.copy(isLoading = false, error = Res.string.onboarding_error_network) }
+                    _state.update { it.copy(goal = null, isTyping = false, error = Res.string.onboarding_error_network) }
                 }
             )
         }

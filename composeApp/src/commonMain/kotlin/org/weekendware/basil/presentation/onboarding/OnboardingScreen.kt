@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -61,10 +60,14 @@ import org.weekendware.basil.presentation.theme.basilSpacing
 private sealed interface OnboardingMessage {
     data class Basil(val text: String, val subtext: String? = null) : OnboardingMessage
     data class User(val text: String) : OnboardingMessage
+    data object Typing : OnboardingMessage
 }
 
 @Composable
-fun OnboardingScreen(viewModel: OnboardingViewModel) {
+fun OnboardingScreen(
+    viewModel: OnboardingViewModel,
+    modifier: Modifier = Modifier,
+) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     OnboardingScreenContent(
         state = state,
@@ -72,7 +75,8 @@ fun OnboardingScreen(viewModel: OnboardingViewModel) {
         onManagementTypeSelected = viewModel::onManagementTypeSelected,
         onDiagnosisDurationSelected = viewModel::onDiagnosisDurationSelected,
         onGoalSelected = viewModel::onGoalSelected,
-        onClearError = viewModel::clearError
+        onClearError = viewModel::clearError,
+        modifier = modifier,
     )
 }
 
@@ -146,24 +150,27 @@ fun OnboardingScreenContent(
     }
 
     // ── Build conversation history ───────────────────────────────────────────
+    // While isTyping, the latest Basil response is replaced by the typing bubble.
+    val typing = state.isTyping
     val messages = buildList {
         add(OnboardingMessage.Basil(opening))
         if (state.name != null && step2Q != null) {
             add(OnboardingMessage.User(state.name))
-            add(OnboardingMessage.Basil(step2Q, step2Sub))
+            if (state.managementType != null || !typing) add(OnboardingMessage.Basil(step2Q, step2Sub))
         }
         if (state.managementType != null) {
             add(OnboardingMessage.User(managementLabel))
-            add(OnboardingMessage.Basil(step3Q, step3Sub))
+            if (state.diagnosisDuration != null || !typing) add(OnboardingMessage.Basil(step3Q, step3Sub))
         }
         if (state.diagnosisDuration != null) {
             add(OnboardingMessage.User(durationLabel))
-            add(OnboardingMessage.Basil(step4Q, step4Sub))
+            if (state.goal != null || !typing) add(OnboardingMessage.Basil(step4Q, step4Sub))
         }
         if (state.goal != null) {
             add(OnboardingMessage.User(goalLabel))
-            add(OnboardingMessage.Basil(completionMsg))
+            if (!typing) add(OnboardingMessage.Basil(completionMsg))
         }
+        if (typing) add(OnboardingMessage.Typing)
     }
 
     val listState = rememberLazyListState()
@@ -182,12 +189,27 @@ fun OnboardingScreenContent(
         }
     }
 
+    // ── Initial path determination ────────────────────────────────────────────
+    if (state.isLoading && state.name == null && !state.isComplete) {
+        Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            CircularProgressIndicator()
+        }
+        return
+    }
+
+    // App.kt routes to ChatScreen when isComplete — render nothing so there is
+    // no visible content during the one-frame window before the switch.
+    if (state.isComplete) {
+        Box(modifier = modifier.fillMaxSize())
+        return
+    }
+
+    // ── Onboarding flow ───────────────────────────────────────────────────────
     Box(modifier = modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .imePadding()
-                .navigationBarsPadding()
         ) {
             // ── Chat history ─────────────────────────────────────────────────
             LazyColumn(
@@ -203,15 +225,18 @@ fun OnboardingScreenContent(
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = when (message) {
-                            is OnboardingMessage.Basil -> Arrangement.Start
-                            is OnboardingMessage.User  -> Arrangement.End
+                            is OnboardingMessage.Basil,
+                            is OnboardingMessage.Typing -> Arrangement.Start
+                            is OnboardingMessage.User   -> Arrangement.End
                         }
                     ) {
                         when (message) {
-                            is OnboardingMessage.Basil ->
+                            is OnboardingMessage.Basil  ->
                                 OnboardingChatBubble(text = message.text, subtext = message.subtext)
-                            is OnboardingMessage.User  ->
+                            is OnboardingMessage.User   ->
                                 OnboardingUserBubble(text = message.text)
+                            is OnboardingMessage.Typing ->
+                                OnboardingTypingBubble()
                         }
                     }
                 }
@@ -228,7 +253,7 @@ fun OnboardingScreenContent(
                 ) {
                     CircularProgressIndicator()
                 }
-            } else {
+            } else if (!state.isTyping) {
                 when (state.currentStep) {
                     OnboardingStep.NAME ->
                         OnboardingNameInput(
