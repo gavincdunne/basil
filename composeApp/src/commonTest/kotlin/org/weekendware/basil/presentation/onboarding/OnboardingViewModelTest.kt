@@ -114,7 +114,7 @@ class OnboardingViewModelTest {
     // ── ONB-004: Supabase failure on name step ────────────────────────────────
 
     @Test
-    fun `ONB-004 Supabase upsert failure on name blocks advancement and does not write DataStore`() = runTest {
+    fun `ONB-004 Supabase upsert failure on name shows error but still advances and writes DataStore`() = runTest {
         val localRepo = FakeOnboardingLocalRepository()
         val profileRepo = FakeProfileRepository()
         profileRepo.upsertResult = Result.failure(RuntimeException("network error"))
@@ -124,16 +124,18 @@ class OnboardingViewModelTest {
         vm.onNameSubmitted("Alice")
         advanceUntilIdle()
 
-        assertEquals(OnboardingStep.NAME, vm.state.value.currentStep)
+        // Local-first: DataStore written optimistically before Supabase
+        assertEquals(listOf("Alice"), localRepo.saveNameCalls)
+        // Step advances regardless of Supabase outcome
+        assertEquals(OnboardingStep.MANAGEMENT_TYPE, vm.state.value.currentStep)
+        // Error is surfaced so the user knows sync failed
         assertNotNull(vm.state.value.error)
-        assertFalse(vm.state.value.isLoading)
-        assertTrue(localRepo.saveNameCalls.isEmpty())
     }
 
     // ── ONB-005: Supabase failure on chip step ────────────────────────────────
 
     @Test
-    fun `ONB-005 Supabase upsert failure on management type chip blocks advancement`() = runTest {
+    fun `ONB-005 Supabase upsert failure on chip shows error but still advances and writes DataStore`() = runTest {
         val localRepo = FakeOnboardingLocalRepository()
         localRepo.setState(OnboardingPersistedState(name = "Alice"))
         val profileRepo = FakeProfileRepository()
@@ -145,16 +147,18 @@ class OnboardingViewModelTest {
         vm.onManagementTypeSelected(ManagementType.PUMP)
         advanceUntilIdle()
 
-        assertEquals(OnboardingStep.MANAGEMENT_TYPE, vm.state.value.currentStep)
+        // Local-first: DataStore written optimistically before Supabase
+        assertEquals(listOf(ManagementType.PUMP), localRepo.saveManagementTypeCalls)
+        // Step advances regardless of Supabase outcome
+        assertEquals(OnboardingStep.DIAGNOSIS_DURATION, vm.state.value.currentStep)
+        // Error is surfaced so the user knows sync failed
         assertNotNull(vm.state.value.error)
-        assertFalse(vm.state.value.isLoading)
-        assertTrue(localRepo.saveManagementTypeCalls.isEmpty())
     }
 
     // ── ONB-006: Supabase failure on final step ───────────────────────────────
 
     @Test
-    fun `ONB-006 Supabase failure on goal step does not call markComplete and keeps isComplete false`() = runTest {
+    fun `ONB-006 Supabase failure on goal step still marks complete locally and sets isComplete true`() = runTest {
         val localRepo = FakeOnboardingLocalRepository()
         localRepo.setState(
             OnboardingPersistedState(
@@ -171,8 +175,10 @@ class OnboardingViewModelTest {
         vm.onGoalSelected(Goal.VENT)
         advanceUntilIdle()
 
-        assertFalse(localRepo.markCompleteCalled)
-        assertFalse(vm.state.value.isComplete)
+        // Local-first: markComplete and isComplete are set regardless of Supabase
+        assertTrue(localRepo.markCompleteCalled)
+        assertTrue(vm.state.value.isComplete)
+        // Error is still surfaced so the user knows remote sync failed
         assertNotNull(vm.state.value.error)
     }
 
@@ -234,7 +240,7 @@ class OnboardingViewModelTest {
     // ── ONB-024: DataStore only written after Supabase confirms ──────────────
 
     @Test
-    fun `ONB-024 DataStore not written when Supabase upsert fails`() = runTest {
+    fun `ONB-024 DataStore written before Supabase even when upsert fails`() = runTest {
         val localRepo = FakeOnboardingLocalRepository()
         localRepo.setState(OnboardingPersistedState(name = "Alice"))
         val profileRepo = FakeProfileRepository()
@@ -245,7 +251,8 @@ class OnboardingViewModelTest {
         vm.onManagementTypeSelected(ManagementType.INJECTIONS)
         advanceUntilIdle()
 
-        assertTrue(localRepo.saveManagementTypeCalls.isEmpty())
+        // Local-first: DataStore is always written regardless of Supabase outcome
+        assertEquals(listOf(ManagementType.INJECTIONS), localRepo.saveManagementTypeCalls)
     }
 
     @Test
@@ -267,7 +274,7 @@ class OnboardingViewModelTest {
     // ── ONB-025: retry after failure ──────────────────────────────────────────
 
     @Test
-    fun `ONB-025 retry after failure advances when second attempt succeeds`() = runTest {
+    fun `ONB-025 Supabase failure does not block optimistic advancement to next step`() = runTest {
         val localRepo = FakeOnboardingLocalRepository()
         localRepo.setState(OnboardingPersistedState(name = "Alice"))
         val profileRepo = FakeProfileRepository()
@@ -278,14 +285,13 @@ class OnboardingViewModelTest {
 
         vm.onManagementTypeSelected(ManagementType.PUMP)
         advanceUntilIdle()
-        assertEquals(OnboardingStep.MANAGEMENT_TYPE, vm.state.value.currentStep)
 
-        profileRepo.upsertResult = Result.success(Unit)
-        vm.onManagementTypeSelected(ManagementType.PUMP)
-        advanceUntilIdle()
-
+        // Optimistic update: step already advanced on first attempt despite Supabase failure
         assertEquals(OnboardingStep.DIAGNOSIS_DURATION, vm.state.value.currentStep)
-        assertNull(vm.state.value.error)
+        // Error shown so user knows remote sync failed
+        assertNotNull(vm.state.value.error)
+        // DataStore already written
+        assertEquals(listOf(ManagementType.PUMP), localRepo.saveManagementTypeCalls)
     }
 
     // ── ONB-026: Supabase null clears stale local state ──────────────────────
