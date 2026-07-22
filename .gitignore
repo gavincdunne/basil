@@ -62,9 +62,11 @@ local.properties
 !iosApp/Configuration/Staging.xcconfig
 !iosApp/Configuration/Prod.xcconfig
 
-# Unnecessary binaries (exclude intentional project screenshots)
+# docs/ contains screenshots and design assets — not part of the repo
+docs/
+
+# Unnecessary binaries
 *.png
-!docs/screenshots/*.png
 
 # ---------------------------
 # Debug and Capture Files
