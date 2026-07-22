@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -197,18 +198,12 @@ fun OnboardingScreenContent(
         return
     }
 
-    // App.kt routes to ChatScreen when isComplete — render nothing so there is
-    // no visible content during the one-frame window before the switch.
-    if (state.isComplete) {
-        Box(modifier = modifier.fillMaxSize())
-        return
-    }
-
-    // ── Onboarding flow ───────────────────────────────────────────────────────
+    // ── Onboarding flow (also renders when isComplete to preserve conversation history) ──
     Box(modifier = modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .navigationBarsPadding()
                 .imePadding()
         ) {
             // ── Chat history ─────────────────────────────────────────────────

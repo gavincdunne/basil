@@ -9,6 +9,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.StringResource
@@ -29,31 +31,23 @@ class ProfileViewModel(
     val state: StateFlow<ProfileState> = _state.asStateFlow()
 
     init {
-        val user = getUser()
-        _state.update {
-            it.copy(
-                name  = user?.name ?: "",
-                email = user?.email ?: "",
-            )
-        }
-        // avatarUrl in the database stores the storage path, not a URL.
-        // Generate a signed URL for display; if the stored value looks like
-        // a legacy public URL (pre-private-bucket migration), clear it so
-        // the user can re-upload.
-        val storedPath = user?.avatarUrl
-        if (storedPath != null) {
-            if (storedPath.startsWith("http")) {
-                coroutineScope.launch {
+        // Observe the users table reactively so that data inserted after initial
+        // composition (e.g. on desktop where the SQLite table is seeded async
+        // during startup) is picked up automatically.
+        userRepository.getAllAsFlow()
+            .onEach { users ->
+                val user = users.firstOrNull() ?: return@onEach
+                _state.update { it.copy(name = user.name, email = user.email) }
+                val storedPath = user.avatarUrl ?: return@onEach
+                if (storedPath.startsWith("http")) {
                     userRepository.updateAvatarUrl(user.id, null)
-                }
-            } else {
-                coroutineScope.launch {
+                } else {
                     avatarRepository.getSignedUrl(storedPath).onSuccess { signedUrl ->
                         _state.update { it.copy(avatarUrl = signedUrl) }
                     }
                 }
             }
-        }
+            .launchIn(coroutineScope)
     }
 
     fun onAvatarPicked(imageBytes: ByteArray) {

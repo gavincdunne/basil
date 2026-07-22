@@ -12,6 +12,7 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -155,7 +156,7 @@ private fun AuthenticatedRoot(themeHour: Int) {
                     BasilTab.Chat    -> when {
                         onboardingState.isLoading && !onboardingState.isComplete ->
                             Box(Modifier.fillMaxSize())
-                        onboardingState.isComplete ->
+                        onboardingState.isComplete && !onboardingState.completedThisSession ->
                             ChatScreen(initialGreeting = returnGreeting)
                         else ->
                             OnboardingScreen(
@@ -206,6 +207,7 @@ private fun BasilTopBar(
     Column(
         modifier = Modifier
             .fillMaxWidth()
+            .statusBarsPadding()
             .background(MaterialTheme.colorScheme.surface)
     ) {
         CenterAlignedTopAppBar(
