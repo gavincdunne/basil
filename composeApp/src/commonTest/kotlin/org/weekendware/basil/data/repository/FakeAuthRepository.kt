@@ -3,13 +3,6 @@ package org.weekendware.basil.data.repository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 
-/**
- * In-memory [AuthRepository] for tests.
- *
- * [signInResult] and [signUpResult] can be set before calling [signIn] /
- * [signUp] to simulate success or failure. [setSignedIn] drives [sessionFlow]
- * so [SessionViewModel] tests can verify state transitions.
- */
 class FakeAuthRepository : AuthRepository {
 
     private val _sessionFlow = MutableStateFlow(false)
@@ -38,5 +31,6 @@ class FakeAuthRepository : AuthRepository {
     }
 
     override fun currentUserId(): String? = if (_sessionFlow.value) "fake-uid" else null
+    override fun currentUserEmail(): String? = if (_sessionFlow.value) "fake@example.com" else null
     override fun isSignedIn(): Boolean = _sessionFlow.value
 }

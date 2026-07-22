@@ -11,18 +11,24 @@ import kotlinx.serialization.json.Json
 import org.weekendware.basil.data.repository.AuthRepository
 import org.weekendware.basil.data.repository.AvatarRepository
 import org.weekendware.basil.data.repository.ChatRepository
+import org.weekendware.basil.data.repository.DataStoreOnboardingRepository
 import org.weekendware.basil.data.repository.KtorChatRepository
+import org.weekendware.basil.data.repository.OnboardingLocalRepository
+import org.weekendware.basil.data.repository.ProfileRepository
 import org.weekendware.basil.data.repository.SqlDelightUserRepository
 import org.weekendware.basil.data.repository.SupabaseAuthRepository
 import org.weekendware.basil.data.repository.SupabaseAvatarRepository
+import org.weekendware.basil.data.repository.SupabaseProfileRepository
 import org.weekendware.basil.data.repository.UserRepository
 import org.weekendware.basil.domain.usecase.GetUserUseCase
 import org.weekendware.basil.domain.usecase.SendMessageUseCase
 import org.weekendware.basil.presentation.auth.AuthViewModel
 import org.weekendware.basil.presentation.chat.ChatViewModel
+import org.weekendware.basil.presentation.onboarding.OnboardingViewModel
 import org.weekendware.basil.presentation.profile.ProfileViewModel
 import org.weekendware.basil.presentation.session.SessionViewModel
 import org.weekendware.basil.presentation.settings.SettingsViewModel
+import org.weekendware.basil.presentation.theme.BasilThemeViewModel
 
 val chatModule = module {
     single {
@@ -51,10 +57,17 @@ val useCaseModule = module {
     single { SendMessageUseCase(get()) }
 }
 
+val onboardingModule = module {
+    single<OnboardingLocalRepository> { DataStoreOnboardingRepository(get()) }
+    single<ProfileRepository> { SupabaseProfileRepository(get()) }
+}
+
 val sharedModule = module {
     viewModel { SessionViewModel(get()) }
     viewModel { AuthViewModel(get()) }
+    viewModel { OnboardingViewModel(get(), get(), get(), get()) }
     viewModel { ProfileViewModel(get(), get(), get()) }
     viewModel { ChatViewModel(get()) }
     viewModel { SettingsViewModel() }
+    viewModel { BasilThemeViewModel() }
 }

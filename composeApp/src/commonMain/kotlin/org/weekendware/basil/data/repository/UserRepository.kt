@@ -1,5 +1,6 @@
 package org.weekendware.basil.data.repository
 
+import kotlinx.coroutines.flow.Flow
 import org.weekendware.basil.domain.model.User
 
 /**
@@ -14,6 +15,14 @@ interface UserRepository {
      * Returns all users in the database, mapped to [User] domain models.
      */
     fun getAll(): List<User>
+
+    /**
+     * Returns a [Flow] that emits the current user list and re-emits whenever
+     * the database changes. Use this in ViewModels that need to react to inserts
+     * that happen after initial composition (e.g. on desktop where the SQLite
+     * users table is populated asynchronously during startup).
+     */
+    fun getAllAsFlow(): Flow<List<User>>
 
     /**
      * Inserts a new user record.

@@ -3,7 +3,7 @@ package org.weekendware.basil.data.local.database
 import android.content.Context
 import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.android.AndroidSqliteDriver
-import net.zetetic.android.database.sqlcipher.SupportOpenHelperFactory
+import net.zetetic.database.sqlcipher.SupportOpenHelperFactory
 import org.weekendware.basil.database.BasilDatabase
 
 /**

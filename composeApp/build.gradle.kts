@@ -65,6 +65,9 @@ kotlin {
             implementation(libs.androidx.navigation.compose)
             implementation(libs.supabase.auth)
             implementation(libs.supabase.storage)
+            implementation(libs.supabase.postgrest)
+            implementation(libs.datastore.preferences)
+            implementation(libs.kotlinx.immutable)
             implementation(libs.ktor.client.core)
             implementation(libs.ktor.client.content.negotiation)
             implementation(libs.ktor.serialization.kotlinx.json)
@@ -76,6 +79,8 @@ kotlin {
         commonTest.dependencies {
             implementation(libs.kotlin.test)
             implementation(libs.kotlinx.datetime)
+            implementation(libs.kotlinx.coroutinesTest)
+            implementation(libs.turbine)
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
@@ -110,6 +115,12 @@ android {
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
+        }
+        jniLibs {
+            // SQLCipher and Sentry native libs are not yet 16 KB page-aligned.
+            // Compress them in the APK so they're extracted at install time rather
+            // than memory-mapped directly (which requires 16 KB alignment on API 35+).
+            useLegacyPackaging = true
         }
     }
     flavorDimensions += "environment"

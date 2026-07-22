@@ -74,7 +74,7 @@ class ChatViewModel(
     @OptIn(ExperimentalUuidApi::class)
     fun sendMessage() {
         val text = _state.value.input.trim()
-        if (text.isBlank()) return
+        if (text.isBlank() || _state.value.isLoading) return
 
         // Append the user message and clear the input immediately so the UI
         // feels responsive before the network call begins.
@@ -134,6 +134,23 @@ class ChatViewModel(
                         error = Res.string.error_chat_failed,
                     )
                 }
+            }
+        }
+    }
+
+    /**
+     * Inserts a greeting as the first assistant message if the conversation is empty.
+     * No-ops if messages already exist — safe to call on every recomposition.
+     */
+    @OptIn(ExperimentalUuidApi::class)
+    fun setGreeting(text: String) {
+        if (_state.value.messages.isEmpty()) {
+            _state.update {
+                it.copy(
+                    messages = listOf(
+                        ChatMessage(id = Uuid.random().toString(), role = "assistant", content = text)
+                    )
+                )
             }
         }
     }

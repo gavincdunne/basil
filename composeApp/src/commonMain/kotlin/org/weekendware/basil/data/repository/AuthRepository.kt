@@ -29,6 +29,9 @@ interface AuthRepository {
     /** Returns the currently authenticated user's ID, or null if signed out. */
     fun currentUserId(): String?
 
+    /** Returns the currently authenticated user's email, or null if signed out. */
+    fun currentUserEmail(): String?
+
     /** True if a valid session exists. */
     fun isSignedIn(): Boolean
 }
