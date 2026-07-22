@@ -49,11 +49,12 @@ The app is designed around time-of-day — color, tone, and lighting shift throu
 | Concern | Library |
 |---|---|
 | UI | Compose Multiplatform 1.8.1 |
-| Navigation | Compose Multiplatform Navigation 2.8.0-alpha13 |
 | ViewModel | androidx.lifecycle 2.9.0 |
 | DI | Koin 4.0.4 |
 | Database | SQLDelight 2.0.1 |
-| Networking | Ktor |
+| Backend / Auth | Supabase-kt 3.1.4 (auth, postgrest, storage) |
+| Networking | Ktor 3.1.2 |
+| Image loading | Coil 3.1.0 |
 | Date/Time | kotlinx-datetime 0.6.0 |
 | Crash reporting | Sentry Kotlin Multiplatform 0.25.0 |
 | Static analysis | Detekt 1.23.7 + detekt-formatting |
@@ -79,7 +80,7 @@ Each layer depends only on the layer below it. ViewModels and use cases depend o
 
 **App infrastructure**
 - **Auth** — Supabase sign-up / sign-in / session restoration with OS-level splash gate
-- **Navigation** — `NavHost`-based bottom tab bar (Home, Chat, Profile) and Settings destination
+- **Navigation** — state-based bottom tab bar (Profile, Chat, More) driven by `AnimatedContent`; Settings slides in as a full-screen overlay via `graphicsLayer` translation
 - **Theme** — `BasilColors`, `BasilSpacing`, `BasilTypography`, `BasilShapes` wired into MaterialTheme; 8 color schemes (4 time slots × light/dark), animated 10-second transitions driven by a background `viewModelScope` coroutine — the correct scheme is already in place before the user foregrounds the app
 - **Crash reporting** — Sentry across all three targets with `PhiScrubber` stripping health data before any event leaves the device
 - **CI/CD** — GitHub Actions running Detekt, Android compile + test, and iOS framework build on every push
@@ -108,7 +109,7 @@ The foundation is in. What ships next is the core product.
 
 - [ ] **Check-in system** — Basil reaches out. You respond. That exchange is stored and becomes the basis for everything that follows.
 - [ ] **Persistent memory** — Basil builds a real picture of this person over time. Not a summary. A context.
-- [ ] **Supabase data sync** — currently local SQLDelight only; sync layer in the architecture, not yet wired
+- [ ] **Chat history sync** — conversation history not yet persisted to Supabase; each session is stateless
 - [ ] **HIPAA hardening** — SQLCipher, session timeout, audit log
 - [ ] **Auth completion** — password reset, email verification
 - [ ] **Push notifications**
@@ -134,6 +135,9 @@ The foundation is in. What ships next is the core product.
 ```
 
 **Desktop**
+
+Requires Java 21. If `java -version` shows Java 26 or later, prefix with `JAVA_HOME=/Library/Java/JavaVirtualMachines/temurin-21.jdk/Contents/Home` or set it permanently in your shell profile.
+
 ```
 ./gradlew :composeApp:run
 ```
@@ -144,7 +148,7 @@ The foundation is in. What ships next is the core product.
 
 **Tests**
 ```
-./gradlew desktopTest
+./gradlew test
 ```
 
 **Static analysis**
