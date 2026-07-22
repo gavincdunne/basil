@@ -65,8 +65,9 @@ local.properties
 # docs/ contains screenshots and design assets — not part of the repo
 docs/
 
-# Unnecessary binaries
+# Unnecessary binaries — allow .github/assets/ for README screenshots
 *.png
+!.github/assets/*.png
 
 # ---------------------------
 # Debug and Capture Files

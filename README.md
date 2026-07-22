@@ -33,10 +33,10 @@ The app is designed around time-of-day — color, tone, and lighting shift throu
 
 <table>
   <tr>
-    <td align="center"><img src="docs/assets/morning.png" width="180" alt="Morning theme"/><br/><sub>Morning · 6:32</sub></td>
-    <td align="center"><img src="docs/assets/day.png" width="180" alt="Day theme"/><br/><sub>Day · 12:30</sub></td>
-    <td align="center"><img src="docs/assets/evening.png" width="180" alt="Evening theme"/><br/><sub>Evening · 7:45</sub></td>
-    <td align="center"><img src="docs/assets/night.png" width="180" alt="Night theme"/><br/><sub>Night · 11:47</sub></td>
+    <td align="center"><img src=".github/assets/morning.png" width="180" alt="Morning theme"/><br/><sub>Morning · 6:32</sub></td>
+    <td align="center"><img src=".github/assets/day.png" width="180" alt="Day theme"/><br/><sub>Day · 12:30</sub></td>
+    <td align="center"><img src=".github/assets/evening.png" width="180" alt="Evening theme"/><br/><sub>Evening · 7:45</sub></td>
+    <td align="center"><img src=".github/assets/night.png" width="180" alt="Night theme"/><br/><sub>Night · 11:47</sub></td>
   </tr>
 </table>
 
