@@ -5,9 +5,6 @@ import org.jetbrains.compose.resources.StringResource
 /**
  * Strength classification for a candidate password, driving the 3-segment
  * strength bar on sign-up and the reset flow's new-password step.
- *
- * See `spec-splash-auth-07222026.md` AC18 and
- * `tdd-splash-auth-07222026.md` "Data structures and algorithms".
  */
 sealed class PasswordStrength {
     /** No input yet — strength bar is hidden. */
@@ -49,7 +46,7 @@ data class PasswordRequirement(val label: StringResource, val met: Boolean)
  * **Not implemented here.** This signature is QA scaffolding so
  * `PasswordStrengthValidatorTest` compiles and runs (red) ahead of
  * implementation. Backend Builder implements the body per the algorithm
- * above and the TDD; every test in this suite is expected to fail with
+ * documented above; every test in that suite is expected to fail with
  * `NotImplementedError` until then.
  */
 object PasswordStrengthValidator {

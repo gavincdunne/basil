@@ -5,13 +5,13 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 /**
- * QA test suite for [PasswordStrengthValidator], written from
- * `tdd-splash-auth-07222026.md` (AC18) ahead of implementation.
+ * QA test suite for [PasswordStrengthValidator], written ahead of
+ * implementation per the team's test-first process. Covers threshold
+ * classification (Weak/Medium/Strong), the length and special-character
+ * boundaries, and requirement-list shape and determinism.
  *
  * All cases are expected to fail with `NotImplementedError` until Backend
- * Builder implements [PasswordStrengthValidator.validate]. See
- * `tests-splash-auth-07232026.md` for the full QA plan — this file covers
- * SPA-052 through SPA-060 and SPA-062.
+ * Builder implements [PasswordStrengthValidator.validate].
  *
  * Deliberately does not assert on [PasswordRequirement.label] — copy is
  * pending a Copywriter pass and is out of scope for this validator's
