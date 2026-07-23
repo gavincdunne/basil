@@ -20,7 +20,7 @@
     <string name="auth_forgot_password">Forgot password?</string>
     <string name="auth_use_different_account">Use a different account</string>
     <string name="auth_no_account_title">No account found</string>
-    <string name="auth_no_account_body">Start the conversation to create one. It only takes a minute.</string>
+    <string name="auth_no_account_body">Start a conversation to create one.</string>
     <string name="auth_get_started">Get started</string>
     <string name="auth_try_different_email">Try a different email</string>
     <string name="cd_show_password">Show password</string>
@@ -50,7 +50,7 @@
     <string name="auth_verify_banner_resend">Resend</string>
 
     <!-- ── Save your progress (end of onboarding) ────────────── -->
-    <string name="save_progress_title">Save your progress</string>
+    <string name="save_progress_title">Save your spot</string>
     <string name="save_progress_basil_message">I don\'t want to lose any of this — let\'s save it, so I\'m here when you come back.</string>
     <string name="save_progress_continue_with_email">Continue with email</string>
     <string name="save_progress_maybe_later">Maybe later</string>
@@ -58,10 +58,10 @@
     <string name="save_progress_create_account">Create account</string>
 
     <!-- ── Passkey auth prompt ────────────────────────────────── -->
-    <string name="auth_passkey_scanning">Looking for your face…</string>
-    <string name="auth_passkey_first_failure">Face ID didn\'t recognise you</string>
+    <string name="auth_passkey_scanning">Looking for you…</string>
+    <string name="auth_passkey_first_failure">Didn\'t recognise you.</string>
     <string name="auth_passkey_try_again">Try again</string>
-    <string name="auth_passkey_second_failure">Face ID didn\'t work — sign in another way.</string>
+    <string name="auth_passkey_second_failure">Still no luck — sign in with your email instead.</string>
 
     <!-- ── Bottom navigation ─────────────────────────────────── -->
     <string name="nav_profile">Profile</string>
@@ -138,7 +138,7 @@
     <string name="onboarding_retry">Try again</string>
 
     <!-- ── Error messages ──────────────────────────────────── -->
-    <string name="error_auth_failed">Authentication failed</string>
+    <string name="error_auth_failed">Something went wrong. Please try again.</string>
     <string name="error_chat_failed">Something went wrong. Please try again.</string>
     <string name="onboarding_error_network">No connection. Check your signal and try again.</string>
     <string name="onboarding_error_server">Something went wrong on our end. Try again in a moment.</string>
