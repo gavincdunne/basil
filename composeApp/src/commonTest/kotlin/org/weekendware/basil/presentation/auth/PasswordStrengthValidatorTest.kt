@@ -115,11 +115,19 @@ class PasswordStrengthValidatorTest {
     }
 
     @Test
-    fun `requirements are returned in a stable order — length, uppercase, lowercase, number, special`() {
-        val (_, requirements) = PasswordStrengthValidator.validate("Abcdefg1!")
-        assertEquals(5, requirements.size)
-        // Order asserted positionally per the TDD's documented sequence;
-        // see the boundary tests above for what each index represents.
+    fun `requirements list has exactly one entry per requirement, in a fixed order`() {
+        // An all-digit, 8-character password meets only length and number —
+        // no letters means no uppercase/lowercase, and digits don't count as
+        // special characters. met=true should land at exactly those two
+        // positions — length (0) and number (3) — pinning down the actual
+        // order (length, uppercase, lowercase, number, special), not just
+        // the list's size; the individual boundary tests above each isolate
+        // one index but never assert the full five-position layout at once.
+        val (_, requirements) = PasswordStrengthValidator.validate("12345678")
+        assertEquals(
+            listOf(true, false, false, true, false),
+            requirements.map { it.met },
+        )
     }
 
     @Test
