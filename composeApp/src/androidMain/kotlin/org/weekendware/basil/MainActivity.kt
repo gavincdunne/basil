@@ -7,19 +7,17 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.launch
-import org.koin.mp.KoinPlatform
-import org.weekendware.basil.data.repository.AuthRepository
 
 /**
  * The single Android [ComponentActivity] that hosts the entire Basil UI.
  *
  * Responsibilities:
- * - Installs the OS-level SplashScreen and keeps it visible until the Supabase
- *   SDK has resolved the stored session. This covers the cold-start window
- *   before the first Compose frame is drawn.
+ * - Installs the OS-level SplashScreen as a functional pass-through — it exits
+ *   on the first drawn frame and makes no branded statement of its own. The
+ *   Compose [org.weekendware.basil.presentation.splash.SplashScreen] is the
+ *   single source of truth for the branded splash moment, including the wait
+ *   for session restoration. Holding the OS splash on session resolution here
+ *   as well would draw two splashes back-to-back.
  * - Enables edge-to-edge display so content draws behind system bars.
  * - Sets the Compose content root to [App].
  *
@@ -30,21 +28,9 @@ import org.weekendware.basil.data.repository.AuthRepository
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        val splashScreen = installSplashScreen()
+        installSplashScreen()
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
-
-        // Keep the OS splash visible until sessionFlow emits its first value.
-        // The first emission means Supabase has finished restoring (or not) the
-        // stored session — at that point the Compose layer is ready to show the
-        // correct screen and the OS splash can exit.
-        var sessionResolved = false
-        val authRepository = KoinPlatform.getKoin().get<AuthRepository>()
-        lifecycleScope.launch {
-            authRepository.sessionFlow.first()
-            sessionResolved = true
-        }
-        splashScreen.setKeepOnScreenCondition { !sessionResolved }
 
         setContent {
             App()
