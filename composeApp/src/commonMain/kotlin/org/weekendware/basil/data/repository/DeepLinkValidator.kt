@@ -11,10 +11,6 @@ package org.weekendware.basil.data.repository
  * prevents an open-redirect-style attack where a lookalike deep link tricks
  * the app into exchanging an attacker-controlled code.
  *
- * See `tdd-splash-auth-07222026.md`, "Component design" → `DeepLinkHandler`,
- * and security requirement SPA-098–SPA-100 in
- * `tests-splash-auth-07232026.md`.
- *
  * **Not implemented here.** QA scaffolding only — see
  * [DeepLinkValidatorTest] for the full contract, including the boundary
  * case that rules out a naive `startsWith` implementation.

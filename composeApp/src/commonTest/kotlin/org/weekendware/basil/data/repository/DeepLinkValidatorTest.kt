@@ -5,12 +5,13 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 /**
- * QA test suite for [DeepLinkValidator], written from
- * `tdd-splash-auth-07222026.md` ahead of implementation.
+ * QA test suite for [DeepLinkValidator], written ahead of implementation
+ * per the team's test-first process. Covers the allowed reset-password
+ * and auth-callback shapes, and the lookalike-prefix boundary case that
+ * rules out a naive `startsWith` implementation.
  *
  * All cases are expected to fail until Backend Builder implements
- * [DeepLinkValidator.isAllowed]. Covers SPA-098–SPA-100 in
- * `tests-splash-auth-07232026.md`.
+ * [DeepLinkValidator.isAllowed].
  */
 class DeepLinkValidatorTest {
 
