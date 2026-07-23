@@ -131,7 +131,7 @@ fun AuthScreenContent(
             .fillMaxSize()
             .background(BasilPalette.Cream)
     ) {
-        AuthHeroBand(compact = !state.emailStep)
+        AuthHeroBand(showTagline = state.emailStep)
         if (state.emailStep) {
             EmailStepForm(
                 state           = state,
@@ -157,41 +157,31 @@ fun AuthScreenContent(
     }
 }
 
+/**
+ * The hero band is always the full column layout (52dp logo, 28sp wordmark)
+ * on every step of this screen — email, sign-in, and no-account-found alike.
+ * Only the tagline is conditional: shown on the email step, hidden once the
+ * user has moved past it. There is no separate "compact" row variant here —
+ * that belongs to [ResetPasswordScreen]'s distinct mini-header.
+ */
 @Composable
-private fun AuthHeroBand(compact: Boolean) {
-    if (compact) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(BasilPalette.Sage600)
-                .statusBarsPadding()
-                .padding(vertical = 16.dp, horizontal = 20.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            AuthLogoPlaceholder()
-            Spacer(Modifier.width(12.dp))
-            Text(
-                text  = stringResource(Res.string.app_name),
-                style = MaterialTheme.typography.headlineSmall,
-                color = Color.White,
-            )
-        }
-    } else {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(BasilPalette.Sage600)
-                .statusBarsPadding()
-                .padding(top = 20.dp, start = 20.dp, end = 20.dp, bottom = 24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            AuthLogoPlaceholder()
-            Spacer(Modifier.height(8.dp))
-            Text(
-                text  = stringResource(Res.string.app_name),
-                style = MaterialTheme.typography.displaySmall,
-                color = Color.White,
-            )
+private fun AuthHeroBand(showTagline: Boolean) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(BasilPalette.Sage600)
+            .statusBarsPadding()
+            .padding(top = 20.dp, start = 20.dp, end = 20.dp, bottom = 24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        AuthLogoPlaceholder()
+        Spacer(Modifier.height(8.dp))
+        Text(
+            text  = stringResource(Res.string.app_name),
+            style = MaterialTheme.typography.displaySmall,
+            color = Color.White,
+        )
+        if (showTagline) {
             Spacer(Modifier.height(8.dp))
             Text(
                 text          = stringResource(Res.string.auth_tagline).uppercase(),
