@@ -18,13 +18,17 @@ enum class AuthMode { SignIn, SignUp }
 /**
  * State for the email-first auth screen.
  *
- * @property mode              Whether the entered email matched a stored one (SignIn) or not (SignUp).
- * @property email             Current value of the email field.
- * @property password          Current value of the password field. Unused while [emailStep] is true.
- * @property emailStep         True while the user is on the email-only step; false once past it.
- * @property isLoading         True while an auth network call is in flight.
- * @property isPasswordVisible True when the password field shows plain text instead of masked dots.
- * @property error             User-facing error string resource, or null when there is none.
+ * @property mode                  Whether the entered email matched a stored one (SignIn) or not (SignUp).
+ * @property email                 Current value of the email field.
+ * @property password              Current value of the password field. Unused while [emailStep] is true.
+ * @property emailStep             True while the user is on the email-only step; false once past it.
+ * @property isLoading             True while an auth network call is in flight.
+ * @property isPasswordVisible     True when the password field shows plain text instead of masked dots.
+ * @property error                 User-facing error string resource, or null when there is none.
+ * @property isPasskeyAvailable    True if this device has an enrolled passkey. While true (and
+ *   [biometricAttemptCount] is under 2) the biometric prompt replaces the email step entirely.
+ * @property biometricAttemptCount 0 = auto-triggering/scanning, 1 = first failure (retry offered),
+ *   2 = second failure ([isPasskeyAvailable] is set false and the standard form takes over).
  */
 @Immutable
 data class AuthUiState(
@@ -35,9 +39,12 @@ data class AuthUiState(
     val isLoading: Boolean = false,
     val isPasswordVisible: Boolean = false,
     val error: StringResource? = null,
+    val isPasskeyAvailable: Boolean = false,
+    val biometricAttemptCount: Int = 0,
 ) {
     val canContinueEmail: Boolean get() = email.isNotBlank() && !isLoading
     val canSubmit: Boolean get() = password.isNotBlank() && !isLoading
+    val showPasskeyPrompt: Boolean get() = isPasskeyAvailable && biometricAttemptCount < 2
 }
 
 /**
@@ -57,10 +64,34 @@ class AuthViewModel(
     private val authRepository: AuthRepository
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow(AuthUiState())
+    private val _state = MutableStateFlow(
+        AuthUiState(isPasskeyAvailable = authRepository.hasPasskeyEnrolled())
+    )
 
     /** The current form state observed by [AuthScreen]. */
     val state: StateFlow<AuthUiState> = _state
+
+    /**
+     * Called from a `LaunchedEffect(Unit)` the instant the biometric prompt
+     * composes — fires automatically, no button tap. Also what "Try again"
+     * calls directly on the first failure. On a second failure, falls
+     * through to the standard form with a contextual error message.
+     *
+     * **Not implemented here.** QA scaffolding only — see
+     * [AuthViewModelTest] for the full contract (attempt-count transitions,
+     * the second-failure fallback message, and the successful-auth case).
+     */
+    fun onPasskeyScreenEntered() {
+        TODO("Not yet implemented — see tdd-splash-auth-07222026.md, AC18b/19b biometric attempt states")
+    }
+
+    /** "Try again" on the first failure — re-invokes the ceremony directly, same as the auto-trigger. */
+    fun onPasskeyRetry() {
+        TODO("Not yet implemented — see tdd-splash-auth-07222026.md, AC18b/19b biometric attempt states")
+    }
+
+    /** Escape hatch from the biometric prompt to the standard form, without recording it as a failure. */
+    fun onUseDifferentAccountFromPasskey() = _state.update { it.copy(isPasskeyAvailable = false) }
 
     fun onEmailChange(value: String) = _state.update { it.copy(email = value, error = null) }
     fun onPasswordChange(value: String) = _state.update { it.copy(password = value, error = null) }

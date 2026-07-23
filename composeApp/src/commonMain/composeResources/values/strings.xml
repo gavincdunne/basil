@@ -57,6 +57,12 @@
     <string name="save_progress_create_account_title">Create your account</string>
     <string name="save_progress_create_account">Create account</string>
 
+    <!-- ── Passkey auth prompt ────────────────────────────────── -->
+    <string name="auth_passkey_scanning">Looking for your face…</string>
+    <string name="auth_passkey_first_failure">Face ID didn\'t recognise you</string>
+    <string name="auth_passkey_try_again">Try again</string>
+    <string name="auth_passkey_second_failure">Face ID didn\'t work — sign in another way.</string>
+
     <!-- ── Bottom navigation ─────────────────────────────────── -->
     <string name="nav_profile">Profile</string>
     <string name="nav_chat">Chat</string>

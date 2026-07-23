@@ -7,6 +7,7 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import basil.composeapp.generated.resources.Res
+import basil.composeapp.generated.resources.auth_passkey_second_failure
 import basil.composeapp.generated.resources.error_auth_failed
 import org.weekendware.basil.data.repository.FakeAuthRepository
 import kotlin.test.AfterTest
@@ -191,5 +192,77 @@ class AuthViewModelTest {
         val state = viewModel.state.value
         assertEquals(Res.string.error_auth_failed, state.error)
         assertFalse(state.isLoading)
+    }
+
+    // ── passkey prompt ────────────────────────────────────────
+    // repo.passkeyEnrolled must be set before constructing the ViewModel —
+    // isPasskeyAvailable is read once, on init, not observed reactively.
+
+    @Test
+    fun `isPasskeyAvailable is false when no passkey is enrolled on this device`() {
+        assertFalse(viewModel.state.value.isPasskeyAvailable)
+        assertFalse(viewModel.state.value.showPasskeyPrompt)
+    }
+
+    @Test
+    fun `isPasskeyAvailable is true and showPasskeyPrompt is true when a passkey is enrolled`() {
+        repo.passkeyEnrolled = true
+        val vm = AuthViewModel(repo)
+        assertTrue(vm.state.value.isPasskeyAvailable)
+        assertTrue(vm.state.value.showPasskeyPrompt)
+    }
+
+    @Test
+    fun `first biometric failure increments the attempt count without dropping to the form`() = runTest {
+        repo.passkeyEnrolled = true
+        repo.signInWithPasskeyResult = Result.failure(Exception("not recognized"))
+        val vm = AuthViewModel(repo)
+
+        vm.onPasskeyScreenEntered()
+
+        val state = vm.state.value
+        assertEquals(1, state.biometricAttemptCount)
+        assertTrue(state.isPasskeyAvailable)
+        assertTrue(state.showPasskeyPrompt)
+        assertNull(state.error)
+    }
+
+    @Test
+    fun `second biometric failure drops to the standard form with a contextual message`() = runTest {
+        repo.passkeyEnrolled = true
+        repo.signInWithPasskeyResult = Result.failure(Exception("not recognized"))
+        val vm = AuthViewModel(repo)
+
+        vm.onPasskeyScreenEntered()
+        vm.onPasskeyRetry()
+
+        val state = vm.state.value
+        assertEquals(2, state.biometricAttemptCount)
+        assertFalse(state.isPasskeyAvailable)
+        assertFalse(state.showPasskeyPrompt)
+        assertEquals(Res.string.auth_passkey_second_failure, state.error)
+    }
+
+    @Test
+    fun `successful biometric auth establishes a session without changing attempt count`() = runTest {
+        repo.passkeyEnrolled = true
+        val vm = AuthViewModel(repo)
+
+        vm.onPasskeyScreenEntered()
+
+        assertTrue(repo.isSignedIn())
+        assertEquals(0, vm.state.value.biometricAttemptCount)
+    }
+
+    @Test
+    fun `onUseDifferentAccountFromPasskey hides the prompt without counting as a failure`() {
+        repo.passkeyEnrolled = true
+        val vm = AuthViewModel(repo)
+
+        vm.onUseDifferentAccountFromPasskey()
+
+        val state = vm.state.value
+        assertFalse(state.isPasskeyAvailable)
+        assertEquals(0, state.biometricAttemptCount)
     }
 }
