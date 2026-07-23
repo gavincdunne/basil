@@ -23,6 +23,9 @@ import org.weekendware.basil.data.repository.UserRepository
 import org.weekendware.basil.domain.usecase.GetUserUseCase
 import org.weekendware.basil.domain.usecase.SendMessageUseCase
 import org.weekendware.basil.presentation.auth.AuthViewModel
+import org.weekendware.basil.presentation.auth.NewPasswordViewModel
+import org.weekendware.basil.presentation.auth.ResetPasswordViewModel
+import org.weekendware.basil.presentation.auth.VerificationWallViewModel
 import org.weekendware.basil.presentation.chat.ChatViewModel
 import org.weekendware.basil.presentation.onboarding.OnboardingViewModel
 import org.weekendware.basil.presentation.profile.ProfileViewModel
@@ -65,9 +68,12 @@ val onboardingModule = module {
 val sharedModule = module {
     viewModel { SessionViewModel(get()) }
     viewModel { AuthViewModel(get()) }
+    viewModel { ResetPasswordViewModel(get()) }
+    viewModel { NewPasswordViewModel(get()) }
+    viewModel { VerificationWallViewModel(get()) }
     viewModel { OnboardingViewModel(get(), get(), get(), get()) }
     viewModel { ProfileViewModel(get(), get(), get()) }
-    viewModel { ChatViewModel(get()) }
+    viewModel { ChatViewModel(get(), get()) }
     viewModel { SettingsViewModel() }
     viewModel { BasilThemeViewModel() }
 }

@@ -40,6 +40,15 @@
     <string name="auth_field_confirm_password">Confirm password</string>
     <string name="auth_set_new_password">Set new password</string>
 
+    <!-- ── Email verification wall / banner ──────────────────── -->
+    <string name="auth_verify_wall_title">Verify your email</string>
+    <string name="auth_verify_wall_body">To keep your account secure, we need to confirm your email address.</string>
+    <string name="auth_verify_wall_sent_to">We sent a verification link to</string>
+    <string name="auth_resend_verification">Resend verification email</string>
+    <string name="auth_sign_out_different_account">Sign out and use a different account</string>
+    <string name="auth_verify_banner_text">Please verify your email to keep your account safe.</string>
+    <string name="auth_verify_banner_resend">Resend</string>
+
     <!-- ── Bottom navigation ─────────────────────────────────── -->
     <string name="nav_profile">Profile</string>
     <string name="nav_chat">Chat</string>

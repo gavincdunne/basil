@@ -145,6 +145,13 @@ internal object BasilPalette {
     val AuthStrengthAmber = Color(0xFFE07A10)
     /** Green strength-bar segment / label and the strong-password field border. */
     val AuthStrengthGreen = Color(0xFF2E7D32)
+
+    // Verification banner (on the chat screen) — literal, hand-picked, distinct
+    // from the auth-screen colors above since this lives on an in-app surface.
+    val VerifyBannerBg     = Color(0xFFFFF8ED)
+    val VerifyBannerBorder = Color(0xFFE8C97A)
+    val VerifyBannerDot    = Color(0xFFC8962A)
+    val VerifyBannerText   = Color(0xFF7A5A18)
 }
 
 // ─────────────────────────────────────────────────────────────

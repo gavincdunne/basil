@@ -1,7 +1,9 @@
 package org.weekendware.basil.presentation.chat
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,6 +26,8 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -39,9 +43,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import basil.composeapp.generated.resources.Res
+import basil.composeapp.generated.resources.auth_verify_banner_resend
+import basil.composeapp.generated.resources.auth_verify_banner_text
+import basil.composeapp.generated.resources.cd_close
 import basil.composeapp.generated.resources.cd_send_message
 import basil.composeapp.generated.resources.chat_empty_subtitle
 import basil.composeapp.generated.resources.chat_empty_title
@@ -50,6 +58,7 @@ import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 import org.weekendware.basil.domain.model.ChatMessage
+import org.weekendware.basil.presentation.theme.BasilPalette
 import org.weekendware.basil.presentation.theme.BasilTheme
 import org.weekendware.basil.presentation.theme.basilSpacing
 
@@ -86,10 +95,12 @@ fun ChatScreen(initialGreeting: String? = null) {
     }
 
     ChatScreenContent(
-        state             = state,
-        snackbarHostState = snackbarHostState,
-        onInputChange     = viewModel::onInputChange,
-        onSend            = viewModel::sendMessage
+        state                = state,
+        snackbarHostState    = snackbarHostState,
+        onInputChange        = viewModel::onInputChange,
+        onSend               = viewModel::sendMessage,
+        onDismissBanner      = viewModel::onDismissVerificationBanner,
+        onResendVerification = viewModel::onResendVerification,
     )
 }
 
@@ -103,6 +114,8 @@ fun ChatScreenContent(
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     onInputChange: (String) -> Unit,
     onSend: () -> Unit,
+    onDismissBanner: () -> Unit = {},
+    onResendVerification: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val listState = rememberLazyListState()
@@ -120,6 +133,14 @@ fun ChatScreenContent(
                 .fillMaxSize()
                 .imePadding()
         ) {
+            if (state.showVerificationBanner) {
+                VerificationBanner(
+                    isResending = state.isResendingVerification,
+                    onResend    = onResendVerification,
+                    onDismiss   = onDismissBanner,
+                )
+            }
+
             // ── Message list ──────────────────────────────────────
             Box(modifier = Modifier.weight(1f)) {
                 if (state.messages.isEmpty()) {
@@ -165,6 +186,75 @@ fun ChatScreenContent(
             hostState = snackbarHostState,
             modifier  = Modifier.align(Alignment.BottomCenter),
         )
+    }
+}
+
+/**
+ * Dismissible banner shown above the chat when the signed-in user's email
+ * is unverified but they're still within the 30-day grace period (past
+ * that, [org.weekendware.basil.presentation.auth.VerificationWallScreen]
+ * replaces the whole screen instead — this banner never appears there).
+ */
+@Composable
+internal fun VerificationBanner(
+    isResending: Boolean,
+    onResend:    () -> Unit,
+    onDismiss:   () -> Unit,
+    modifier:    Modifier = Modifier,
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .background(BasilPalette.VerifyBannerBg)
+            .border(
+                BorderStroke(1.5.dp, BasilPalette.VerifyBannerBorder),
+            )
+            .padding(horizontal = 16.dp, vertical = 11.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+    ) {
+        Box(
+            modifier = Modifier
+                .size(6.dp)
+                .clip(CircleShape)
+                .background(BasilPalette.VerifyBannerDot)
+        )
+        Text(
+            text     = stringResource(Res.string.auth_verify_banner_text),
+            style    = MaterialTheme.typography.bodySmall,
+            color    = BasilPalette.VerifyBannerText,
+            modifier = Modifier.weight(1f),
+        )
+        if (isResending) {
+            CircularProgressIndicator(
+                modifier   = Modifier.size(14.dp),
+                strokeWidth = 2.dp,
+                color      = BasilPalette.VerifyBannerText,
+            )
+        } else {
+            Text(
+                text       = stringResource(Res.string.auth_verify_banner_resend),
+                style      = MaterialTheme.typography.labelMedium,
+                color      = BasilPalette.Sage600,
+                fontWeight = FontWeight.SemiBold,
+                modifier   = Modifier.clickable(onClick = onResend),
+            )
+        }
+        Box(
+            modifier = Modifier
+                .size(18.dp)
+                .clip(CircleShape)
+                .background(BasilPalette.VerifyBannerDot.copy(alpha = 0.15f))
+                .clickable(onClick = onDismiss),
+            contentAlignment = Alignment.Center,
+        ) {
+            Icon(
+                imageVector        = Icons.Default.Close,
+                contentDescription = stringResource(Res.string.cd_close),
+                tint               = BasilPalette.VerifyBannerText,
+                modifier           = Modifier.size(10.dp),
+            )
+        }
     }
 }
 
