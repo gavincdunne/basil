@@ -2,6 +2,8 @@ package org.weekendware.basil.presentation.profile
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
@@ -114,6 +116,7 @@ private class FakeUserRepository : UserRepository {
     var storedAvatarUrl: String? = null
 
     override fun getAll(): List<User> = listOfNotNull(currentUser)
+    override fun getAllAsFlow(): Flow<List<User>> = flowOf(getAll())
     override fun insert(id: String, name: String, email: String) { currentUser = User(id, name, email) }
     override fun updateAvatarUrl(userId: String, url: String?) { storedAvatarUrl = url }
     override fun deleteAll() { currentUser = null; storedAvatarUrl = null }
