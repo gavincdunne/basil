@@ -23,7 +23,7 @@ class SqlDelightUserRepository(private val database: BasilDatabase) : UserReposi
         database.userQueries.selectAll().executeAsList().map { it.toDomain() }
 
     override fun getAllAsFlow(): Flow<List<User>> =
-        database.userQueries.selectAll().asFlow().mapToList(Dispatchers.IO).map { list ->
+        database.userQueries.selectAll().asFlow().mapToList(Dispatchers.Default).map { list ->
             list.map { it.toDomain() }
         }
 
