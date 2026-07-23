@@ -141,6 +141,10 @@ internal object BasilPalette {
     val AuthInfoCardBg      = Color(0xFFD4E8D6)
     val AuthPlaceholderText = Color(0xFFB8B0A8)
     val AuthNearBlack       = Color(0xFF1A1816)
+    /** Amber strength-bar segment / label — [Error] doubles as the red segment. */
+    val AuthStrengthAmber = Color(0xFFE07A10)
+    /** Green strength-bar segment / label and the strong-password field border. */
+    val AuthStrengthGreen = Color(0xFF2E7D32)
 }
 
 // ─────────────────────────────────────────────────────────────

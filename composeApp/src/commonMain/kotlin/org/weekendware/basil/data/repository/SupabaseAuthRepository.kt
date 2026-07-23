@@ -70,6 +70,9 @@ class SupabaseAuthRepository(
     override suspend fun resetPassword(email: String): Result<Unit> =
         TODO("Not yet implemented — see tdd-splash-auth-07222026.md, Supabase deep links (password reset)")
 
+    override suspend fun updatePassword(newPassword: String): Result<Unit> =
+        TODO("Not yet implemented — see tdd-splash-auth-07222026.md, Supabase deep links (password reset)")
+
     override suspend fun resendVerificationEmail(): Result<Unit> =
         TODO("Not yet implemented — see tdd-splash-auth-07222026.md, AC12")
 

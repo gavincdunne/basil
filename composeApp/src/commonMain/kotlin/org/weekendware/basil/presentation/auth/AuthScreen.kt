@@ -89,9 +89,11 @@ import org.weekendware.basil.presentation.theme.BasilTokens
  *   "Get started" on the no-account-found state. Currently a no-op by
  *   default — the full silent-account-provisioning redirect into
  *   onboarding is separate, not-yet-wired routing work.
+ * @param onForgotPassword Called with the current email when the user taps
+ *   "Forgot password?" on the sign-in step.
  */
 @Composable
-fun AuthScreen(onGetStarted: () -> Unit = {}) {
+fun AuthScreen(onGetStarted: () -> Unit = {}, onForgotPassword: (String) -> Unit = {}) {
     val viewModel = koinViewModel<AuthViewModel>()
     val state by viewModel.state.collectAsStateWithLifecycle()
     AuthScreenContent(
@@ -105,6 +107,7 @@ fun AuthScreen(onGetStarted: () -> Unit = {}) {
         onGoogleSignIn              = viewModel::onGoogleSignIn,
         onAppleSignIn               = viewModel::onAppleSignIn,
         onGetStarted                = onGetStarted,
+        onForgotPassword            = onForgotPassword,
     )
 }
 
@@ -125,6 +128,7 @@ fun AuthScreenContent(
     onGoogleSignIn:                () -> Unit,
     onAppleSignIn:                 () -> Unit,
     onGetStarted:                  () -> Unit,
+    onForgotPassword:               (String) -> Unit = {},
 ) {
     Column(
         modifier = Modifier
@@ -147,6 +151,7 @@ fun AuthScreenContent(
                 onTogglePasswordVisibility = onTogglePasswordVisibility,
                 onUseDifferentAccount      = onUseDifferentAccount,
                 onSubmit                   = onSubmit,
+                onForgotPassword           = { onForgotPassword(state.email) },
             )
             AuthMode.SignUp -> NoAccountFound(
                 email                 = state.email,
@@ -277,6 +282,7 @@ private fun SignInForm(
     onTogglePasswordVisibility: () -> Unit,
     onUseDifferentAccount:      () -> Unit,
     onSubmit:                   () -> Unit,
+    onForgotPassword:           () -> Unit,
 ) {
     Column(
         modifier = Modifier
@@ -340,15 +346,18 @@ private fun SignInForm(
             )
         }
         Spacer(Modifier.height(6.dp))
-        Text(
-            text     = stringResource(Res.string.auth_forgot_password),
-            style    = MaterialTheme.typography.labelMedium,
-            color    = BasilPalette.Sage600,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 14.dp),
-            textAlign = TextAlign.End,
-        )
+        TextButton(
+            onClick  = onForgotPassword,
+            modifier = Modifier.fillMaxWidth().padding(bottom = 6.dp),
+        ) {
+            Text(
+                text      = stringResource(Res.string.auth_forgot_password),
+                style     = MaterialTheme.typography.labelMedium,
+                color     = BasilPalette.Sage600,
+                modifier  = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.End,
+            )
+        }
         if (state.isLoading) {
             Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator(color = BasilPalette.Sage600)
