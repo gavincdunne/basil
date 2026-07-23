@@ -34,4 +34,41 @@ interface AuthRepository {
 
     /** True if a valid session exists. */
     fun isSignedIn(): Boolean
+
+    // ── Splash, Auth & Brand Foundation — added ahead of implementation ──
+    // See tdd-splash-auth-07222026.md, "Interface design". Signatures only;
+    // SupabaseAuthRepository stubs these with TODO() for Backend Builder.
+
+    /** Signs in via Google. Platform-specific implementation. */
+    suspend fun signInWithGoogle(): Result<Unit>
+
+    /** Signs in via Apple. iOS only natively; OAuth redirect on other platforms. */
+    suspend fun signInWithApple(): Result<Unit>
+
+    /** Sends a password reset email with a deep link back to the app. */
+    suspend fun resetPassword(email: String): Result<Unit>
+
+    /** Resends the verification email to the current user. */
+    suspend fun resendVerificationEmail(): Result<Unit>
+
+    /** True if the current user's email is confirmed. */
+    fun isEmailVerified(): Boolean
+
+    /** Elapsed days since the current user account was created. */
+    fun daysSinceSignup(): Long
+
+    /** Returns the FIDO2 registration challenge from Supabase and initiates platform credential creation. */
+    suspend fun registerPasskey(): Result<Unit>
+
+    /** Returns the FIDO2 authentication challenge from Supabase and initiates platform credential assertion. */
+    suspend fun signInWithPasskey(): Result<Unit>
+
+    /** True if the user has completed FIDO2 registration on this device. */
+    fun hasPasskeyEnrolled(): Boolean
+
+    /** Handles an incoming deep link URL (password reset, OAuth callback). */
+    suspend fun handleDeepLink(url: String): Result<Unit>
+
+    /** Returns the last-used email for detect-by-email default mode. */
+    fun lastUsedEmail(): String?
 }

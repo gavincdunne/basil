@@ -54,4 +54,44 @@ class SupabaseAuthRepository(
 
     override fun isSignedIn(): Boolean =
         client.auth.currentUserOrNull() != null
+
+    // ── Splash, Auth & Brand Foundation — pending implementation ──
+    // Stubs so the module compiles ahead of the feature build. Backend
+    // Builder implements each per tdd-splash-auth-07222026.md; QA's test
+    // suite in commonTest exercises these through FakeAuthRepository until
+    // then. Do not remove the TODO markers without also removing this
+    // comment block.
+
+    override suspend fun signInWithGoogle(): Result<Unit> =
+        TODO("Not yet implemented — see tdd-splash-auth-07222026.md, Google Sign In on KMP")
+
+    override suspend fun signInWithApple(): Result<Unit> =
+        TODO("Not yet implemented — see tdd-splash-auth-07222026.md, Apple Sign In on KMP")
+
+    override suspend fun resetPassword(email: String): Result<Unit> =
+        TODO("Not yet implemented — see tdd-splash-auth-07222026.md, Supabase deep links (password reset)")
+
+    override suspend fun resendVerificationEmail(): Result<Unit> =
+        TODO("Not yet implemented — see tdd-splash-auth-07222026.md, AC12")
+
+    override fun isEmailVerified(): Boolean =
+        TODO("Not yet implemented — see tdd-splash-auth-07222026.md, Email verification state")
+
+    override fun daysSinceSignup(): Long =
+        TODO("Not yet implemented — see tdd-splash-auth-07222026.md, Email verification 30-day window")
+
+    override suspend fun registerPasskey(): Result<Unit> =
+        TODO("Not yet implemented — see tdd-splash-auth-07222026.md, Passkeys on KMP")
+
+    override suspend fun signInWithPasskey(): Result<Unit> =
+        TODO("Not yet implemented — see tdd-splash-auth-07222026.md, Passkeys on KMP")
+
+    override fun hasPasskeyEnrolled(): Boolean =
+        TODO("Not yet implemented — see tdd-splash-auth-07222026.md, passkey_enrolled DataStore key")
+
+    override suspend fun handleDeepLink(url: String): Result<Unit> =
+        TODO("Not yet implemented — see tdd-splash-auth-07222026.md, DeepLinkHandler")
+
+    override fun lastUsedEmail(): String? =
+        TODO("Not yet implemented — see tdd-splash-auth-07222026.md, stored_auth_email DataStore key")
 }
