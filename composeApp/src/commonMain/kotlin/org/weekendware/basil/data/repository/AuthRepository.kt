@@ -35,9 +35,9 @@ interface AuthRepository {
     /** True if a valid session exists. */
     fun isSignedIn(): Boolean
 
-    // ── Splash, Auth & Brand Foundation — added ahead of implementation ──
-    // See tdd-splash-auth-07222026.md, "Interface design". Signatures only;
-    // SupabaseAuthRepository stubs these with TODO() for Backend Builder.
+    // ── Social sign-in, password reset, email verification, passkeys,
+    //    deep links, and detect-by-email — added ahead of implementation.
+    //    SupabaseAuthRepository stubs these with TODO() for Backend Builder.
 
     /** Signs in via Google. Platform-specific implementation. */
     suspend fun signInWithGoogle(): Result<Unit>

@@ -7,9 +7,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
  * Test double for [AuthRepository]. Owned by QA — configure the `*Result`
  * properties to drive success/failure paths in ViewModel tests.
  *
- * Splash, Auth & Brand Foundation additions (see
- * `tdd-splash-auth-07222026.md`) are fully implemented here even though the
- * real [SupabaseAuthRepository] only stubs them — this fake is QA's test
+ * The social sign-in, password reset, email verification, passkey, and
+ * deep-link methods are fully implemented here even though the real
+ * [SupabaseAuthRepository] only stubs them — this fake is QA's test
  * tooling and its behavior is asserted directly in
  * [FakeAuthRepositoryTest], which also documents the contract Backend
  * Builder's real implementation must satisfy.

@@ -55,12 +55,11 @@ class SupabaseAuthRepository(
     override fun isSignedIn(): Boolean =
         client.auth.currentUserOrNull() != null
 
-    // ── Splash, Auth & Brand Foundation — pending implementation ──
-    // Stubs so the module compiles ahead of the feature build. Backend
-    // Builder implements each per tdd-splash-auth-07222026.md; QA's test
+    // ── Social sign-in, password reset, email verification, passkeys,
+    //    deep links, and detect-by-email — pending implementation. ──
+    // Stubs so the module compiles ahead of the feature build. QA's test
     // suite in commonTest exercises these through FakeAuthRepository until
-    // then. Do not remove the TODO markers without also removing this
-    // comment block.
+    // Backend Builder implements each one for real.
 
     override suspend fun signInWithGoogle(): Result<Unit> =
         TODO("Not yet implemented — see tdd-splash-auth-07222026.md, Google Sign In on KMP")
