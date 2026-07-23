@@ -57,13 +57,16 @@ import basil.composeapp.generated.resources.nav_profile
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.weekendware.basil.presentation.auth.AuthScreen
+import org.weekendware.basil.presentation.auth.VerificationWallScreen
 import org.weekendware.basil.presentation.chat.ChatScreen
 import org.weekendware.basil.presentation.more.MoreScreen
 import org.weekendware.basil.presentation.onboarding.OnboardingScreen
 import org.weekendware.basil.presentation.onboarding.OnboardingViewModel
 import org.weekendware.basil.presentation.profile.ProfileScreen
+import org.weekendware.basil.presentation.session.AuthenticatedDestination
 import org.weekendware.basil.presentation.session.SessionState
 import org.weekendware.basil.presentation.session.SessionViewModel
+import org.weekendware.basil.presentation.session.authenticatedDestination
 import org.weekendware.basil.presentation.settings.SettingsScreen
 import org.weekendware.basil.presentation.splash.SplashScreen
 import org.weekendware.basil.presentation.theme.BasilTheme
@@ -104,10 +107,15 @@ fun App() {
                 if (splashVisible) {
                     SplashScreen(onFadeComplete = { splashDone = true })
                 } else {
-                    when (sessionState) {
+                    when (val session = sessionState) {
                         SessionState.Unauthenticated -> AuthScreen()
-                        SessionState.Authenticated   -> AuthenticatedRoot(themeHour = themeHour)
-                        SessionState.Loading         -> Box(Modifier.fillMaxSize())
+                        is SessionState.Authenticated -> when (authenticatedDestination(session)) {
+                            AuthenticatedDestination.Normal ->
+                                AuthenticatedRoot(themeHour = themeHour)
+                            AuthenticatedDestination.VerificationWall ->
+                                VerificationWallScreen()
+                        }
+                        SessionState.Loading -> Box(Modifier.fillMaxSize())
                     }
                 }
             }

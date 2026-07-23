@@ -29,7 +29,7 @@ class SplashGateTest {
     @Test
     fun `shows splash when session resolved but fade not yet complete`() {
         assertTrue(shouldShowSplash(SessionState.Unauthenticated, splashFadeDone = false))
-        assertTrue(shouldShowSplash(SessionState.Authenticated,   splashFadeDone = false))
+        assertTrue(shouldShowSplash(SessionState.Authenticated(isEmailVerified = true, daysSinceSignup = 0),   splashFadeDone = false))
     }
 
     @Test
@@ -39,6 +39,6 @@ class SplashGateTest {
 
     @Test
     fun `hides splash when authenticated and fade is done`() {
-        assertFalse(shouldShowSplash(SessionState.Authenticated, splashFadeDone = true))
+        assertFalse(shouldShowSplash(SessionState.Authenticated(isEmailVerified = true, daysSinceSignup = 0), splashFadeDone = true))
     }
 }

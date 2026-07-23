@@ -39,7 +39,7 @@ class SessionViewModelTest {
     @Test
     fun `state becomes Authenticated when session flow emits true`() = runTest {
         repo.setSignedIn(true)
-        assertEquals(SessionState.Authenticated, viewModel.state.value)
+        assertEquals(true, viewModel.state.value is SessionState.Authenticated)
     }
 
     @Test
@@ -52,8 +52,32 @@ class SessionViewModelTest {
     @Test
     fun `state reflects sign-out after sign-in`() = runTest {
         repo.setSignedIn(true)
-        assertEquals(SessionState.Authenticated, viewModel.state.value)
+        assertEquals(true, viewModel.state.value is SessionState.Authenticated)
         repo.signOut()
         assertEquals(SessionState.Unauthenticated, viewModel.state.value)
+    }
+
+    @Test
+    fun `Authenticated carries the repository's verification status`() = runTest {
+        repo.emailVerified = true
+        repo.daysSinceSignupValue = 5
+        repo.setSignedIn(true)
+
+        assertEquals(
+            SessionState.Authenticated(isEmailVerified = true, daysSinceSignup = 5),
+            viewModel.state.value,
+        )
+    }
+
+    @Test
+    fun `Authenticated reflects an unverified user past the 30-day threshold`() = runTest {
+        repo.emailVerified = false
+        repo.daysSinceSignupValue = 31
+        repo.setSignedIn(true)
+
+        assertEquals(
+            SessionState.Authenticated(isEmailVerified = false, daysSinceSignup = 31),
+            viewModel.state.value,
+        )
     }
 }
