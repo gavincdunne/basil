@@ -18,6 +18,13 @@
     <string name="auth_toggle_to_signup">New to Basil? Create account</string>
     <string name="auth_toggle_to_signin">Already have an account? Sign in</string>
 
+    <!-- ── Password strength requirements ────────────────────── -->
+    <string name="auth_req_length">8+ characters</string>
+    <string name="auth_req_uppercase">Uppercase letter (A–Z)</string>
+    <string name="auth_req_lowercase">Lowercase letter (a–z)</string>
+    <string name="auth_req_number">Number (0–9)</string>
+    <string name="auth_req_special">Special character (!@#$…)</string>
+
     <!-- ── Bottom navigation ─────────────────────────────────── -->
     <string name="nav_profile">Profile</string>
     <string name="nav_chat">Chat</string>

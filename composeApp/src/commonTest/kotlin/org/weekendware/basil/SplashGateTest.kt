@@ -17,7 +17,7 @@ import kotlin.test.assertTrue
 class SplashGateTest {
 
     @Test
-    fun `shows splash while session is loading, even when fade is done`() {
+    fun `shows splash while session is loading even when fade is done`() {
         assertTrue(shouldShowSplash(SessionState.Loading, splashFadeDone = true))
     }
 

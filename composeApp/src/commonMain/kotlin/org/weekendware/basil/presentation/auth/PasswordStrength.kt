@@ -1,5 +1,11 @@
 package org.weekendware.basil.presentation.auth
 
+import basil.composeapp.generated.resources.Res
+import basil.composeapp.generated.resources.auth_req_length
+import basil.composeapp.generated.resources.auth_req_lowercase
+import basil.composeapp.generated.resources.auth_req_number
+import basil.composeapp.generated.resources.auth_req_special
+import basil.composeapp.generated.resources.auth_req_uppercase
 import org.jetbrains.compose.resources.StringResource
 
 /**
@@ -23,8 +29,7 @@ sealed class PasswordStrength {
 /**
  * One row in the live requirements checklist shown below the strength bar.
  *
- * @property label Copy string identifying the requirement — pending Copywriter
- *   pass (`Res.string.auth_req_*`); not referenced by the validator stub below.
+ * @property label Copy string identifying the requirement.
  * @property met   True once the candidate password satisfies this requirement.
  */
 data class PasswordRequirement(val label: StringResource, val met: Boolean)
@@ -42,15 +47,26 @@ data class PasswordRequirement(val label: StringResource, val met: Boolean)
  * Strength mapping: `met.size` 0–2 → [PasswordStrength.Weak], 3–4 →
  * [PasswordStrength.Medium], 5 → [PasswordStrength.Strong]. An empty password
  * returns [PasswordStrength.None] paired with an empty requirements list.
- *
- * **Not implemented here.** This signature is QA scaffolding so
- * `PasswordStrengthValidatorTest` compiles and runs (red) ahead of
- * implementation. Backend Builder implements the body per the algorithm
- * documented above; every test in that suite is expected to fail with
- * `NotImplementedError` until then.
  */
 object PasswordStrengthValidator {
     fun validate(password: String): Pair<PasswordStrength, List<PasswordRequirement>> {
-        TODO("Not yet implemented — see tdd-splash-auth-07222026.md, AC18")
+        if (password.isEmpty()) return PasswordStrength.None to emptyList()
+
+        val requirements = listOf(
+            PasswordRequirement(Res.string.auth_req_length, password.length >= 8),
+            PasswordRequirement(Res.string.auth_req_uppercase, password.any { it.isUpperCase() }),
+            PasswordRequirement(Res.string.auth_req_lowercase, password.any { it.isLowerCase() }),
+            PasswordRequirement(Res.string.auth_req_number, password.any { it.isDigit() }),
+            PasswordRequirement(Res.string.auth_req_special, password.any { !it.isLetterOrDigit() }),
+        )
+
+        val metCount = requirements.count { it.met }
+        val strength = when {
+            metCount <= 2 -> PasswordStrength.Weak
+            metCount <= 4 -> PasswordStrength.Medium
+            else          -> PasswordStrength.Strong
+        }
+
+        return strength to requirements
     }
 }
