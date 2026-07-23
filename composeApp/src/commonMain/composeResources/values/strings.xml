@@ -42,16 +42,16 @@
 
     <!-- ── Email verification wall / banner ──────────────────── -->
     <string name="auth_verify_wall_title">Verify your email</string>
-    <string name="auth_verify_wall_body">To keep your account secure, we need to confirm your email address.</string>
+    <string name="auth_verify_wall_body">We need to confirm your email to keep your account secure.</string>
     <string name="auth_verify_wall_sent_to">We sent a verification link to</string>
     <string name="auth_resend_verification">Resend verification email</string>
     <string name="auth_sign_out_different_account">Sign out and use a different account</string>
-    <string name="auth_verify_banner_text">Please verify your email to keep your account safe.</string>
+    <string name="auth_verify_banner_text">Verify your email to keep your account safe.</string>
     <string name="auth_verify_banner_resend">Resend</string>
 
     <!-- ── Save your progress (end of onboarding) ────────────── -->
     <string name="save_progress_title">Save your progress</string>
-    <string name="save_progress_basil_message">I want to make sure I remember all of this. Let\'s save your progress so we can pick up right here.</string>
+    <string name="save_progress_basil_message">I don\'t want to lose any of this — let\'s save it, so I\'m here when you come back.</string>
     <string name="save_progress_continue_with_email">Continue with email</string>
     <string name="save_progress_maybe_later">Maybe later</string>
     <string name="save_progress_create_account_title">Create your account</string>
@@ -76,7 +76,7 @@
     <string name="profile_action_edit">Edit</string>
     <string name="profile_action_save">Save</string>
     <string name="profile_action_cancel">Cancel</string>
-    <string name="profile_no_user">No profile data found</string>
+    <string name="profile_no_user">No profile found</string>
     <string name="error_profile_save_failed">Failed to save profile. Please try again.</string>
     <string name="profile_pick_photo">Change photo</string>
     <string name="profile_remove_photo">Remove photo</string>
