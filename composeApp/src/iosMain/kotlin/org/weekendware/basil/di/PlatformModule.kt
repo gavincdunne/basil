@@ -8,11 +8,13 @@ import org.weekendware.basil.data.local.ONBOARDING_DATASTORE_FILE
 import org.weekendware.basil.data.local.createOnboardingDataStore
 import org.weekendware.basil.data.local.database.DatabaseDriverFactory
 import org.weekendware.basil.data.local.database.DatabaseKeyProvider
+import org.weekendware.basil.data.repository.PasskeyManager
 import platform.Foundation.NSHomeDirectory
 
 actual val platformModule: Module = module {
     single { DatabaseKeyProvider() }
     single { DatabaseDriverFactory(get()) }
+    single { PasskeyManager() }
     single<DataStore<Preferences>> {
         createOnboardingDataStore("${NSHomeDirectory()}/Documents/$ONBOARDING_DATASTORE_FILE")
     }
