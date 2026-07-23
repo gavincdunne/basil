@@ -66,9 +66,15 @@ object BasilTokens {
     val SplashLeafSize = 48.dp
 
     // ── Auth screen ───────────────────────────────────────────
-    /** Corner radius of the hero band's bottom edge on the auth screen. */
-    val AuthHeroCorner = 32.dp
-    /** Size of the leaf mark inside the auth hero band. */
-    val AuthHeroLeafSize = 38.dp
+    /** Height of email/password fields on the auth screen — narrower than the standard [InputHeight]. */
+    val AuthFieldHeight = 52.dp
+    /** Corner radius of auth fields and the Apple/Google buttons. */
+    val AuthFieldCorner = 12.dp
+    /** Corner radius of the "no account found" info card. */
+    val AuthInfoCardCorner = 10.dp
+    /** Size of the logo placeholder in the auth hero band. */
+    val AuthLogoSize = 52.dp
+    /** Corner radius of the logo placeholder in the auth hero band. */
+    val AuthLogoCorner = 14.dp
 
 }
