@@ -56,7 +56,7 @@ import basil.composeapp.generated.resources.nav_more
 import basil.composeapp.generated.resources.nav_profile
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
-import org.weekendware.basil.presentation.auth.AuthScreen
+import org.weekendware.basil.presentation.auth.AuthFlowScreen
 import org.weekendware.basil.presentation.chat.ChatScreen
 import org.weekendware.basil.presentation.more.MoreScreen
 import org.weekendware.basil.presentation.onboarding.OnboardingScreen
@@ -105,7 +105,7 @@ fun App() {
                     SplashScreen(onFadeComplete = { splashDone = true })
                 } else {
                     when (sessionState) {
-                        SessionState.Unauthenticated -> AuthScreen()
+                        SessionState.Unauthenticated -> AuthFlowScreen()
                         SessionState.Authenticated   -> AuthenticatedRoot(themeHour = themeHour)
                         SessionState.Loading         -> Box(Modifier.fillMaxSize())
                     }
