@@ -6,5 +6,14 @@
 	<true/>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>basil</string>
+			</array>
+		</dict>
+	</array>
 </dict>
 </plist>
