@@ -48,6 +48,9 @@ interface AuthRepository {
     /** Sends a password reset email with a deep link back to the app. */
     suspend fun resetPassword(email: String): Result<Unit>
 
+    /** Sets [newPassword] on the session established by following a password-reset deep link. */
+    suspend fun updatePassword(newPassword: String): Result<Unit>
+
     /** Resends the verification email to the current user. */
     suspend fun resendVerificationEmail(): Result<Unit>
 

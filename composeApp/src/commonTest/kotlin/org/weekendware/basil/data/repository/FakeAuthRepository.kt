@@ -24,6 +24,7 @@ class FakeAuthRepository : AuthRepository {
     var googleSignInResult: Result<Unit> = Result.success(Unit)
     var appleSignInResult: Result<Unit> = Result.success(Unit)
     var resetPasswordResult: Result<Unit> = Result.success(Unit)
+    var updatePasswordResult: Result<Unit> = Result.success(Unit)
     var resendVerificationResult: Result<Unit> = Result.success(Unit)
     var registerPasskeyResult: Result<Unit> = Result.success(Unit)
     var signInWithPasskeyResult: Result<Unit> = Result.success(Unit)
@@ -41,6 +42,10 @@ class FakeAuthRepository : AuthRepository {
     var lastResetPasswordEmail: String? = null
         private set
     var lastHandledDeepLink: String? = null
+        private set
+    var updatePasswordCallCount: Int = 0
+        private set
+    var lastUpdatedPassword: String? = null
         private set
 
     fun setSignedIn(value: Boolean) {
@@ -115,4 +120,10 @@ class FakeAuthRepository : AuthRepository {
     }
 
     override fun lastUsedEmail(): String? = storedLastUsedEmail
+
+    override suspend fun updatePassword(newPassword: String): Result<Unit> {
+        updatePasswordCallCount++
+        lastUpdatedPassword = newPassword
+        return updatePasswordResult
+    }
 }

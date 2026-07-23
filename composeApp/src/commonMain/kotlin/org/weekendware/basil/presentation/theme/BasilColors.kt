@@ -131,6 +131,20 @@ internal object BasilPalette {
     val OnError           = Color(0xFFFFFFFF)
     val ErrorContainer    = Color(0xFFFFDAD6)
     val OnErrorContainer  = Color(0xFF410002)
+
+    // Auth screens — literal, hand-picked by UI Designer, not derived from
+    // the seed palette. Same treatment as Cream above.
+    val AuthFieldBorder     = Color(0xFF858078)
+    val AuthFieldText       = Color(0xFF4E6A50)
+    val AuthButtonMuted     = Color(0xFFA8BAA5)
+    val AuthGoogleBorder    = Color(0xFFE8E4DF)
+    val AuthInfoCardBg      = Color(0xFFD4E8D6)
+    val AuthPlaceholderText = Color(0xFFB8B0A8)
+    val AuthNearBlack       = Color(0xFF1A1816)
+    /** Amber strength-bar segment / label — [Error] doubles as the red segment. */
+    val AuthStrengthAmber = Color(0xFFE07A10)
+    /** Green strength-bar segment / label and the strong-password field border. */
+    val AuthStrengthGreen = Color(0xFF2E7D32)
 }
 
 // ─────────────────────────────────────────────────────────────
