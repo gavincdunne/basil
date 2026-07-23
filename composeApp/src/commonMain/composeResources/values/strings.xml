@@ -49,6 +49,14 @@
     <string name="auth_verify_banner_text">Please verify your email to keep your account safe.</string>
     <string name="auth_verify_banner_resend">Resend</string>
 
+    <!-- ── Save your progress (end of onboarding) ────────────── -->
+    <string name="save_progress_title">Save your progress</string>
+    <string name="save_progress_basil_message">I want to make sure I remember all of this. Let\'s save your progress so we can pick up right here.</string>
+    <string name="save_progress_continue_with_email">Continue with email</string>
+    <string name="save_progress_maybe_later">Maybe later</string>
+    <string name="save_progress_create_account_title">Create your account</string>
+    <string name="save_progress_create_account">Create account</string>
+
     <!-- ── Bottom navigation ─────────────────────────────────── -->
     <string name="nav_profile">Profile</string>
     <string name="nav_chat">Chat</string>

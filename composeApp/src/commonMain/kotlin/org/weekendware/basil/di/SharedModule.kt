@@ -28,6 +28,7 @@ import org.weekendware.basil.presentation.auth.ResetPasswordViewModel
 import org.weekendware.basil.presentation.auth.VerificationWallViewModel
 import org.weekendware.basil.presentation.chat.ChatViewModel
 import org.weekendware.basil.presentation.onboarding.OnboardingViewModel
+import org.weekendware.basil.presentation.onboarding.SaveProgressViewModel
 import org.weekendware.basil.presentation.profile.ProfileViewModel
 import org.weekendware.basil.presentation.session.SessionViewModel
 import org.weekendware.basil.presentation.settings.SettingsViewModel
@@ -72,6 +73,7 @@ val sharedModule = module {
     viewModel { NewPasswordViewModel(get()) }
     viewModel { VerificationWallViewModel(get()) }
     viewModel { OnboardingViewModel(get(), get(), get(), get()) }
+    viewModel { SaveProgressViewModel(get()) }
     viewModel { ProfileViewModel(get(), get(), get()) }
     viewModel { ChatViewModel(get(), get()) }
     viewModel { SettingsViewModel() }
