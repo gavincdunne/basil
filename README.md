@@ -42,6 +42,17 @@ The app is designed around time-of-day — color, tone, and lighting shift throu
 
 ---
 
+## Chapters
+
+Feature-level docs, each with screenshots and the reasoning behind the design, not just what's in the code:
+
+- **[The Basil Theme](.github/chapters/theme.md)** — the seed-derived color system, the 8 day/night × light/dark schemes, typography
+- **[Auth](.github/chapters/auth.md)** — full silent account provisioning, sign-in methods, verification, password reset
+
+More chapters land here as features ship.
+
+---
+
 ## Engineering
 
 ### Stack
@@ -58,7 +69,7 @@ The app is designed around time-of-day — color, tone, and lighting shift throu
 | Date/Time | kotlinx-datetime 0.6.0 |
 | Crash reporting | Sentry Kotlin Multiplatform 0.25.0 |
 | Static analysis | Detekt 1.23.7 + detekt-formatting |
-| Testing | kotlin-test + Mockito-Kotlin 5.4.0 |
+| Testing | kotlin-test + Turbine — hand-written `Fake*Repository` test doubles, no mocking framework |
 
 Kotlin Multiplatform targeting Android, iOS, and Desktop from a single shared codebase.
 
@@ -79,17 +90,18 @@ Each layer depends only on the layer below it. ViewModels and use cases depend o
 ### What's built
 
 **App infrastructure**
-- **Auth** — Supabase sign-up / sign-in / session restoration with OS-level splash gate
-- **Navigation** — state-based bottom tab bar (Profile, Chat, More) driven by `AnimatedContent`; Settings slides in as a full-screen overlay via `graphicsLayer` translation
-- **Theme** — `BasilColors`, `BasilSpacing`, `BasilTypography`, `BasilShapes` wired into MaterialTheme; 8 color schemes (4 time slots × light/dark), animated 10-second transitions driven by a background `viewModelScope` coroutine — the correct scheme is already in place before the user foregrounds the app
+- **Auth** — see the [Auth chapter](.github/chapters/auth.md): full silent account provisioning, email/password with detect-by-email, native Google/Apple sign-in, email verification banner + 30-day soft-block wall, password reset via deep link, sign-out
+- **Navigation** — state-based routing driven by `AnimatedContent` and pure functions (`unauthenticatedDestination()`, `authenticatedDestination()`) rather than a navigation library; bottom tab bar (Profile, Chat, More); Settings slides in as a full-screen overlay via `graphicsLayer` translation
+- **Theme** — see the [Theme chapter](.github/chapters/theme.md): seed-derived color system, 8 schemes, animated 10-second transitions
 - **Crash reporting** — Sentry across all three targets with `PhiScrubber` stripping health data before any event leaves the device
 - **CI/CD** — GitHub Actions running Detekt, Android compile + test, and iOS framework build on every push
 
 **Screens**
-- **Chat** — streaming conversation screen wired to the companion API
-- **Onboarding** — conversational first-run flow that establishes the user's context (management type, how long they've been T1D, what they're looking for)
+- **Chat** — streaming conversation screen wired to the companion API, with a dismissible email-verification banner
+- **Onboarding** — conversational first-run flow, runs entirely pre-auth (name, management type, how long they've had T1D, what they're hoping for)
+- **Save your progress** — account creation at the end of onboarding, not the start
 - **Profile** — name, email, and profile photo
-- **Settings** — notifications placeholder and app version
+- **Settings** — notifications placeholder, app version, sign out
 
 ### PHI Protection
 
@@ -107,18 +119,19 @@ This is table stakes for any health product. It ships from day one, not as a com
 
 The foundation is in. What ships next is the core product.
 
+- [ ] **Passkeys** — the contract and biometric-attempt UI states are scaffolded and tested, but implementation is blocked on DevOps prerequisites (`apple-app-site-association` / `assetlinks.json` on a live production domain) — see the [Auth chapter](.github/chapters/auth.md)
 - [ ] **Check-in system** — Basil reaches out. You respond. That exchange is stored and becomes the basis for everything that follows.
 - [ ] **Persistent memory** — Basil builds a real picture of this person over time. Not a summary. A context.
 - [ ] **Chat history sync** — conversation history not yet persisted to Supabase; each session is stateless
 - [ ] **HIPAA hardening** — SQLCipher, session timeout, audit log
-- [ ] **Auth completion** — password reset, email verification
 - [ ] **Push notifications**
 - [ ] **RevenueCat subscription + message caps**
 - [ ] **Desktop persistence** — file-backed SQLite driver
 
 **Already shipped**
 - [x] Build flavors (dev / staging / prod)
-- [x] Supabase auth + user session
+- [x] Full silent account provisioning — onboarding runs pre-auth, account creation deferred to "save your progress"
+- [x] Email/password + native Google/Apple sign-in, email verification, password reset, sign-out
 - [x] Conversational onboarding
 - [x] Time-of-day color system with animated transitions
 - [x] Profile and settings screens
