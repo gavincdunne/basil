@@ -109,8 +109,21 @@ class SupabaseAuthRepository(
     override suspend fun signInWithPasskey(): Result<Unit> =
         TODO("Not yet implemented — blocked on DevOps passkey domain prerequisites, see tdd-splash-auth-07222026.md, Passkeys on KMP")
 
+    /**
+     * Reads the `passkey_enrolled` flag per the TDD's data model — NOT a
+     * `TODO()` like the other two passkey methods. Unlike those (only
+     * reachable from user-triggered actions with no UI wired up yet),
+     * `AuthViewModel`'s `init` block calls this unconditionally on every
+     * cold launch to decide whether to show the biometric prompt. A
+     * `TODO()` here crashed the app on first launch — caught via an actual
+     * on-device run, never by the unit suite (which only ever exercises
+     * `FakeAuthRepository`). Since [registerPasskey] can't yet succeed to
+     * set this, it safely always reads `false` — the standard form shows,
+     * exactly like [org.weekendware.basil.data.repository.FakeAuthRepository]'s
+     * default. Not a passkey implementation, just a non-crashing stub.
+     */
     override fun hasPasskeyEnrolled(): Boolean =
-        TODO("Not yet implemented — blocked on DevOps passkey domain prerequisites, see tdd-splash-auth-07222026.md, passkey_enrolled key")
+        settings.getBoolean(Keys.PASSKEY_ENROLLED, false)
 
     /**
      * [DeepLinkHandler] has already validated [url] against
@@ -127,6 +140,7 @@ class SupabaseAuthRepository(
 
     private object Keys {
         const val LAST_USED_EMAIL = "stored_auth_email"
+        const val PASSKEY_ENROLLED = "passkey_enrolled"
     }
 
     override fun lastUsedEmail(): String? = settings.getStringOrNull(Keys.LAST_USED_EMAIL)

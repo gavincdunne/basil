@@ -62,11 +62,14 @@ import org.weekendware.basil.presentation.chat.ChatScreen
 import org.weekendware.basil.presentation.more.MoreScreen
 import org.weekendware.basil.presentation.onboarding.OnboardingScreen
 import org.weekendware.basil.presentation.onboarding.OnboardingViewModel
+import org.weekendware.basil.presentation.onboarding.SaveProgressScreen
 import org.weekendware.basil.presentation.profile.ProfileScreen
 import org.weekendware.basil.presentation.session.AuthenticatedDestination
 import org.weekendware.basil.presentation.session.SessionState
 import org.weekendware.basil.presentation.session.SessionViewModel
+import org.weekendware.basil.presentation.session.UnauthenticatedDestination
 import org.weekendware.basil.presentation.session.authenticatedDestination
+import org.weekendware.basil.presentation.session.unauthenticatedDestination
 import org.weekendware.basil.presentation.settings.SettingsScreen
 import org.weekendware.basil.presentation.splash.SplashScreen
 import org.weekendware.basil.presentation.theme.BasilTheme
@@ -108,7 +111,16 @@ fun App() {
                     SplashScreen(onFadeComplete = { splashDone = true })
                 } else {
                     when (val session = sessionState) {
-                        SessionState.Unauthenticated -> AuthFlowScreen()
+                        is SessionState.Unauthenticated -> when (unauthenticatedDestination(session)) {
+                            UnauthenticatedDestination.Onboarding -> {
+                                val onboardingViewModel = koinViewModel<OnboardingViewModel>()
+                                OnboardingScreen(viewModel = onboardingViewModel, modifier = Modifier.fillMaxSize())
+                            }
+                            UnauthenticatedDestination.SaveProgress ->
+                                SaveProgressScreen()
+                            UnauthenticatedDestination.Auth ->
+                                AuthFlowScreen()
+                        }
                         is SessionState.Authenticated -> when (authenticatedDestination(session)) {
                             AuthenticatedDestination.Normal ->
                                 AuthenticatedRoot(themeHour = themeHour)

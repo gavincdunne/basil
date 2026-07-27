@@ -7,6 +7,8 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.weekendware.basil.data.repository.FakeAuthRepository
+import org.weekendware.basil.data.repository.FakeOnboardingLocalRepository
+import org.weekendware.basil.domain.model.OnboardingPersistedState
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -17,13 +19,15 @@ class SessionViewModelTest {
 
     private val dispatcher = UnconfinedTestDispatcher()
     private lateinit var repo: FakeAuthRepository
+    private lateinit var onboardingLocalRepo: FakeOnboardingLocalRepository
     private lateinit var viewModel: SessionViewModel
 
     @BeforeTest
     fun setup() {
         Dispatchers.setMain(dispatcher)
         repo = FakeAuthRepository()
-        viewModel = SessionViewModel(repo)
+        onboardingLocalRepo = FakeOnboardingLocalRepository()
+        viewModel = SessionViewModel(repo, onboardingLocalRepo)
     }
 
     @AfterTest
@@ -33,7 +37,27 @@ class SessionViewModelTest {
 
     @Test
     fun `initial state is Unauthenticated when no session exists`() = runTest {
-        assertEquals(SessionState.Unauthenticated, viewModel.state.value)
+        assertEquals(true, viewModel.state.value is SessionState.Unauthenticated)
+    }
+
+    @Test
+    fun `Unauthenticated reflects onboarding-incomplete and no-account by default`() = runTest {
+        assertEquals(
+            SessionState.Unauthenticated(onboardingComplete = false, hasAccount = false),
+            viewModel.state.value,
+        )
+    }
+
+    @Test
+    fun `Unauthenticated reflects a returning signed-out user with a completed onboarding and an account`() = runTest {
+        onboardingLocalRepo.setState(OnboardingPersistedState(isComplete = true))
+        repo.recordLastUsedEmail("user@example.com")
+        viewModel = SessionViewModel(repo, onboardingLocalRepo)
+
+        assertEquals(
+            SessionState.Unauthenticated(onboardingComplete = true, hasAccount = true),
+            viewModel.state.value,
+        )
     }
 
     @Test
@@ -46,7 +70,7 @@ class SessionViewModelTest {
     fun `state returns to Unauthenticated when session is cleared`() = runTest {
         repo.setSignedIn(true)
         repo.setSignedIn(false)
-        assertEquals(SessionState.Unauthenticated, viewModel.state.value)
+        assertEquals(true, viewModel.state.value is SessionState.Unauthenticated)
     }
 
     @Test
@@ -54,7 +78,7 @@ class SessionViewModelTest {
         repo.setSignedIn(true)
         assertEquals(true, viewModel.state.value is SessionState.Authenticated)
         repo.signOut()
-        assertEquals(SessionState.Unauthenticated, viewModel.state.value)
+        assertEquals(true, viewModel.state.value is SessionState.Unauthenticated)
     }
 
     @Test

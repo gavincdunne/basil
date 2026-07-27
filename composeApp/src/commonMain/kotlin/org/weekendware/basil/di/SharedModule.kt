@@ -24,6 +24,7 @@ import org.weekendware.basil.data.repository.SupabaseProfileRepository
 import org.weekendware.basil.data.repository.UserRepository
 import org.weekendware.basil.domain.usecase.GetUserUseCase
 import org.weekendware.basil.domain.usecase.SendMessageUseCase
+import org.weekendware.basil.domain.usecase.SyncOnboardingToSupabaseUseCase
 import org.weekendware.basil.presentation.auth.AuthViewModel
 import org.weekendware.basil.presentation.auth.NewPasswordViewModel
 import org.weekendware.basil.presentation.auth.ResetPasswordViewModel
@@ -63,6 +64,7 @@ val databaseModule = module {
 val useCaseModule = module {
     single { GetUserUseCase(get()) }
     single { SendMessageUseCase(get()) }
+    single { SyncOnboardingToSupabaseUseCase(get(), get(), get()) }
 }
 
 val onboardingModule = module {
@@ -71,13 +73,13 @@ val onboardingModule = module {
 }
 
 val sharedModule = module {
-    viewModel { SessionViewModel(get()) }
+    viewModel { SessionViewModel(get(), get()) }
     viewModel { AuthViewModel(get()) }
     viewModel { ResetPasswordViewModel(get()) }
     viewModel { NewPasswordViewModel(get()) }
     viewModel { VerificationWallViewModel(get()) }
     viewModel { OnboardingViewModel(get(), get(), get(), get()) }
-    viewModel { SaveProgressViewModel(get()) }
+    viewModel { SaveProgressViewModel(get(), get()) }
     viewModel { ProfileViewModel(get(), get(), get()) }
     viewModel { ChatViewModel(get(), get()) }
     viewModel { SettingsViewModel(get()) }
