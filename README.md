@@ -7,13 +7,12 @@ Basil is built on a different premise. Not a tracker. A companion. Something tha
 
 The conversation is the product. Everything else is infrastructure.
 
-- **[The Basil Theme](.github/chapters/theme.md)**
-- **[Auth](.github/chapters/auth.md)**
-
 ---
 
 ## Features
 
+- **[The Basil Theme](.github/chapters/theme.md)**
+- **[Auth](.github/chapters/auth.md)**
 - **Conversation-first** — no forms, no dashboards, no BG numbers. The entire interface is a conversation.
 - **Persistent memory** — a real, evolving picture of who someone is, not a session that resets every time they open the app.
 - **Time-of-day presence** — color, tone, and lighting shift through the day, so the app feels like it's actually there with the user.
