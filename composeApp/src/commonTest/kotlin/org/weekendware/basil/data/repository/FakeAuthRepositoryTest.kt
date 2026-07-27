@@ -20,28 +20,23 @@ import kotlin.test.assertTrue
 class FakeAuthRepositoryTest {
 
     @Test
-    fun `successful Google sign-in establishes a session`() = runTest {
+    fun `recordLastUsedEmail updates lastUsedEmail`() {
         val repo = FakeAuthRepository()
-        val result = repo.signInWithGoogle()
-        assertTrue(result.isSuccess)
-        assertTrue(repo.isSignedIn())
+        assertNull(repo.lastUsedEmail())
+
+        repo.recordLastUsedEmail("user@example.com")
+
+        assertEquals("user@example.com", repo.lastUsedEmail())
     }
 
     @Test
-    fun `failed Google sign-in does not establish a session`() = runTest {
+    fun `recordLastUsedEmail overwrites a previously recorded email`() {
         val repo = FakeAuthRepository()
-        repo.googleSignInResult = Result.failure(Exception("cancelled"))
-        val result = repo.signInWithGoogle()
-        assertTrue(result.isFailure)
-        assertFalse(repo.isSignedIn())
-    }
+        repo.recordLastUsedEmail("old@example.com")
 
-    @Test
-    fun `successful Apple sign-in establishes a session`() = runTest {
-        val repo = FakeAuthRepository()
-        val result = repo.signInWithApple()
-        assertTrue(result.isSuccess)
-        assertTrue(repo.isSignedIn())
+        repo.recordLastUsedEmail("new@example.com")
+
+        assertEquals("new@example.com", repo.lastUsedEmail())
     }
 
     @Test

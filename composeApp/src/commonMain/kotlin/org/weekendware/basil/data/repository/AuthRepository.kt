@@ -39,11 +39,15 @@ interface AuthRepository {
     //    deep links, and detect-by-email — added ahead of implementation.
     //    SupabaseAuthRepository stubs these with TODO() for Backend Builder.
 
-    /** Signs in via Google. Platform-specific implementation. */
-    suspend fun signInWithGoogle(): Result<Unit>
-
-    /** Signs in via Apple. iOS only natively; OAuth redirect on other platforms. */
-    suspend fun signInWithApple(): Result<Unit>
+    /**
+     * Records [email] as the last-used sign-in email, for the detect-by-email
+     * heuristic on next launch. Google/Apple sign-in go through compose-auth's
+     * native flow directly against the Koin-injected SupabaseClient (bypassing
+     * this repository for the actual OAuth exchange) — [AuthViewModel] calls
+     * this afterward using [currentUserEmail], since there's no typed email
+     * field on that path the way there is for [signIn]/[signUp].
+     */
+    fun recordLastUsedEmail(email: String)
 
     /** Sends a password reset email with a deep link back to the app. */
     suspend fun resetPassword(email: String): Result<Unit>

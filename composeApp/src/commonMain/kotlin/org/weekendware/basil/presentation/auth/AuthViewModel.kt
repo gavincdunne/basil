@@ -9,6 +9,7 @@ import kotlinx.coroutines.launch
 import androidx.compose.runtime.Immutable
 import basil.composeapp.generated.resources.Res
 import basil.composeapp.generated.resources.error_auth_failed
+import io.github.jan.supabase.compose.auth.composable.NativeSignInResult
 import org.jetbrains.compose.resources.StringResource
 import org.weekendware.basil.data.repository.AuthRepository
 
@@ -126,17 +127,30 @@ class AuthViewModel(
         }
     }
 
-    fun onGoogleSignIn() = signInWithProvider(authRepository::signInWithGoogle)
-    fun onAppleSignIn() = signInWithProvider(authRepository::signInWithApple)
+    /**
+     * Called right before `.startFlow()` on compose-auth's remembered
+     * Google/Apple sign-in action, from [AuthScreen]. The actual OAuth or
+     * native-credential ceremony runs entirely inside that composable,
+     * outside this ViewModel and outside [AuthRepository] — this only
+     * manages the loading/error state around it.
+     */
+    fun onSocialSignInStarted() = _state.update { it.copy(isLoading = true, error = null) }
 
-    private fun signInWithProvider(provider: suspend () -> Result<Unit>) {
-        _state.update { it.copy(isLoading = true, error = null) }
-        viewModelScope.launch {
-            val result = provider()
-            result.fold(
-                onSuccess = { _state.update { it.copy(isLoading = false) } },
-                onFailure = { _state.update { it.copy(isLoading = false, error = Res.string.error_auth_failed) } }
-            )
+    /**
+     * The `onResult` callback passed to compose-auth's
+     * `rememberSignInWithGoogle`/`rememberSignInWithApple`. One handler for
+     * both providers — the state transitions are identical regardless of
+     * which one the user tapped.
+     */
+    fun onSocialSignInResult(result: NativeSignInResult) {
+        when (result) {
+            is NativeSignInResult.Success -> {
+                authRepository.currentUserEmail()?.let(authRepository::recordLastUsedEmail)
+                _state.update { it.copy(isLoading = false) }
+            }
+            is NativeSignInResult.ClosedByUser -> _state.update { it.copy(isLoading = false) }
+            is NativeSignInResult.NetworkError, is NativeSignInResult.Error ->
+                _state.update { it.copy(isLoading = false, error = Res.string.error_auth_failed) }
         }
     }
 }

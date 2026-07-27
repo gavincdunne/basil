@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import basil.composeapp.generated.resources.Res
 import basil.composeapp.generated.resources.error_auth_failed
+import io.github.jan.supabase.compose.auth.composable.NativeSignInResult
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -68,8 +69,21 @@ class SaveProgressViewModel(
         }
     }
 
-    fun onGoogleSignUp() = signUpWithProvider(authRepository::signInWithGoogle)
-    fun onAppleSignUp() = signUpWithProvider(authRepository::signInWithApple)
+    /** Called right before `.startFlow()` on compose-auth's remembered Google/Apple action, from [SaveProgressScreen]. */
+    fun onSocialSignUpStarted() = _state.update { it.copy(isLoading = true, error = null) }
+
+    /** The `onResult` callback passed to `rememberSignInWithGoogle`/`rememberSignInWithApple` — same shape as [org.weekendware.basil.presentation.auth.AuthViewModel.onSocialSignInResult]. */
+    fun onSocialSignUpResult(result: NativeSignInResult) {
+        when (result) {
+            is NativeSignInResult.Success -> {
+                authRepository.currentUserEmail()?.let(authRepository::recordLastUsedEmail)
+                _state.update { it.copy(isLoading = false) }
+            }
+            is NativeSignInResult.ClosedByUser -> _state.update { it.copy(isLoading = false) }
+            is NativeSignInResult.NetworkError, is NativeSignInResult.Error ->
+                _state.update { it.copy(isLoading = false, error = Res.string.error_auth_failed) }
+        }
+    }
 
     fun onCreateAccount() {
         val current = _state.value
@@ -79,17 +93,6 @@ class SaveProgressViewModel(
 
         viewModelScope.launch {
             val result = authRepository.signUp(current.email, current.password)
-            result.fold(
-                onSuccess = { _state.update { it.copy(isLoading = false) } },
-                onFailure = { _state.update { it.copy(isLoading = false, error = Res.string.error_auth_failed) } }
-            )
-        }
-    }
-
-    private fun signUpWithProvider(provider: suspend () -> Result<Unit>) {
-        _state.update { it.copy(isLoading = true, error = null) }
-        viewModelScope.launch {
-            val result = provider()
             result.fold(
                 onSuccess = { _state.update { it.copy(isLoading = false) } },
                 onFailure = { _state.update { it.copy(isLoading = false, error = Res.string.error_auth_failed) } }

@@ -50,6 +50,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import io.github.jan.supabase.SupabaseClient
+import io.github.jan.supabase.compose.auth.composable.rememberSignInWithApple
+import io.github.jan.supabase.compose.auth.composable.rememberSignInWithGoogle
+import io.github.jan.supabase.compose.auth.composeAuth
 import basil.composeapp.generated.resources.Res
 import basil.composeapp.generated.resources.app_name
 import basil.composeapp.generated.resources.auth_continue
@@ -73,6 +77,7 @@ import basil.composeapp.generated.resources.cd_show_password
 import basil.composeapp.generated.resources.error_auth_failed
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.weekendware.basil.presentation.theme.BasilPalette
 import org.weekendware.basil.presentation.theme.BasilTheme
@@ -96,6 +101,17 @@ import org.weekendware.basil.presentation.theme.BasilTokens
 fun AuthScreen(onGetStarted: () -> Unit = {}, onForgotPassword: (String) -> Unit = {}) {
     val viewModel = koinViewModel<AuthViewModel>()
     val state by viewModel.state.collectAsStateWithLifecycle()
+
+    // compose-auth's actions live here, not in AuthViewModel — the actual
+    // OAuth/native-credential ceremony runs inside these composables
+    // (Android CredentialManager for Google, iOS AuthenticationServices for
+    // Apple; standard OAuth browser redirect as the fallback everywhere
+    // else), directly against the Koin-injected SupabaseClient. The
+    // ViewModel only reacts to the result via onSocialSignInResult.
+    val supabaseClient = koinInject<SupabaseClient>()
+    val googleSignIn = supabaseClient.composeAuth.rememberSignInWithGoogle(onResult = viewModel::onSocialSignInResult)
+    val appleSignIn = supabaseClient.composeAuth.rememberSignInWithApple(onResult = viewModel::onSocialSignInResult)
+
     AuthScreenContent(
         state                       = state,
         onEmailChange               = viewModel::onEmailChange,
@@ -104,8 +120,8 @@ fun AuthScreen(onGetStarted: () -> Unit = {}, onForgotPassword: (String) -> Unit
         onContinueEmail             = viewModel::onContinueEmail,
         onUseDifferentAccount       = viewModel::onUseDifferentAccount,
         onSubmit                    = viewModel::submit,
-        onGoogleSignIn              = viewModel::onGoogleSignIn,
-        onAppleSignIn               = viewModel::onAppleSignIn,
+        onGoogleSignIn              = { viewModel.onSocialSignInStarted(); googleSignIn.startFlow() },
+        onAppleSignIn               = { viewModel.onSocialSignInStarted(); appleSignIn.startFlow() },
         onGetStarted                = onGetStarted,
         onForgotPassword            = onForgotPassword,
     )

@@ -8,6 +8,7 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import basil.composeapp.generated.resources.Res
 import basil.composeapp.generated.resources.error_auth_failed
+import io.github.jan.supabase.compose.auth.composable.NativeSignInResult
 import org.weekendware.basil.data.repository.FakeAuthRepository
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
@@ -116,19 +117,47 @@ class SaveProgressViewModelTest {
         assertFalse(viewModel.state.value.isLoading)
     }
 
+    // ── social sign-up (Google/Apple via compose-auth) ────────
+    // Same shape as AuthViewModelTest's social sign-in cases.
+
     @Test
-    fun `successful onGoogleSignUp signs in and clears loading`() = runTest {
-        viewModel.onGoogleSignUp()
+    fun `onSocialSignUpResult Success clears loading and records the signed-in email`() {
+        repo.setSignedIn(true)
+        viewModel.onSocialSignUpStarted()
+
+        viewModel.onSocialSignUpResult(NativeSignInResult.Success)
+
         val state = viewModel.state.value
         assertFalse(state.isLoading)
         assertNull(state.error)
-        assertTrue(repo.isSignedIn())
+        assertEquals("fake@example.com", repo.lastUsedEmail())
     }
 
     @Test
-    fun `failed onAppleSignUp surfaces an error`() = runTest {
-        repo.appleSignInResult = Result.failure(Exception("cancelled"))
-        viewModel.onAppleSignUp()
+    fun `onSocialSignUpStarted sets loading and clears error`() {
+        viewModel.onSocialSignUpStarted()
+        val state = viewModel.state.value
+        assertTrue(state.isLoading)
+        assertNull(state.error)
+    }
+
+    @Test
+    fun `onSocialSignUpResult ClosedByUser clears loading without an error`() {
+        viewModel.onSocialSignUpStarted()
+
+        viewModel.onSocialSignUpResult(NativeSignInResult.ClosedByUser)
+
+        val state = viewModel.state.value
+        assertFalse(state.isLoading)
+        assertNull(state.error)
+    }
+
+    @Test
+    fun `onSocialSignUpResult Error surfaces an error`() {
+        viewModel.onSocialSignUpStarted()
+
+        viewModel.onSocialSignUpResult(NativeSignInResult.Error("cancelled"))
+
         val state = viewModel.state.value
         assertEquals(Res.string.error_auth_failed, state.error)
         assertFalse(state.isLoading)

@@ -1,5 +1,6 @@
 package org.weekendware.basil.di
 
+import com.russhwolf.settings.Settings
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 import org.weekendware.basil.data.local.database.DatabaseProvider
@@ -47,7 +48,8 @@ val chatModule = module {
 
 val supabaseModule = module {
     single { createSupabaseClient() }
-    single<AuthRepository> { SupabaseAuthRepository(get()) }
+    single { Settings() }
+    single<AuthRepository> { SupabaseAuthRepository(get(), get()) }
     single<AvatarRepository> { SupabaseAvatarRepository(get()) }
 }
 

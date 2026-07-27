@@ -48,6 +48,10 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import io.github.jan.supabase.SupabaseClient
+import io.github.jan.supabase.compose.auth.composable.rememberSignInWithApple
+import io.github.jan.supabase.compose.auth.composable.rememberSignInWithGoogle
+import io.github.jan.supabase.compose.auth.composeAuth
 import basil.composeapp.generated.resources.Res
 import basil.composeapp.generated.resources.auth_continue_with_apple
 import basil.composeapp.generated.resources.auth_continue_with_google
@@ -65,6 +69,7 @@ import basil.composeapp.generated.resources.save_progress_maybe_later
 import basil.composeapp.generated.resources.save_progress_title
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.weekendware.basil.presentation.auth.PasswordRequirement
 import org.weekendware.basil.presentation.auth.PasswordStrength
@@ -96,6 +101,11 @@ fun SaveProgressScreen(onMaybeLater: () -> Unit = {}) {
     val viewModel = koinViewModel<SaveProgressViewModel>()
     val state by viewModel.state.collectAsStateWithLifecycle()
 
+    // Same compose-auth wiring pattern as AuthScreen — see the note there.
+    val supabaseClient = koinInject<SupabaseClient>()
+    val googleSignUp = supabaseClient.composeAuth.rememberSignInWithGoogle(onResult = viewModel::onSocialSignUpResult)
+    val appleSignUp = supabaseClient.composeAuth.rememberSignInWithApple(onResult = viewModel::onSocialSignUpResult)
+
     SaveProgressScreenContent(
         state                      = state,
         onContinueWithEmail        = viewModel::onContinueWithEmail,
@@ -103,8 +113,8 @@ fun SaveProgressScreen(onMaybeLater: () -> Unit = {}) {
         onEmailChange              = viewModel::onEmailChange,
         onPasswordChange           = viewModel::onPasswordChange,
         onTogglePasswordVisibility = viewModel::onTogglePasswordVisibility,
-        onGoogleSignUp             = viewModel::onGoogleSignUp,
-        onAppleSignUp              = viewModel::onAppleSignUp,
+        onGoogleSignUp             = { viewModel.onSocialSignUpStarted(); googleSignUp.startFlow() },
+        onAppleSignUp              = { viewModel.onSocialSignUpStarted(); appleSignUp.startFlow() },
         onCreateAccount            = viewModel::onCreateAccount,
         onMaybeLater               = onMaybeLater,
     )

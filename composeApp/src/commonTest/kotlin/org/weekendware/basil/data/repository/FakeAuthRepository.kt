@@ -21,8 +21,6 @@ class FakeAuthRepository : AuthRepository {
 
     var signInResult: Result<Unit> = Result.success(Unit)
     var signUpResult: Result<Unit> = Result.success(Unit)
-    var googleSignInResult: Result<Unit> = Result.success(Unit)
-    var appleSignInResult: Result<Unit> = Result.success(Unit)
     var resetPasswordResult: Result<Unit> = Result.success(Unit)
     var updatePasswordResult: Result<Unit> = Result.success(Unit)
     var resendVerificationResult: Result<Unit> = Result.success(Unit)
@@ -77,14 +75,8 @@ class FakeAuthRepository : AuthRepository {
     override fun currentUserEmail(): String? = if (_sessionFlow.value) "fake@example.com" else null
     override fun isSignedIn(): Boolean = _sessionFlow.value
 
-    override suspend fun signInWithGoogle(): Result<Unit> {
-        if (googleSignInResult.isSuccess) _sessionFlow.value = true
-        return googleSignInResult
-    }
-
-    override suspend fun signInWithApple(): Result<Unit> {
-        if (appleSignInResult.isSuccess) _sessionFlow.value = true
-        return appleSignInResult
+    override fun recordLastUsedEmail(email: String) {
+        storedLastUsedEmail = email
     }
 
     override suspend fun resetPassword(email: String): Result<Unit> {
