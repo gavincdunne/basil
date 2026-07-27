@@ -7,8 +7,7 @@ package org.weekendware.basil.data.repository
  * server. Identical across platforms, so unlike [AuthRepository] this is a
  * plain class, not `expect`/`actual`.
  *
- * **Not implemented here.** QA scaffolding only — see
- * [DeepLinkHandlerTest] for the full contract.
+ * See [DeepLinkHandlerTest] for the full contract.
  */
 class DeepLinkHandler(private val authRepository: AuthRepository) {
 
@@ -18,6 +17,7 @@ class DeepLinkHandler(private val authRepository: AuthRepository) {
      * dropped silently — no exception, no crash.
      */
     suspend fun handle(url: String) {
-        TODO("Not yet implemented — see tdd-splash-auth-07222026.md, DeepLinkHandler")
+        if (!DeepLinkValidator.isAllowed(url)) return
+        authRepository.handleDeepLink(url)
     }
 }
