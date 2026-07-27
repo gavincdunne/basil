@@ -1,7 +1,8 @@
 # Basil
 *Built by WeekendWare*
 
-**[The Basil Theme →](.github/chapters/theme.md)** · **[Auth →](.github/chapters/auth.md)**
+- **[The Basil Theme](.github/chapters/theme.md)**
+- **[Auth](.github/chapters/auth.md)**
 
 Type 1 Diabetes doesn't pause. It's there at 2am when your CGM alerts. It's there before a run, before a meal, in every conversation where you have to explain yourself. People living with T1D carry a cognitive load that most health apps make heavier — tracking inputs, logging outputs, reducing a life to data points.
 
@@ -31,7 +32,7 @@ The market for AI-powered chronic condition companions is early and largely unoc
 
 ### The experience
 
-The app is designed around time-of-day — color, tone, and lighting shift through four periods with smooth 10-second transitions. It's a product that feels alive because it responds to the actual moment the user is in, not a generic session state. Full breakdown and screenshots in the [Theme chapter](.github/chapters/theme.md).
+The app is designed around time-of-day — color, tone, and lighting shift through four periods with smooth 10-second transitions. It's a product that feels alive because it responds to the actual moment the user is in, not a generic session state. Full breakdown and screenshots in [The Basil Theme](.github/chapters/theme.md).
 
 ---
 
@@ -72,9 +73,9 @@ Each layer depends only on the layer below it. ViewModels and use cases depend o
 ### What's built
 
 **App infrastructure**
-- **Auth** — see the [Auth chapter](.github/chapters/auth.md)
+- **Auth** — see [Auth](.github/chapters/auth.md)
 - **Navigation** — state-based routing driven by `AnimatedContent` and pure functions (`unauthenticatedDestination()`, `authenticatedDestination()`) rather than a navigation library; bottom tab bar (Profile, Chat, More); Settings slides in as a full-screen overlay via `graphicsLayer` translation
-- **Theme** — see the [Theme chapter](.github/chapters/theme.md)
+- **Theme** — see [The Basil Theme](.github/chapters/theme.md)
 - **Crash reporting** — Sentry across all three targets with `PhiScrubber` stripping health data before any event leaves the device
 - **CI/CD** — GitHub Actions running Detekt, Android compile + test, and iOS framework build on every push
 
@@ -101,7 +102,7 @@ This is table stakes for any health product. It ships from day one, not as a com
 
 The foundation is in. What ships next is the core product.
 
-- [ ] **Passkeys** — the contract and biometric-attempt UI states are scaffolded and tested, but implementation is blocked on DevOps prerequisites (`apple-app-site-association` / `assetlinks.json` on a live production domain) — see the [Auth chapter](.github/chapters/auth.md)
+- [ ] **Passkeys** — the contract and biometric-attempt UI states are scaffolded and tested, but implementation is blocked on DevOps prerequisites (`apple-app-site-association` / `assetlinks.json` on a live production domain) — see [Auth](.github/chapters/auth.md)
 - [ ] **Check-in system** — Basil reaches out. You respond. That exchange is stored and becomes the basis for everything that follows.
 - [ ] **Persistent memory** — Basil builds a real picture of this person over time. Not a summary. A context.
 - [ ] **Chat history sync** — conversation history not yet persisted to Supabase; each session is stateless
