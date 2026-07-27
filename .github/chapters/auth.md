@@ -4,9 +4,6 @@
 
 Basil's auth system is built around one idea: the conversation comes first. A brand-new user never sees a login screen before they've talked to Basil — onboarding runs entirely before any account exists, and account creation happens at the end, framed as "save your progress," not "sign up."
 
-<img src="../assets/onboarding-opening.png" width="220" alt="Onboarding opening screen, running pre-auth"/>
-<br/><sub>First launch — onboarding starts immediately, no login screen in the way</sub>
-
 ## Full silent account provisioning
 
 Where an unauthenticated user lands is a pure function of two persisted facts, not a fixed screen:
