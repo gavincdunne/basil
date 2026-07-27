@@ -10,13 +10,10 @@ import kotlin.test.assertTrue
  * classification (Weak/Medium/Strong), the length and special-character
  * boundaries, and requirement-list shape and determinism.
  *
- * All cases are expected to fail with `NotImplementedError` until Backend
- * Builder implements [PasswordStrengthValidator.validate].
- *
- * Deliberately does not assert on [PasswordRequirement.label] — copy is
- * pending a Copywriter pass and is out of scope for this validator's
- * contract. Tests assert only on strength classification, `met` values,
- * and list shape/order.
+ * Deliberately does not assert on [PasswordRequirement.label] contents —
+ * only that a label exists — since Copywriter owns the exact wording.
+ * Tests assert on strength classification, `met` values, and list
+ * shape/order.
  */
 class PasswordStrengthValidatorTest {
 
@@ -28,12 +25,15 @@ class PasswordStrengthValidatorTest {
     }
 
     @Test
-    fun `password meeting zero requirements is Weak`() {
-        // Below length, no uppercase, no digit, no special char.
+    fun `password meeting exactly one requirement is Weak`() {
+        // "abc" meets only lowercase. Meeting literally zero of the five is
+        // impossible for any non-empty password — every character is upper,
+        // lower, digit, or special, so at least one requirement always holds.
+        // The empty-password case above is the only true "nothing met" state.
         val (strength, requirements) = PasswordStrengthValidator.validate("abc")
         assertEquals(PasswordStrength.Weak, strength)
         assertEquals(5, requirements.size)
-        assertTrue(requirements.none { it.met })
+        assertEquals(1, requirements.count { it.met })
     }
 
     @Test
