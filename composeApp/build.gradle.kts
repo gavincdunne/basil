@@ -91,7 +91,6 @@ kotlin {
         desktopTest.dependencies {
             implementation(libs.kotlin.testJunit)
             implementation(libs.sqlite.driver)
-            implementation(libs.mockito.kotlin)
             implementation(libs.kotlinx.coroutinesTest)
         }
         iosMain.dependencies {

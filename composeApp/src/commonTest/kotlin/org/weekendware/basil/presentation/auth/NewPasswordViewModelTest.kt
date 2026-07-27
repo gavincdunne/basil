@@ -45,7 +45,7 @@ class NewPasswordViewModelTest {
     }
 
     @Test
-    fun `initial state has no strength, empty fields, cannot submit`() {
+    fun `initial state has no strength and empty fields and cannot submit`() {
         val state = viewModel.state.value
         assertEquals("", state.password)
         assertEquals("", state.confirmPassword)

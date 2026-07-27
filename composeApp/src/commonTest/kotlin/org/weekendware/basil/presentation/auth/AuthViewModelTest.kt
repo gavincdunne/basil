@@ -38,7 +38,7 @@ class AuthViewModelTest {
     }
 
     @Test
-    fun `initial state is the email step, sign-in mode, nothing entered`() {
+    fun `initial state is the email step in sign-in mode with nothing entered`() {
         val state = viewModel.state.value
         assertTrue(state.emailStep)
         assertEquals(AuthMode.SignIn, state.mode)

@@ -115,7 +115,7 @@ class PasswordStrengthValidatorTest {
     }
 
     @Test
-    fun `requirements list has exactly one entry per requirement, in a fixed order`() {
+    fun `requirements list has exactly one entry per requirement in a fixed order`() {
         // An all-digit, 8-character password meets only length and number —
         // no letters means no uppercase/lowercase, and digits don't count as
         // special characters. met=true should land at exactly those two

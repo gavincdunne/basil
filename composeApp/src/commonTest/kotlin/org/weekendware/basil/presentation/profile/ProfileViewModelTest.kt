@@ -17,6 +17,7 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class ProfileViewModelTest {
@@ -88,7 +89,7 @@ class ProfileViewModelTest {
         viewModel.onAvatarPicked(ByteArray(4))
         val state = viewModel.state.value
         assertNull(state.avatarUrl)
-        assert(state.error != null)
+        assertTrue(state.error != null)
     }
 
     @Test

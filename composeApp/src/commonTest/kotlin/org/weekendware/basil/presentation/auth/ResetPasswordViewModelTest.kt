@@ -37,7 +37,7 @@ class ResetPasswordViewModelTest {
     }
 
     @Test
-    fun `initial state is not sent, nothing entered`() {
+    fun `initial state is not sent and nothing entered`() {
         val state = viewModel.state.value
         assertEquals("", state.email)
         assertFalse(state.isSent)
@@ -81,7 +81,7 @@ class ResetPasswordViewModelTest {
     }
 
     @Test
-    fun `resend calls sendResetLink again, incrementing the call count`() = runTest {
+    fun `resend calls sendResetLink again and increments the call count`() = runTest {
         viewModel.onEmailChange("user@test.com")
         viewModel.sendResetLink()
         assertEquals(1, repo.resetPasswordCallCount)

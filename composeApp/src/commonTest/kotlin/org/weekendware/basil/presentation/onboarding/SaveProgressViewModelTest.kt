@@ -44,7 +44,7 @@ class SaveProgressViewModelTest {
     }
 
     @Test
-    fun `initial state is the choose-method step, nothing entered`() {
+    fun `initial state is the choose-method step with nothing entered`() {
         val state = viewModel.state.value
         assertEquals(SaveProgressStep.ChooseMethod, state.step)
         assertEquals("", state.email)
