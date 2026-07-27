@@ -62,7 +62,6 @@ kotlin {
             implementation(libs.koin.core)
             implementation(libs.koin.compose)
             implementation(libs.koin.compose.viewmodel)
-            implementation(libs.androidx.navigation.compose)
             implementation(libs.supabase.auth)
             implementation(libs.supabase.storage)
             implementation(libs.supabase.postgrest)

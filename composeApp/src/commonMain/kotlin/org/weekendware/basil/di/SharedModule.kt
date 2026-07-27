@@ -13,6 +13,7 @@ import org.weekendware.basil.data.repository.AuthRepository
 import org.weekendware.basil.data.repository.AvatarRepository
 import org.weekendware.basil.data.repository.ChatRepository
 import org.weekendware.basil.data.repository.DataStoreOnboardingRepository
+import org.weekendware.basil.data.repository.DeepLinkHandler
 import org.weekendware.basil.data.repository.KtorChatRepository
 import org.weekendware.basil.data.repository.OnboardingLocalRepository
 import org.weekendware.basil.data.repository.ProfileRepository
@@ -51,6 +52,7 @@ val supabaseModule = module {
     single { Settings() }
     single<AuthRepository> { SupabaseAuthRepository(get(), get()) }
     single<AvatarRepository> { SupabaseAvatarRepository(get()) }
+    single { DeepLinkHandler(get()) }
 }
 
 val databaseModule = module {
