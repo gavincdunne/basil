@@ -1,14 +1,14 @@
 # Basil
 *Built by WeekendWare*
 
-- **[The Basil Theme](.github/chapters/theme.md)**
-- **[Auth](.github/chapters/auth.md)**
-
 Type 1 Diabetes doesn't pause. It's there at 2am when your CGM alerts. It's there before a run, before a meal, in every conversation where you have to explain yourself. People living with T1D carry a cognitive load that most health apps make heavier — tracking inputs, logging outputs, reducing a life to data points.
 
 Basil is built on a different premise. Not a tracker. A companion. Something that knows what your days actually look like, remembers what you've shared, and is worth talking to — when you have a question, a hard moment, or just need to think out loud.
 
 The conversation is the product. Everything else is infrastructure.
+
+- **[The Basil Theme](.github/chapters/theme.md)**
+- **[Auth](.github/chapters/auth.md)**
 
 ---
 
