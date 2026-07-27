@@ -44,6 +44,8 @@ import org.koin.compose.viewmodel.koinViewModel
 import org.weekendware.basil.presentation.theme.BasilPalette
 import org.weekendware.basil.presentation.theme.BasilTheme
 import org.weekendware.basil.presentation.theme.BasilTokens
+import org.weekendware.basil.presentation.theme.authHeadingStyle
+import org.weekendware.basil.presentation.theme.authHeroWordmarkStyle
 
 /**
  * Shown when a user has gone 30+ days without verifying their email — the
@@ -90,7 +92,7 @@ fun VerificationWallScreenContent(
                 Text(text = "b", style = MaterialTheme.typography.headlineMedium, color = Color.White)
             }
             Spacer(Modifier.height(8.dp))
-            Text(text = stringResource(Res.string.app_name), style = MaterialTheme.typography.displaySmall, color = Color.White)
+            Text(text = stringResource(Res.string.app_name), style = authHeroWordmarkStyle(), color = Color.White)
         }
 
         Column(
@@ -109,7 +111,7 @@ fun VerificationWallScreenContent(
             Spacer(Modifier.height(20.dp))
             Text(
                 text      = stringResource(Res.string.auth_verify_wall_title),
-                style     = MaterialTheme.typography.headlineSmall,
+                style     = authHeadingStyle(),
                 color     = BasilPalette.AuthNearBlack,
                 textAlign = TextAlign.Center,
             )

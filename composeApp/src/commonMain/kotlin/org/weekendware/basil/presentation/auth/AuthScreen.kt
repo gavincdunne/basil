@@ -82,6 +82,8 @@ import org.koin.compose.viewmodel.koinViewModel
 import org.weekendware.basil.presentation.theme.BasilPalette
 import org.weekendware.basil.presentation.theme.BasilTheme
 import org.weekendware.basil.presentation.theme.BasilTokens
+import org.weekendware.basil.presentation.theme.authHeadingStyle
+import org.weekendware.basil.presentation.theme.authHeroWordmarkStyle
 
 /**
  * Authentication screen, shown when no valid session exists.
@@ -199,7 +201,7 @@ private fun AuthHeroBand(showTagline: Boolean) {
         Spacer(Modifier.height(8.dp))
         Text(
             text  = stringResource(Res.string.app_name),
-            style = MaterialTheme.typography.displaySmall,
+            style = authHeroWordmarkStyle(),
             color = Color.White,
         )
         if (showTagline) {
@@ -310,7 +312,7 @@ private fun SignInForm(
         Spacer(Modifier.height(16.dp))
         Text(
             text  = stringResource(Res.string.auth_welcome_back),
-            style = MaterialTheme.typography.headlineSmall,
+            style = authHeadingStyle(),
             color = BasilPalette.AuthNearBlack,
         )
         Spacer(Modifier.height(4.dp))

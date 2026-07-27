@@ -60,6 +60,8 @@ import org.koin.compose.viewmodel.koinViewModel
 import org.weekendware.basil.presentation.theme.BasilPalette
 import org.weekendware.basil.presentation.theme.BasilTheme
 import org.weekendware.basil.presentation.theme.BasilTokens
+import org.weekendware.basil.presentation.theme.authHeadingStyle
+import org.weekendware.basil.presentation.theme.authHeroWordmarkStyle
 
 /**
  * New-password screen (AUTH-07) — reached via a password-reset deep link,
@@ -113,7 +115,7 @@ fun NewPasswordScreenContent(
                 Text(text = "b", style = MaterialTheme.typography.headlineMedium, color = Color.White)
             }
             Spacer(Modifier.height(8.dp))
-            Text(text = stringResource(Res.string.app_name), style = MaterialTheme.typography.displaySmall, color = Color.White)
+            Text(text = stringResource(Res.string.app_name), style = authHeroWordmarkStyle(), color = Color.White)
         }
 
         Column(
@@ -125,7 +127,7 @@ fun NewPasswordScreenContent(
         ) {
             Text(
                 text  = stringResource(Res.string.auth_new_password_title),
-                style = MaterialTheme.typography.headlineSmall,
+                style = authHeadingStyle(),
                 color = BasilPalette.AuthNearBlack,
             )
             Spacer(Modifier.height(4.dp))

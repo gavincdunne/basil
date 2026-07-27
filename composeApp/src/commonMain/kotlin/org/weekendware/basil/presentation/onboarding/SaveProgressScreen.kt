@@ -76,6 +76,7 @@ import org.weekendware.basil.presentation.auth.PasswordStrength
 import org.weekendware.basil.presentation.theme.BasilPalette
 import org.weekendware.basil.presentation.theme.BasilTheme
 import org.weekendware.basil.presentation.theme.BasilTokens
+import org.weekendware.basil.presentation.theme.authHeadingStyle
 import org.weekendware.basil.presentation.theme.backgroundBrush
 import org.weekendware.basil.presentation.theme.basilColors
 
@@ -203,7 +204,7 @@ private fun ChooseMethodContent(
 ) {
     Text(
         text  = stringResource(Res.string.save_progress_title),
-        style = MaterialTheme.typography.headlineSmall,
+        style = authHeadingStyle(),
         color = BasilPalette.AuthNearBlack,
     )
     Spacer(Modifier.height(16.dp))

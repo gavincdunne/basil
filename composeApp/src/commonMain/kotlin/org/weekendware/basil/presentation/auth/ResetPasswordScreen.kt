@@ -57,6 +57,7 @@ import org.koin.compose.viewmodel.koinViewModel
 import org.weekendware.basil.presentation.theme.BasilPalette
 import org.weekendware.basil.presentation.theme.BasilTheme
 import org.weekendware.basil.presentation.theme.BasilTokens
+import org.weekendware.basil.presentation.theme.authHeadingStyle
 
 /**
  * Password reset screen — AUTH-05 (request form) before a link has been
@@ -149,7 +150,7 @@ private fun ResetRequestContent(
     ) {
         Text(
             text  = stringResource(Res.string.auth_reset_title),
-            style = MaterialTheme.typography.headlineSmall,
+            style = authHeadingStyle(),
             color = BasilPalette.AuthNearBlack,
         )
         Spacer(Modifier.height(4.dp))
@@ -228,7 +229,7 @@ private fun ResetSentContent(email: String, onResend: () -> Unit, onBack: () -> 
         Spacer(Modifier.height(20.dp))
         Text(
             text  = stringResource(Res.string.auth_check_email_title),
-            style = MaterialTheme.typography.headlineSmall,
+            style = authHeadingStyle(),
             color = BasilPalette.AuthNearBlack,
         )
         Spacer(Modifier.height(8.dp))
