@@ -62,10 +62,11 @@ kotlin {
             implementation(libs.koin.core)
             implementation(libs.koin.compose)
             implementation(libs.koin.compose.viewmodel)
-            implementation(libs.androidx.navigation.compose)
             implementation(libs.supabase.auth)
             implementation(libs.supabase.storage)
             implementation(libs.supabase.postgrest)
+            implementation(libs.supabase.composeAuth)
+            implementation(libs.multiplatformSettings.noArg)
             implementation(libs.datastore.preferences)
             implementation(libs.kotlinx.immutable)
             implementation(libs.ktor.client.core)
@@ -91,7 +92,6 @@ kotlin {
         desktopTest.dependencies {
             implementation(libs.kotlin.testJunit)
             implementation(libs.sqlite.driver)
-            implementation(libs.mockito.kotlin)
             implementation(libs.kotlinx.coroutinesTest)
         }
         iosMain.dependencies {
@@ -184,6 +184,7 @@ buildkonfig {
         buildConfigField(STRING, "SENTRY_DSN", localProps["sentry.dsn"] as? String ?: "")
         buildConfigField(STRING, "CHAT_API_URL", localProps["chat.api.url"] as? String ?: "")
         buildConfigField(STRING, "CHAT_API_KEY", localProps["chat.api.key"] as? String ?: "")
+        buildConfigField(STRING, "GOOGLE_WEB_CLIENT_ID", localProps["google.webClientId"] as? String ?: "")
     }
     targetConfigs {
         create("dev") {

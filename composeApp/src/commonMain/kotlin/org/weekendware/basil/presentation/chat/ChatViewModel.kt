@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.StringResource
+import org.weekendware.basil.data.repository.AuthRepository
 import org.weekendware.basil.domain.model.ChatMessage
 import org.weekendware.basil.domain.usecase.SendMessageUseCase
 import kotlin.uuid.ExperimentalUuidApi
@@ -27,6 +28,13 @@ import kotlin.uuid.Uuid
  *                      the user sends a message (shows a typing indicator).
  * @property error      Non-null when the last send attempt failed; cleared by
  *                      calling [ChatViewModel.clearError].
+ * @property showVerificationBanner True when the signed-in user's email is
+ *   unverified and they haven't dismissed the banner yet this session.
+ *   Never true once [org.weekendware.basil.presentation.auth.VerificationWallScreen]
+ *   has taken over (that's a separate, non-dismissible screen for the
+ *   30-day-and-older case) — this banner is only for users still within
+ *   the grace period.
+ * @property isResendingVerification True while a resend request is in flight.
  */
 @Stable
 data class ChatState(
@@ -34,6 +42,8 @@ data class ChatState(
     val input: String = "",
     val isLoading: Boolean = false,
     val error: StringResource? = null,
+    val showVerificationBanner: Boolean = false,
+    val isResendingVerification: Boolean = false,
 )
 
 /**
@@ -43,18 +53,25 @@ data class ChatState(
  * AI backend via [SendMessageUseCase]. Each text delta emitted by the use case
  * is appended to the last assistant message in [state].
  *
- * @param sendMessage    Use case that streams the assistant's reply.
- * @param coroutineScope Scope for async operations. Defaults to [viewModelScope]
- *                       when null. Override in tests with a [TestScope].
+ * @param sendMessage     Use case that streams the assistant's reply.
+ * @param authRepository  Read once on init to decide [ChatState.showVerificationBanner] —
+ *                        this screen is only ever shown to a verified user or one still
+ *                        within the 30-day grace period (the wall takes over past that),
+ *                        so no re-check against days-since-signup is needed here.
+ * @param coroutineScope  Scope for async operations. Defaults to [viewModelScope]
+ *                        when null. Override in tests with a [TestScope].
  */
 class ChatViewModel(
     private val sendMessage: SendMessageUseCase,
+    private val authRepository: AuthRepository,
     coroutineScope: CoroutineScope? = null,
 ) : ViewModel() {
 
     private val scope = coroutineScope ?: viewModelScope
 
-    private val _state = MutableStateFlow(ChatState())
+    private val _state = MutableStateFlow(
+        ChatState(showVerificationBanner = !authRepository.isEmailVerified())
+    )
 
     /** The current UI state. Observed by [ChatScreen] to drive recomposition. */
     val state: StateFlow<ChatState> = _state
@@ -158,6 +175,20 @@ class ChatViewModel(
     /** Dismisses the current error banner. */
     fun clearError() {
         _state.update { it.copy(error = null) }
+    }
+
+    /** Dismisses the verification banner for the rest of this session. */
+    fun onDismissVerificationBanner() {
+        _state.update { it.copy(showVerificationBanner = false) }
+    }
+
+    /** Resends the verification email. Does not dismiss the banner — the user does that separately. */
+    fun onResendVerification() {
+        _state.update { it.copy(isResendingVerification = true) }
+        scope.launch {
+            authRepository.resendVerificationEmail()
+            _state.update { it.copy(isResendingVerification = false) }
+        }
     }
 
     /**

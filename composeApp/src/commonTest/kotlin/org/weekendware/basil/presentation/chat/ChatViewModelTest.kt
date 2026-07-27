@@ -8,10 +8,8 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
-import org.mockito.kotlin.any
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.whenever
-import org.weekendware.basil.data.repository.ChatRepository
+import org.weekendware.basil.data.repository.FakeAuthRepository
+import org.weekendware.basil.data.repository.FakeChatRepository
 import org.weekendware.basil.domain.usecase.SendMessageUseCase
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -21,10 +19,11 @@ import kotlin.test.assertTrue
 
 class ChatViewModelTest {
 
-    private val chatRepository = mock<ChatRepository>()
+    private val chatRepository = FakeChatRepository()
     private val sendMessage = SendMessageUseCase(chatRepository)
+    private val authRepository = FakeAuthRepository().apply { setSignedIn(true) }
 
-    private fun makeVm() = ChatViewModel(sendMessage, coroutineScope = null)
+    private fun makeVm() = ChatViewModel(sendMessage, authRepository, coroutineScope = null)
 
     // ── initial state ─────────────────────────────────────────
 
@@ -81,7 +80,7 @@ class ChatViewModelTest {
 
     @Test
     fun `sendMessage does nothing when input is blank`() = runTest {
-        val vm = ChatViewModel(sendMessage, coroutineScope = this)
+        val vm = ChatViewModel(sendMessage, authRepository, coroutineScope = this)
         vm.onInputChange("   ")
 
         vm.sendMessage()
@@ -93,7 +92,7 @@ class ChatViewModelTest {
 
     @Test
     fun `sendMessage does nothing when input is empty`() = runTest {
-        val vm = ChatViewModel(sendMessage, coroutineScope = this)
+        val vm = ChatViewModel(sendMessage, authRepository, coroutineScope = this)
 
         vm.sendMessage()
         advanceUntilIdle()
@@ -105,8 +104,8 @@ class ChatViewModelTest {
 
     @Test
     fun `sendMessage adds user message to the conversation`() = runTest {
-        whenever(chatRepository.streamChat(any())).thenReturn(flowOf())
-        val vm = ChatViewModel(sendMessage, coroutineScope = this)
+        chatRepository.streamChatFlow = flowOf()
+        val vm = ChatViewModel(sendMessage, authRepository, coroutineScope = this)
         vm.onInputChange("How do I adjust my basal rate?")
 
         vm.sendMessage()
@@ -118,8 +117,8 @@ class ChatViewModelTest {
 
     @Test
     fun `sendMessage clears the input field after sending`() = runTest {
-        whenever(chatRepository.streamChat(any())).thenReturn(flowOf())
-        val vm = ChatViewModel(sendMessage, coroutineScope = this)
+        chatRepository.streamChatFlow = flowOf()
+        val vm = ChatViewModel(sendMessage, authRepository, coroutineScope = this)
         vm.onInputChange("My question")
 
         vm.sendMessage()
@@ -132,8 +131,8 @@ class ChatViewModelTest {
     fun `sendMessage adds an assistant placeholder message before streaming starts`() = runTest {
         // Use a flow that never completes so we can inspect mid-stream state.
         // We just need to verify the assistant message is added.
-        whenever(chatRepository.streamChat(any())).thenReturn(flowOf("Hi"))
-        val vm = ChatViewModel(sendMessage, coroutineScope = this)
+        chatRepository.streamChatFlow = flowOf("Hi")
+        val vm = ChatViewModel(sendMessage, authRepository, coroutineScope = this)
         vm.onInputChange("Hello")
 
         vm.sendMessage()
@@ -145,10 +144,9 @@ class ChatViewModelTest {
 
     @Test
     fun `sendMessage accumulates streaming deltas into assistant message content`() = runTest {
-        whenever(chatRepository.streamChat(any())).thenReturn(
+        chatRepository.streamChatFlow =
             flowOf("Hello", ", ", "how", " can", " I", " help?")
-        )
-        val vm = ChatViewModel(sendMessage, coroutineScope = this)
+        val vm = ChatViewModel(sendMessage, authRepository, coroutineScope = this)
         vm.onInputChange("Hi")
 
         vm.sendMessage()
@@ -161,8 +159,8 @@ class ChatViewModelTest {
 
     @Test
     fun `sendMessage marks isStreaming false on assistant message after flow completes`() = runTest {
-        whenever(chatRepository.streamChat(any())).thenReturn(flowOf("Done"))
-        val vm = ChatViewModel(sendMessage, coroutineScope = this)
+        chatRepository.streamChatFlow = flowOf("Done")
+        val vm = ChatViewModel(sendMessage, authRepository, coroutineScope = this)
         vm.onInputChange("Test")
 
         vm.sendMessage()
@@ -174,8 +172,8 @@ class ChatViewModelTest {
 
     @Test
     fun `sendMessage sets isLoading false after stream completes`() = runTest {
-        whenever(chatRepository.streamChat(any())).thenReturn(flowOf("Hi"))
-        val vm = ChatViewModel(sendMessage, coroutineScope = this)
+        chatRepository.streamChatFlow = flowOf("Hi")
+        val vm = ChatViewModel(sendMessage, authRepository, coroutineScope = this)
         vm.onInputChange("Hello")
 
         vm.sendMessage()
@@ -186,8 +184,8 @@ class ChatViewModelTest {
 
     @Test
     fun `conversation history is passed to the repository on second send`() = runTest {
-        whenever(chatRepository.streamChat(any())).thenReturn(flowOf("Sure!"))
-        val vm = ChatViewModel(sendMessage, coroutineScope = this)
+        chatRepository.streamChatFlow = flowOf("Sure!")
+        val vm = ChatViewModel(sendMessage, authRepository, coroutineScope = this)
 
         vm.onInputChange("First question")
         vm.sendMessage()
@@ -206,10 +204,9 @@ class ChatViewModelTest {
 
     @Test
     fun `sendMessage sets error state when repository throws`() = runTest {
-        whenever(chatRepository.streamChat(any())).thenReturn(
+        chatRepository.streamChatFlow =
             flow { throw RuntimeException("Network error") }
-        )
-        val vm = ChatViewModel(sendMessage, coroutineScope = this)
+        val vm = ChatViewModel(sendMessage, authRepository, coroutineScope = this)
         vm.onInputChange("Will this fail?")
 
         vm.sendMessage()
@@ -220,10 +217,9 @@ class ChatViewModelTest {
 
     @Test
     fun `sendMessage sets isLoading false after error`() = runTest {
-        whenever(chatRepository.streamChat(any())).thenReturn(
+        chatRepository.streamChatFlow =
             flow { throw RuntimeException("Network error") }
-        )
-        val vm = ChatViewModel(sendMessage, coroutineScope = this)
+        val vm = ChatViewModel(sendMessage, authRepository, coroutineScope = this)
         vm.onInputChange("Question")
 
         vm.sendMessage()
@@ -234,13 +230,12 @@ class ChatViewModelTest {
 
     @Test
     fun `sendMessage removes incomplete assistant message on error`() = runTest {
-        whenever(chatRepository.streamChat(any())).thenReturn(
+        chatRepository.streamChatFlow =
             flow {
                 emit("Partial")
                 throw RuntimeException("Stream cut off")
             }
-        )
-        val vm = ChatViewModel(sendMessage, coroutineScope = this)
+        val vm = ChatViewModel(sendMessage, authRepository, coroutineScope = this)
         vm.onInputChange("Question")
 
         vm.sendMessage()
@@ -266,8 +261,8 @@ class ChatViewModelTest {
 
     @Test
     fun `setGreeting does nothing when messages already exist`() = runTest {
-        whenever(chatRepository.streamChat(any())).thenReturn(flowOf("Hi there"))
-        val vm = ChatViewModel(sendMessage, coroutineScope = this)
+        chatRepository.streamChatFlow = flowOf("Hi there")
+        val vm = ChatViewModel(sendMessage, authRepository, coroutineScope = this)
         vm.onInputChange("Hello")
         vm.sendMessage()
         advanceUntilIdle()
@@ -283,10 +278,9 @@ class ChatViewModelTest {
 
     @Test
     fun `clearError removes the error from state`() = runTest {
-        whenever(chatRepository.streamChat(any())).thenReturn(
+        chatRepository.streamChatFlow =
             flow { throw RuntimeException("Network error") }
-        )
-        val vm = ChatViewModel(sendMessage, coroutineScope = this)
+        val vm = ChatViewModel(sendMessage, authRepository, coroutineScope = this)
         vm.onInputChange("Question")
         vm.sendMessage()
         advanceUntilIdle()
@@ -295,5 +289,59 @@ class ChatViewModelTest {
         vm.clearError()
 
         assertNull(vm.state.value.error)
+    }
+
+    // ── verification banner ──────────────────────────────────
+
+    @Test
+    fun `banner is hidden on init when the user is verified`() {
+        authRepository.emailVerified = true
+
+        val vm = makeVm()
+
+        assertFalse(vm.state.value.showVerificationBanner)
+    }
+
+    @Test
+    fun `banner is shown on init when the user is unverified`() {
+        authRepository.emailVerified = false
+
+        val vm = makeVm()
+
+        assertTrue(vm.state.value.showVerificationBanner)
+    }
+
+    @Test
+    fun `onDismissVerificationBanner hides the banner for the rest of the session`() {
+        authRepository.emailVerified = false
+        val vm = makeVm()
+        assertTrue(vm.state.value.showVerificationBanner)
+
+        vm.onDismissVerificationBanner()
+
+        assertFalse(vm.state.value.showVerificationBanner)
+    }
+
+    @Test
+    fun `onResendVerification calls the repository and clears isResendingVerification on completion`() = runTest {
+        authRepository.emailVerified = false
+        val vm = ChatViewModel(sendMessage, authRepository, coroutineScope = this)
+
+        vm.onResendVerification()
+        advanceUntilIdle()
+
+        assertEquals(1, authRepository.resendVerificationCallCount)
+        assertFalse(vm.state.value.isResendingVerification)
+    }
+
+    @Test
+    fun `onResendVerification does not dismiss the banner`() = runTest {
+        authRepository.emailVerified = false
+        val vm = ChatViewModel(sendMessage, authRepository, coroutineScope = this)
+
+        vm.onResendVerification()
+        advanceUntilIdle()
+
+        assertTrue(vm.state.value.showVerificationBanner)
     }
 }

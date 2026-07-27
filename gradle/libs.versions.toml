@@ -21,10 +21,10 @@ kotlinxDatetime = "0.6.0"
 materialIconsExtended = "1.7.3"
 sqldelight = "2.0.1"
 detekt = "1.23.7"
-mockitoKotlin = "5.4.0"
 navigation = "2.8.0-alpha13"
 buildkonfig = "0.15.2"
 supabase = "3.1.4"
+multiplatformSettings = "1.3.0"
 sentry = "0.25.0"
 ktor = "3.1.2"
 coil = "3.1.0"
@@ -44,7 +44,6 @@ detekt-formatting = { module = "io.gitlab.arturbosch.detekt:detekt-formatting", 
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlin-testJunit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
 kotlinx-coroutinesTest = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinx-coroutines" }
-mockito-kotlin = { module = "org.mockito.kotlin:mockito-kotlin", version.ref = "mockitoKotlin" }
 junit = { module = "junit:junit", version.ref = "junit" }
 androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "androidx-core" }
 androidx-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "androidx-splashscreen" }
@@ -63,10 +62,11 @@ sqldelight-androidDriver = { module = "app.cash.sqldelight:android-driver", vers
 sqldelight-nativeDriver = { module = "app.cash.sqldelight:native-driver", version.ref = "sqldelight" }
 sqldelight-coroutines = { module = "app.cash.sqldelight:coroutines-extensions", version.ref = "sqldelight" }
 sqlite-driver = { module = "app.cash.sqldelight:sqlite-driver", version.ref = "sqldelight" }
-androidx-navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "navigation" }
 supabase-auth = { module = "io.github.jan-tennert.supabase:auth-kt", version.ref = "supabase" }
 supabase-storage = { module = "io.github.jan-tennert.supabase:storage-kt", version.ref = "supabase" }
 supabase-postgrest = { module = "io.github.jan-tennert.supabase:postgrest-kt", version.ref = "supabase" }
+supabase-composeAuth = { module = "io.github.jan-tennert.supabase:compose-auth", version.ref = "supabase" }
+multiplatformSettings-noArg = { module = "com.russhwolf:multiplatform-settings-no-arg", version.ref = "multiplatformSettings" }
 datastore-preferences = { module = "androidx.datastore:datastore-preferences-core", version.ref = "datastore" }
 turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
 kotlinx-immutable = { module = "org.jetbrains.kotlinx:kotlinx-collections-immutable", version.ref = "kotlinx-immutable" }

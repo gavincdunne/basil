@@ -7,16 +7,68 @@
     <string name="app_type1_label">Type 1 Diabetes</string>
 
     <!-- ── Auth screen ───────────────────────────────────────── -->
-    <string name="auth_create_account">Create account</string>
+    <string name="auth_tagline">For Type 1 Diabetes</string>
+    <string name="auth_continue">Continue</string>
+    <string name="auth_continue_with_apple">Continue with Apple</string>
+    <string name="auth_continue_with_google">Continue with Google</string>
+    <string name="auth_or">or</string>
     <string name="auth_welcome_back">Welcome back</string>
-    <string name="auth_signup_subtitle">Sign up to meet Basil.</string>
-    <string name="auth_signin_subtitle">Sign in to continue to Basil.</string>
+    <string name="auth_signin_subtitle">Sign in to continue.</string>
     <string name="auth_field_email">Email</string>
     <string name="auth_field_password">Password</string>
-    <string name="auth_email_placeholder">you@example.com</string>
     <string name="auth_sign_in">Sign in</string>
-    <string name="auth_toggle_to_signup">New to Basil? Create account</string>
-    <string name="auth_toggle_to_signin">Already have an account? Sign in</string>
+    <string name="auth_forgot_password">Forgot password?</string>
+    <string name="auth_use_different_account">Use a different account</string>
+    <string name="auth_no_account_title">No account found</string>
+    <string name="auth_no_account_body">Start a conversation to create one.</string>
+    <string name="auth_get_started">Get started</string>
+    <string name="auth_try_different_email">Try a different email</string>
+    <string name="cd_show_password">Show password</string>
+    <string name="cd_hide_password">Hide password</string>
+    <string name="cd_back">Back</string>
+
+    <!-- ── Password reset ────────────────────────────────────── -->
+    <string name="auth_reset_title">Reset your password</string>
+    <string name="auth_reset_subtitle">We\'ll send a reset link to your email address.</string>
+    <string name="auth_send_reset_link">Send reset link</string>
+    <string name="auth_check_email_title">Check your email</string>
+    <string name="auth_check_email_body">We sent a reset link to</string>
+    <string name="auth_resend_email">Resend email</string>
+    <string name="auth_new_password_title">Set a new password</string>
+    <string name="auth_new_password_subtitle">Choose something you\'ll remember.</string>
+    <string name="auth_field_new_password">New password</string>
+    <string name="auth_field_confirm_password">Confirm password</string>
+    <string name="auth_set_new_password">Set new password</string>
+
+    <!-- ── Email verification wall / banner ──────────────────── -->
+    <string name="auth_verify_wall_title">Verify your email</string>
+    <string name="auth_verify_wall_body">We need to confirm your email to keep your account secure.</string>
+    <string name="auth_verify_wall_sent_to">We sent a verification link to</string>
+    <string name="auth_resend_verification">Resend verification email</string>
+    <string name="auth_sign_out_different_account">Sign out and use a different account</string>
+    <string name="auth_verify_banner_text">Verify your email to keep your account safe.</string>
+    <string name="auth_verify_banner_resend">Resend</string>
+
+    <!-- ── Save your progress (end of onboarding) ────────────── -->
+    <string name="save_progress_title">Save your spot</string>
+    <string name="save_progress_basil_message">I don\'t want to lose any of this — let\'s save it, so I\'m here when you come back.</string>
+    <string name="save_progress_continue_with_email">Continue with email</string>
+    <string name="save_progress_maybe_later">Maybe later</string>
+    <string name="save_progress_create_account_title">Create your account</string>
+    <string name="save_progress_create_account">Create account</string>
+
+    <!-- ── Passkey auth prompt ────────────────────────────────── -->
+    <string name="auth_passkey_scanning">Looking for you…</string>
+    <string name="auth_passkey_first_failure">Didn\'t recognise you.</string>
+    <string name="auth_passkey_try_again">Try again</string>
+    <string name="auth_passkey_second_failure">Still no luck — sign in with your email instead.</string>
+
+    <!-- ── Password strength requirements ────────────────────── -->
+    <string name="auth_req_length">8+ characters</string>
+    <string name="auth_req_uppercase">Uppercase letter (A–Z)</string>
+    <string name="auth_req_lowercase">Lowercase letter (a–z)</string>
+    <string name="auth_req_number">Number (0–9)</string>
+    <string name="auth_req_special">Special character (!@#$…)</string>
 
     <!-- ── Bottom navigation ─────────────────────────────────── -->
     <string name="nav_profile">Profile</string>
@@ -31,7 +83,7 @@
     <string name="profile_action_edit">Edit</string>
     <string name="profile_action_save">Save</string>
     <string name="profile_action_cancel">Cancel</string>
-    <string name="profile_no_user">No profile data found</string>
+    <string name="profile_no_user">No profile found</string>
     <string name="error_profile_save_failed">Failed to save profile. Please try again.</string>
     <string name="profile_pick_photo">Change photo</string>
     <string name="profile_remove_photo">Remove photo</string>
@@ -45,6 +97,7 @@
     <string name="settings_label_reminders">Daily reminders</string>
     <string name="settings_label_reminders_hint">Check in once a day</string>
     <string name="settings_notifications_coming_soon">Notification settings coming soon</string>
+    <string name="settings_action_sign_out">Sign out</string>
 
     <!-- ── Screens ───────────────────────────────────────────── -->
     <string name="screen_settings">Settings</string>
@@ -93,7 +146,7 @@
     <string name="onboarding_retry">Try again</string>
 
     <!-- ── Error messages ──────────────────────────────────── -->
-    <string name="error_auth_failed">Authentication failed</string>
+    <string name="error_auth_failed">Something went wrong. Please try again.</string>
     <string name="error_chat_failed">Something went wrong. Please try again.</string>
     <string name="onboarding_error_network">No connection. Check your signal and try again.</string>
     <string name="onboarding_error_server">Something went wrong on our end. Try again in a moment.</string>

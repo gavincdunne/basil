@@ -36,8 +36,8 @@ fun dmSerifDisplayFamily(): FontFamily = FontFamily(
  * ### When to use each style
  * | Style            | Use case                                            |
  * |------------------|-----------------------------------------------------|
- * | `displaySmall`   | "basil" wordmark — DM Serif Display                 |
- * | `headlineSmall`  | Screen titles                                       |
+ * | `displaySmall`   | The full-screen splash "basil" wordmark — DM Serif Display, 40sp. **Not** for the auth hero band — see [authHeroWordmarkStyle], which the mockup specifies smaller (28sp). Reusing `displaySmall` there was a mockup-fidelity bug caught in design review. |
+ * | `headlineSmall`  | Generic screen titles. **Not** for auth/reset/verification/save-progress headings — the mockup's `.form-heading`/`.wall-heading` classes want serif regular, not sans bold; see [authHeadingStyle]. |
  * | `titleLarge`     | Card titles, sheet headers                          |
  * | `bodyLarge`      | Primary content paragraphs                          |
  * | `bodyMedium`     | Secondary content, list item text                   |
@@ -50,6 +50,37 @@ internal fun basilTypography(): Typography {
     val serif = dmSerifDisplayFamily()
     return buildTypography(sans = sans, serif = serif)
 }
+
+/**
+ * The "basil" wordmark inside the auth hero band (`AuthScreen`,
+ * `NewPasswordScreen`, `VerificationWallScreen`) — 28sp per the mockup's
+ * `.hero-wordmark` class. Distinct from [Typography.displaySmall] (40sp),
+ * which is correct for the standalone splash screen's larger wordmark but
+ * was mistakenly reused for this smaller, in-context hero band treatment.
+ */
+@Composable
+fun authHeroWordmarkStyle(): TextStyle = TextStyle(
+    fontFamily    = dmSerifDisplayFamily(),
+    fontWeight    = FontWeight.Normal,
+    fontSize      = 28.sp,
+    letterSpacing = (-0.3).sp,
+)
+
+/**
+ * Screen headings on auth/reset/verification/save-progress screens — e.g.
+ * "Welcome back", "Reset your password", "Verify your email" — per the
+ * mockup's `.form-heading`/`.wall-heading` classes: DM Serif Display,
+ * Regular weight, 22sp. Distinct from [Typography.headlineSmall], which is
+ * the same size but sans-serif Bold — the generic Material role, not this
+ * screen family's specific editorial treatment.
+ */
+@Composable
+fun authHeadingStyle(): TextStyle = TextStyle(
+    fontFamily = dmSerifDisplayFamily(),
+    fontWeight = FontWeight.Normal,
+    fontSize   = 22.sp,
+    lineHeight = 28.sp,
+)
 
 @Suppress("LongMethod")
 private fun buildTypography(sans: FontFamily, serif: FontFamily): Typography = Typography(

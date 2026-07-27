@@ -145,7 +145,7 @@ class BasilThemeViewModelTest {
     }
 
     @Test
-    fun `next boundary after night (23h) is 5`() {
+    fun `next boundary after night at 23h is 5`() {
         assertEquals(5, nextSchemeTransitionHour(23))
     }
 

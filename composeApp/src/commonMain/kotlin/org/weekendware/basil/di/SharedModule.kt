@@ -1,5 +1,6 @@
 package org.weekendware.basil.di
 
+import com.russhwolf.settings.Settings
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 import org.weekendware.basil.data.local.database.DatabaseProvider
@@ -12,6 +13,7 @@ import org.weekendware.basil.data.repository.AuthRepository
 import org.weekendware.basil.data.repository.AvatarRepository
 import org.weekendware.basil.data.repository.ChatRepository
 import org.weekendware.basil.data.repository.DataStoreOnboardingRepository
+import org.weekendware.basil.data.repository.DeepLinkHandler
 import org.weekendware.basil.data.repository.KtorChatRepository
 import org.weekendware.basil.data.repository.OnboardingLocalRepository
 import org.weekendware.basil.data.repository.ProfileRepository
@@ -23,8 +25,12 @@ import org.weekendware.basil.data.repository.UserRepository
 import org.weekendware.basil.domain.usecase.GetUserUseCase
 import org.weekendware.basil.domain.usecase.SendMessageUseCase
 import org.weekendware.basil.presentation.auth.AuthViewModel
+import org.weekendware.basil.presentation.auth.NewPasswordViewModel
+import org.weekendware.basil.presentation.auth.ResetPasswordViewModel
+import org.weekendware.basil.presentation.auth.VerificationWallViewModel
 import org.weekendware.basil.presentation.chat.ChatViewModel
 import org.weekendware.basil.presentation.onboarding.OnboardingViewModel
+import org.weekendware.basil.presentation.onboarding.SaveProgressViewModel
 import org.weekendware.basil.presentation.profile.ProfileViewModel
 import org.weekendware.basil.presentation.session.SessionViewModel
 import org.weekendware.basil.presentation.settings.SettingsViewModel
@@ -43,8 +49,10 @@ val chatModule = module {
 
 val supabaseModule = module {
     single { createSupabaseClient() }
-    single<AuthRepository> { SupabaseAuthRepository(get()) }
+    single { Settings() }
+    single<AuthRepository> { SupabaseAuthRepository(get(), get()) }
     single<AvatarRepository> { SupabaseAvatarRepository(get()) }
+    single { DeepLinkHandler(get()) }
 }
 
 val databaseModule = module {
@@ -65,9 +73,13 @@ val onboardingModule = module {
 val sharedModule = module {
     viewModel { SessionViewModel(get()) }
     viewModel { AuthViewModel(get()) }
+    viewModel { ResetPasswordViewModel(get()) }
+    viewModel { NewPasswordViewModel(get()) }
+    viewModel { VerificationWallViewModel(get()) }
     viewModel { OnboardingViewModel(get(), get(), get(), get()) }
+    viewModel { SaveProgressViewModel(get()) }
     viewModel { ProfileViewModel(get(), get(), get()) }
-    viewModel { ChatViewModel(get()) }
-    viewModel { SettingsViewModel() }
+    viewModel { ChatViewModel(get(), get()) }
+    viewModel { SettingsViewModel(get()) }
     viewModel { BasilThemeViewModel() }
 }
