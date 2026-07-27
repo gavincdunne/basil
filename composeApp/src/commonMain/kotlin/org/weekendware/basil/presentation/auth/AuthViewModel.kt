@@ -143,14 +143,13 @@ class AuthViewModel(
      * which one the user tapped.
      */
     fun onSocialSignInResult(result: NativeSignInResult) {
-        when (result) {
-            is NativeSignInResult.Success -> {
-                authRepository.currentUserEmail()?.let(authRepository::recordLastUsedEmail)
+        when (val outcome = result.toSocialSignInOutcome(authRepository::currentUserEmail)) {
+            is SocialSignInOutcome.Success -> {
+                outcome.email?.let(authRepository::recordLastUsedEmail)
                 _state.update { it.copy(isLoading = false) }
             }
-            is NativeSignInResult.ClosedByUser -> _state.update { it.copy(isLoading = false) }
-            is NativeSignInResult.NetworkError, is NativeSignInResult.Error ->
-                _state.update { it.copy(isLoading = false, error = Res.string.error_auth_failed) }
+            SocialSignInOutcome.Dismissed -> _state.update { it.copy(isLoading = false) }
+            SocialSignInOutcome.Failed -> _state.update { it.copy(isLoading = false, error = Res.string.error_auth_failed) }
         }
     }
 }

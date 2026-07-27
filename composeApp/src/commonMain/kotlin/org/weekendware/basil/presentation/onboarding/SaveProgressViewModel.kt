@@ -16,6 +16,8 @@ import org.weekendware.basil.domain.usecase.SyncOnboardingToSupabaseUseCase
 import org.weekendware.basil.presentation.auth.PasswordRequirement
 import org.weekendware.basil.presentation.auth.PasswordStrength
 import org.weekendware.basil.presentation.auth.PasswordStrengthValidator
+import org.weekendware.basil.presentation.auth.SocialSignInOutcome
+import org.weekendware.basil.presentation.auth.toSocialSignInOutcome
 
 /** Which step of the "Save your progress" flow is showing. */
 enum class SaveProgressStep { ChooseMethod, EmailEntry }
@@ -80,9 +82,9 @@ class SaveProgressViewModel(
 
     /** The `onResult` callback passed to `rememberSignInWithGoogle`/`rememberSignInWithApple` — same shape as [org.weekendware.basil.presentation.auth.AuthViewModel.onSocialSignInResult]. */
     fun onSocialSignUpResult(result: NativeSignInResult) {
-        when (result) {
-            is NativeSignInResult.Success -> {
-                val email = authRepository.currentUserEmail()
+        when (val outcome = result.toSocialSignInOutcome(authRepository::currentUserEmail)) {
+            is SocialSignInOutcome.Success -> {
+                val email = outcome.email
                 email?.let(authRepository::recordLastUsedEmail)
                 val userId = authRepository.currentUserId()
                 if (userId != null && email != null) {
@@ -90,9 +92,8 @@ class SaveProgressViewModel(
                 }
                 _state.update { it.copy(isLoading = false) }
             }
-            is NativeSignInResult.ClosedByUser -> _state.update { it.copy(isLoading = false) }
-            is NativeSignInResult.NetworkError, is NativeSignInResult.Error ->
-                _state.update { it.copy(isLoading = false, error = Res.string.error_auth_failed) }
+            SocialSignInOutcome.Dismissed -> _state.update { it.copy(isLoading = false) }
+            SocialSignInOutcome.Failed -> _state.update { it.copy(isLoading = false, error = Res.string.error_auth_failed) }
         }
     }
 

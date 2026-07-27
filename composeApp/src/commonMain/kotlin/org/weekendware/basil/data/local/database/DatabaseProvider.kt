@@ -28,10 +28,6 @@ object DatabaseProvider {
      *   to create the underlying [SqlDriver] on first call.
      * @return The shared [BasilDatabase] instance.
      */
-    fun getDatabase(driverFactory: DatabaseDriverFactory): BasilDatabase {
-        if (instance == null) {
-            instance = BasilDatabase(driverFactory.createDriver())
-        }
-        return instance!!
-    }
+    fun getDatabase(driverFactory: DatabaseDriverFactory): BasilDatabase =
+        instance ?: BasilDatabase(driverFactory.createDriver()).also { instance = it }
 }
