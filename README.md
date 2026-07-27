@@ -1,6 +1,8 @@
 # Basil
 *Built by WeekendWare*
 
+**[The Basil Theme →](.github/chapters/theme.md)** · **[Auth →](.github/chapters/auth.md)**
+
 Type 1 Diabetes doesn't pause. It's there at 2am when your CGM alerts. It's there before a run, before a meal, in every conversation where you have to explain yourself. People living with T1D carry a cognitive load that most health apps make heavier — tracking inputs, logging outputs, reducing a life to data points.
 
 Basil is built on a different premise. Not a tracker. A companion. Something that knows what your days actually look like, remembers what you've shared, and is worth talking to — when you have a question, a hard moment, or just need to think out loud.
@@ -29,27 +31,7 @@ The market for AI-powered chronic condition companions is early and largely unoc
 
 ### The experience
 
-The app is designed around time-of-day — color, tone, and lighting shift through four periods (morning, day, evening, night) with smooth 10-second transitions. It's a product that feels alive because it responds to the actual moment the user is in, not a generic session state.
-
-<table>
-  <tr>
-    <td align="center"><img src=".github/assets/morning.png" width="180" alt="Morning theme"/><br/><sub>Morning · 6:32</sub></td>
-    <td align="center"><img src=".github/assets/day.png" width="180" alt="Day theme"/><br/><sub>Day · 12:30</sub></td>
-    <td align="center"><img src=".github/assets/evening.png" width="180" alt="Evening theme"/><br/><sub>Evening · 7:45</sub></td>
-    <td align="center"><img src=".github/assets/night.png" width="180" alt="Night theme"/><br/><sub>Night · 11:47</sub></td>
-  </tr>
-</table>
-
----
-
-## Chapters
-
-Feature-level docs, each with screenshots and the reasoning behind the design, not just what's in the code:
-
-- **[The Basil Theme](.github/chapters/theme.md)** — the seed-derived color system, the 8 day/night × light/dark schemes, typography
-- **[Auth](.github/chapters/auth.md)** — full silent account provisioning, sign-in methods, verification, password reset
-
-More chapters land here as features ship.
+The app is designed around time-of-day — color, tone, and lighting shift through four periods with smooth 10-second transitions. It's a product that feels alive because it responds to the actual moment the user is in, not a generic session state. Full breakdown and screenshots in the [Theme chapter](.github/chapters/theme.md).
 
 ---
 
@@ -90,9 +72,9 @@ Each layer depends only on the layer below it. ViewModels and use cases depend o
 ### What's built
 
 **App infrastructure**
-- **Auth** — see the [Auth chapter](.github/chapters/auth.md): full silent account provisioning, email/password with detect-by-email, native Google/Apple sign-in, email verification banner + 30-day soft-block wall, password reset via deep link, sign-out
+- **Auth** — see the [Auth chapter](.github/chapters/auth.md)
 - **Navigation** — state-based routing driven by `AnimatedContent` and pure functions (`unauthenticatedDestination()`, `authenticatedDestination()`) rather than a navigation library; bottom tab bar (Profile, Chat, More); Settings slides in as a full-screen overlay via `graphicsLayer` translation
-- **Theme** — see the [Theme chapter](.github/chapters/theme.md): seed-derived color system, 8 schemes, animated 10-second transitions
+- **Theme** — see the [Theme chapter](.github/chapters/theme.md)
 - **Crash reporting** — Sentry across all three targets with `PhiScrubber` stripping health data before any event leaves the device
 - **CI/CD** — GitHub Actions running Detekt, Android compile + test, and iOS framework build on every push
 
