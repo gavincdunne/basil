@@ -80,6 +80,6 @@ val sharedModule = module {
     viewModel { SaveProgressViewModel(get()) }
     viewModel { ProfileViewModel(get(), get(), get()) }
     viewModel { ChatViewModel(get(), get()) }
-    viewModel { SettingsViewModel() }
+    viewModel { SettingsViewModel(get()) }
     viewModel { BasilThemeViewModel() }
 }

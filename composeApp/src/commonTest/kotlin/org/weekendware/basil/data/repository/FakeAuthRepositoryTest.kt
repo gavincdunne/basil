@@ -20,6 +20,27 @@ import kotlin.test.assertTrue
 class FakeAuthRepositoryTest {
 
     @Test
+    fun `successful signOut clears the session`() = runTest {
+        val repo = FakeAuthRepository().apply { setSignedIn(true) }
+
+        val result = repo.signOut()
+
+        assertTrue(result.isSuccess)
+        assertFalse(repo.isSignedIn())
+    }
+
+    @Test
+    fun `failed signOut leaves the session untouched`() = runTest {
+        val repo = FakeAuthRepository().apply { setSignedIn(true) }
+        repo.signOutResult = Result.failure(Exception("network error"))
+
+        val result = repo.signOut()
+
+        assertTrue(result.isFailure)
+        assertTrue(repo.isSignedIn())
+    }
+
+    @Test
     fun `recordLastUsedEmail updates lastUsedEmail`() {
         val repo = FakeAuthRepository()
         assertNull(repo.lastUsedEmail())

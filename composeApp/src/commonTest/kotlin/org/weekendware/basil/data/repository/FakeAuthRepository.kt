@@ -21,6 +21,7 @@ class FakeAuthRepository : AuthRepository {
 
     var signInResult: Result<Unit> = Result.success(Unit)
     var signUpResult: Result<Unit> = Result.success(Unit)
+    var signOutResult: Result<Unit> = Result.success(Unit)
     var resetPasswordResult: Result<Unit> = Result.success(Unit)
     var updatePasswordResult: Result<Unit> = Result.success(Unit)
     var resendVerificationResult: Result<Unit> = Result.success(Unit)
@@ -67,8 +68,8 @@ class FakeAuthRepository : AuthRepository {
     }
 
     override suspend fun signOut(): Result<Unit> {
-        _sessionFlow.value = false
-        return Result.success(Unit)
+        if (signOutResult.isSuccess) _sessionFlow.value = false
+        return signOutResult
     }
 
     override fun currentUserId(): String? = if (_sessionFlow.value) "fake-uid" else null
