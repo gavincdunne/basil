@@ -90,6 +90,7 @@
     <string name="settings_label_reminders">Daily reminders</string>
     <string name="settings_label_reminders_hint">Check in once a day</string>
     <string name="settings_notifications_coming_soon">Notification settings coming soon</string>
+    <string name="settings_action_sign_out">Sign out</string>
 
     <!-- ── Screens ───────────────────────────────────────────── -->
     <string name="screen_settings">Settings</string>

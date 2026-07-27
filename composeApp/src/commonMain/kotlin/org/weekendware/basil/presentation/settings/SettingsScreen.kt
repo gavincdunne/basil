@@ -1,14 +1,18 @@
 package org.weekendware.basil.presentation.settings
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -18,10 +22,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import basil.composeapp.generated.resources.Res
 import basil.composeapp.generated.resources.profile_label_email
 import basil.composeapp.generated.resources.profile_label_name
+import basil.composeapp.generated.resources.settings_action_sign_out
 import basil.composeapp.generated.resources.settings_label_reminders
 import basil.composeapp.generated.resources.settings_label_reminders_hint
 import basil.composeapp.generated.resources.settings_label_version
@@ -32,6 +38,7 @@ import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 import org.weekendware.basil.presentation.profile.ProfileViewModel
+import org.weekendware.basil.presentation.theme.BasilPalette
 import org.weekendware.basil.presentation.theme.BasilTheme
 import org.weekendware.basil.presentation.theme.basilSpacing
 
@@ -39,9 +46,13 @@ import org.weekendware.basil.presentation.theme.basilSpacing
 fun SettingsScreen() {
     val profileViewModel = koinViewModel<ProfileViewModel>()
     val profileState by profileViewModel.state.collectAsStateWithLifecycle()
+    val settingsViewModel = koinViewModel<SettingsViewModel>()
+    val settingsState by settingsViewModel.state.collectAsStateWithLifecycle()
     SettingsScreenContent(
-        userName  = profileState.name,
-        userEmail = profileState.email,
+        userName    = profileState.name,
+        userEmail   = profileState.email,
+        isSigningOut = settingsState.isSigningOut,
+        onSignOut    = settingsViewModel::onSignOut,
     )
 }
 
@@ -49,6 +60,8 @@ fun SettingsScreen() {
 fun SettingsScreenContent(
     userName: String = "",
     userEmail: String = "",
+    isSigningOut: Boolean = false,
+    onSignOut: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     val spacing = MaterialTheme.basilSpacing
@@ -122,6 +135,32 @@ fun SettingsScreenContent(
                 )
             }
         }
+
+        SignOutRow(isSigningOut = isSigningOut, onSignOut = onSignOut)
+    }
+}
+
+@Composable
+private fun SignOutRow(isSigningOut: Boolean, onSignOut: () -> Unit) {
+    ElevatedCard(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(enabled = !isSigningOut, onClick = onSignOut),
+    ) {
+        Box(
+            modifier         = Modifier.fillMaxWidth().padding(MaterialTheme.basilSpacing.xl),
+            contentAlignment = Alignment.Center,
+        ) {
+            if (isSigningOut) {
+                CircularProgressIndicator(modifier = Modifier.size(20.dp), color = BasilPalette.Error)
+            } else {
+                Text(
+                    text  = stringResource(Res.string.settings_action_sign_out),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = BasilPalette.Error,
+                )
+            }
+        }
     }
 }
 
@@ -172,5 +211,17 @@ private fun SettingsSection(
 internal fun SettingsScreenPreview() {
     BasilTheme {
         SettingsScreenContent(userName = "Gavin Dunne", userEmail = "gavin@weekendware.io")
+    }
+}
+
+@Preview
+@Composable
+internal fun SettingsScreenSigningOutPreview() {
+    BasilTheme {
+        SettingsScreenContent(
+            userName     = "Gavin Dunne",
+            userEmail    = "gavin@weekendware.io",
+            isSigningOut = true,
+        )
     }
 }

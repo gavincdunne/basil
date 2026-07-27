@@ -19,11 +19,8 @@ data class SettingsState(
 )
 
 /**
- * ViewModel for [SettingsScreen].
- *
- * **Not implemented here.** QA scaffolding only — see
- * [SettingsViewModelTest] for the full contract. Spec:
- * `spec-splash-auth-07222026.md`, AC24.
+ * ViewModel for [SettingsScreen]. Spec: `spec-splash-auth-07222026.md`,
+ * AC24.
  */
 class SettingsViewModel(
     private val authRepository: AuthRepository
@@ -39,6 +36,10 @@ class SettingsViewModel(
      * it flips to unauthenticated. No explicit navigation call needed here.
      */
     fun onSignOut() {
-        TODO("Not yet implemented — see spec-splash-auth-07222026.md, AC24")
+        _state.update { it.copy(isSigningOut = true) }
+        viewModelScope.launch {
+            authRepository.signOut()
+            _state.update { it.copy(isSigningOut = false) }
+        }
     }
 }
