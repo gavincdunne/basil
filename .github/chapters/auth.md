@@ -1,6 +1,6 @@
 ← [Back to README](../../README.md) · Previous: [← Basil Theme](theme.md)
 
-# Chapter: Auth
+# Auth
 
 Basil's auth system is built around one idea: the conversation comes first. A brand-new user never sees a login screen before they've talked to Basil — onboarding runs entirely before any account exists, and account creation happens at the end, framed as "save your progress," not "sign up."
 

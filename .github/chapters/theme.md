@@ -1,6 +1,6 @@
 ← [Back to README](../../README.md)
 
-# Chapter: The Basil Theme
+# The Basil Theme
 
 The day/night cycle is core to Basil's identity — not a theme setting, not dark mode. It's always on. Color, tone, and lighting shift through four periods of the day, and the app is meant to feel alive because it responds to the actual moment the user is in, not a generic session state.
 
