@@ -12,6 +12,15 @@ The conversation is the product. Everything else is infrastructure.
 
 ---
 
+## Features
+
+- **Conversation-first** — no forms, no dashboards, no BG numbers. The entire interface is a conversation.
+- **Persistent memory** — a real, evolving picture of who someone is, not a session that resets every time they open the app.
+- **Time-of-day presence** — color, tone, and lighting shift through the day, so the app feels like it's actually there with the user.
+- **A hard boundary** — never medical advice, never a data point. Support, not supervision.
+
+---
+
 ## Why this matters
 
 There are roughly 9 million people living with Type 1 Diabetes globally. Most of them are already expert patients — they've been managing this since childhood. What they don't have is something that understands them as a whole person rather than a set of metrics.
@@ -19,15 +28,6 @@ There are roughly 9 million people living with Type 1 Diabetes globally. Most of
 Basil isn't a replacement for a care team. It's the thing you can talk to at 11pm that doesn't require an appointment.
 
 The market for AI-powered chronic condition companions is early and largely unoccupied. Basil is built to own the T1D segment first, with the architecture to extend to adjacent conditions.
-
----
-
-## Features
-
-- **Conversation-first** — no forms, no dashboards, no BG numbers. The entire interface is a conversation.
-- **Persistent memory** — a real, evolving picture of who someone is, not a session that resets every time they open the app.
-- **Time-of-day presence** — color, tone, and lighting shift through the day, so the app feels like it's actually there with the user.
-- **A hard boundary** — never medical advice, never a data point. Support, not supervision.
 
 ---
 
