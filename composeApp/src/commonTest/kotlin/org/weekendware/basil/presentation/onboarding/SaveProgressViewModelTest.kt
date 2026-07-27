@@ -10,6 +10,11 @@ import basil.composeapp.generated.resources.Res
 import basil.composeapp.generated.resources.error_auth_failed
 import io.github.jan.supabase.compose.auth.composable.NativeSignInResult
 import org.weekendware.basil.data.repository.FakeAuthRepository
+import org.weekendware.basil.data.repository.FakeOnboardingLocalRepository
+import org.weekendware.basil.data.repository.FakeProfileRepository
+import org.weekendware.basil.data.repository.FakeUserRepository
+import org.weekendware.basil.domain.model.OnboardingPersistedState
+import org.weekendware.basil.domain.usecase.SyncOnboardingToSupabaseUseCase
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -30,13 +35,22 @@ class SaveProgressViewModelTest {
 
     private val dispatcher = UnconfinedTestDispatcher()
     private lateinit var repo: FakeAuthRepository
+    private lateinit var onboardingLocalRepo: FakeOnboardingLocalRepository
+    private lateinit var profileRepo: FakeProfileRepository
+    private lateinit var userRepo: FakeUserRepository
     private lateinit var viewModel: SaveProgressViewModel
 
     @BeforeTest
     fun setup() {
         Dispatchers.setMain(dispatcher)
         repo = FakeAuthRepository()
-        viewModel = SaveProgressViewModel(repo)
+        onboardingLocalRepo = FakeOnboardingLocalRepository()
+        profileRepo = FakeProfileRepository()
+        userRepo = FakeUserRepository()
+        viewModel = SaveProgressViewModel(
+            repo,
+            SyncOnboardingToSupabaseUseCase(onboardingLocalRepo, profileRepo, userRepo),
+        )
     }
 
     @AfterTest
@@ -107,6 +121,19 @@ class SaveProgressViewModelTest {
     }
 
     @Test
+    fun `successful onCreateAccount syncs the local onboarding answers to Supabase`() = runTest {
+        onboardingLocalRepo.setState(OnboardingPersistedState(name = "Gavin", isComplete = true))
+        viewModel.onEmailChange("user@test.com")
+        viewModel.onPasswordChange("Abcdefg1!")
+
+        viewModel.onCreateAccount()
+
+        val insert = userRepo.insertCalls.single()
+        assertEquals("Gavin", insert.name)
+        assertEquals("user@test.com", insert.email)
+    }
+
+    @Test
     fun `failed onCreateAccount surfaces an error`() = runTest {
         repo.signUpResult = Result.failure(Exception("email already registered"))
         viewModel.onEmailChange("user@test.com")
@@ -131,6 +158,19 @@ class SaveProgressViewModelTest {
         assertFalse(state.isLoading)
         assertNull(state.error)
         assertEquals("fake@example.com", repo.lastUsedEmail())
+    }
+
+    @Test
+    fun `onSocialSignUpResult Success syncs the local onboarding answers to Supabase`() {
+        onboardingLocalRepo.setState(OnboardingPersistedState(name = "Gavin", isComplete = true))
+        repo.setSignedIn(true)
+        viewModel.onSocialSignUpStarted()
+
+        viewModel.onSocialSignUpResult(NativeSignInResult.Success)
+
+        val insert = userRepo.insertCalls.single()
+        assertEquals("Gavin", insert.name)
+        assertEquals("fake@example.com", insert.email)
     }
 
     @Test

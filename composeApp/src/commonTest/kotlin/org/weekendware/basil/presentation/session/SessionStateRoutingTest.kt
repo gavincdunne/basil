@@ -4,10 +4,39 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 /**
- * QA test suite for [authenticatedDestination] — the pure routing decision
- * that gates the 30-day email-verification soft-block.
+ * QA test suite for [authenticatedDestination] and [unauthenticatedDestination]
+ * — the pure routing decisions for full silent account provisioning and the
+ * 30-day email-verification soft-block.
  */
 class SessionStateRoutingTest {
+
+    @Test
+    fun `onboarding-incomplete routes to Onboarding regardless of account state`() {
+        assertEquals(
+            UnauthenticatedDestination.Onboarding,
+            unauthenticatedDestination(SessionState.Unauthenticated(onboardingComplete = false, hasAccount = false)),
+        )
+        assertEquals(
+            UnauthenticatedDestination.Onboarding,
+            unauthenticatedDestination(SessionState.Unauthenticated(onboardingComplete = false, hasAccount = true)),
+        )
+    }
+
+    @Test
+    fun `onboarding-complete with no account routes to SaveProgress`() {
+        assertEquals(
+            UnauthenticatedDestination.SaveProgress,
+            unauthenticatedDestination(SessionState.Unauthenticated(onboardingComplete = true, hasAccount = false)),
+        )
+    }
+
+    @Test
+    fun `onboarding-complete with an existing account routes to Auth`() {
+        assertEquals(
+            UnauthenticatedDestination.Auth,
+            unauthenticatedDestination(SessionState.Unauthenticated(onboardingComplete = true, hasAccount = true)),
+        )
+    }
 
     @Test
     fun `verified user routes to Normal regardless of account age`() {

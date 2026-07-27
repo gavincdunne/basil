@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.StringResource
 import org.weekendware.basil.data.repository.AuthRepository
+import org.weekendware.basil.domain.usecase.SyncOnboardingToSupabaseUseCase
 import org.weekendware.basil.presentation.auth.PasswordRequirement
 import org.weekendware.basil.presentation.auth.PasswordStrength
 import org.weekendware.basil.presentation.auth.PasswordStrengthValidator
@@ -42,15 +43,20 @@ data class SaveProgressUiState(
 }
 
 /**
- * ViewModel for [SaveProgressScreen]. Only handles account creation itself
- * — syncing the already-collected local onboarding answers to Supabase
- * once the account exists is
- * [org.weekendware.basil.presentation.onboarding.OnboardingViewModel]'s job,
- * not this screen's, matching the TDD's `syncLocalToSupabase(userId)` call
- * "once, after successful sign-up."
+ * ViewModel for [SaveProgressScreen]. Handles account creation and the
+ * one-time sync of the already-collected local onboarding answers to
+ * Supabase once the account exists — [SyncOnboardingToSupabaseUseCase],
+ * matching the TDD's `syncLocalToSupabase(userId)` call "once, after
+ * successful sign-up." This is the only place that sync can happen:
+ * onboarding itself runs entirely pre-auth with no `userId` to sync to,
+ * and by the time this screen shows, the onboarding conversation is
+ * already over — nothing will call back into
+ * [org.weekendware.basil.presentation.onboarding.OnboardingViewModel] to
+ * trigger it from there.
  */
 class SaveProgressViewModel(
-    private val authRepository: AuthRepository
+    private val authRepository: AuthRepository,
+    private val syncOnboardingToSupabase: SyncOnboardingToSupabaseUseCase,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(SaveProgressUiState())
@@ -76,7 +82,12 @@ class SaveProgressViewModel(
     fun onSocialSignUpResult(result: NativeSignInResult) {
         when (result) {
             is NativeSignInResult.Success -> {
-                authRepository.currentUserEmail()?.let(authRepository::recordLastUsedEmail)
+                val email = authRepository.currentUserEmail()
+                email?.let(authRepository::recordLastUsedEmail)
+                val userId = authRepository.currentUserId()
+                if (userId != null && email != null) {
+                    viewModelScope.launch { syncOnboardingToSupabase(userId, email) }
+                }
                 _state.update { it.copy(isLoading = false) }
             }
             is NativeSignInResult.ClosedByUser -> _state.update { it.copy(isLoading = false) }
@@ -94,7 +105,11 @@ class SaveProgressViewModel(
         viewModelScope.launch {
             val result = authRepository.signUp(current.email, current.password)
             result.fold(
-                onSuccess = { _state.update { it.copy(isLoading = false) } },
+                onSuccess = {
+                    val userId = authRepository.currentUserId()
+                    if (userId != null) syncOnboardingToSupabase(userId, current.email)
+                    _state.update { it.copy(isLoading = false) }
+                },
                 onFailure = { _state.update { it.copy(isLoading = false, error = Res.string.error_auth_failed) } }
             )
         }
