@@ -22,17 +22,12 @@ The market for AI-powered chronic condition companions is early and largely unoc
 
 ---
 
-## Product
+## Features
 
-### What Basil does
-
-- **Remembers.** Basil builds a real picture of the user over time — what they're managing, how they talk about it, what matters to them. Not a database. A context that makes every conversation better than the last.
-- **Listens.** No forms. No dashboards. The entire interface is a conversation, and Basil meets the user where they are — not the other way around.
-- **Respects the line.** Basil never gives medical advice. It never asks for BG numbers. It never makes the user feel like a data point. This is a hard constraint, not a guideline.
-
-### The experience
-
-The app is designed around time-of-day — color, tone, and lighting shift through four periods with smooth 10-second transitions. It's a product that feels alive because it responds to the actual moment the user is in, not a generic session state. Full breakdown and screenshots in [The Basil Theme](.github/chapters/theme.md).
+- **Conversation-first** — no forms, no dashboards, no BG numbers. The entire interface is a conversation.
+- **Persistent memory** — a real, evolving picture of who someone is, not a session that resets every time they open the app.
+- **Time-of-day presence** — color, tone, and lighting shift through the day, so the app feels like it's actually there with the user.
+- **A hard boundary** — never medical advice, never a data point. Support, not supervision.
 
 ---
 
