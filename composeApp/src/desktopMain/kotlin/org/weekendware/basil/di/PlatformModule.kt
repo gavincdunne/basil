@@ -7,9 +7,11 @@ import org.koin.dsl.module
 import org.weekendware.basil.data.local.ONBOARDING_DATASTORE_FILE
 import org.weekendware.basil.data.local.createOnboardingDataStore
 import org.weekendware.basil.data.local.database.DatabaseDriverFactory
+import org.weekendware.basil.data.repository.PasskeyManager
 
 actual val platformModule: Module = module {
     single { DatabaseDriverFactory() }
+    single { PasskeyManager() }
     single<DataStore<Preferences>> {
         val dir = System.getProperty("user.home") + "/.basil"
         java.io.File(dir).mkdirs()
