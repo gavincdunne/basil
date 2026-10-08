@@ -1,5 +1,7 @@
 package org.weekendware.basil.presentation.settings
 
+import basil.composeapp.generated.resources.Res
+import basil.composeapp.generated.resources.error_auth_failed
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -11,7 +13,9 @@ import org.weekendware.basil.data.repository.FakeAuthRepository
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 /**
@@ -71,5 +75,23 @@ class SettingsViewModelTest {
 
         assertFalse(viewModel.state.value.isSigningOut)
         assertTrue(repo.isSignedIn())
+    }
+
+    @Test
+    fun `onSignOut leaves error null after a successful call`() = runTest {
+        viewModel.onSignOut()
+        advanceUntilIdle()
+
+        assertNull(viewModel.state.value.error)
+    }
+
+    @Test
+    fun `onSignOut surfaces an error when the repository call fails`() = runTest {
+        repo.signOutResult = Result.failure(Exception("network error"))
+
+        viewModel.onSignOut()
+        advanceUntilIdle()
+
+        assertEquals(Res.string.error_auth_failed, viewModel.state.value.error)
     }
 }

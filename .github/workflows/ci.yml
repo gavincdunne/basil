@@ -2,9 +2,9 @@ name: CI
 
 on:
   pull_request:
-    branches: [main]
+    branches: [main, develop]
   push:
-    branches: [main]
+    branches: [main, develop]
   workflow_dispatch:
 
 # Cancel older runs on the same PR when new commits arrive.
@@ -68,13 +68,13 @@ jobs:
           cache-read-only: ${{ github.ref != 'refs/heads/main' }}
 
       - name: Compile
-        run: ./gradlew :composeApp:compileDebugKotlinAndroid --stacktrace --no-daemon
+        run: ./gradlew :composeApp:compileDevDebugKotlinAndroid --stacktrace --no-daemon
 
       - name: Unit tests
         run: ./gradlew :composeApp:desktopTest --stacktrace --no-daemon
 
       - name: Assemble debug APK
-        run: ./gradlew :composeApp:assembleDebug --stacktrace --no-daemon
+        run: ./gradlew :composeApp:assembleDevDebug --stacktrace --no-daemon
 
       - name: Upload test reports
         if: always()
@@ -92,7 +92,7 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: basil-debug
-          path: composeApp/build/outputs/apk/debug/*.apk
+          path: composeApp/build/outputs/apk/dev/debug/*.apk
           retention-days: 7
 
   # ──────────────────────────────────────────────────────────────
