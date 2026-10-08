@@ -25,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import basil.composeapp.generated.resources.Res
+import basil.composeapp.generated.resources.error_auth_failed
 import basil.composeapp.generated.resources.profile_label_email
 import basil.composeapp.generated.resources.profile_label_name
 import basil.composeapp.generated.resources.settings_action_sign_out
@@ -34,6 +35,7 @@ import basil.composeapp.generated.resources.settings_label_version
 import basil.composeapp.generated.resources.settings_notifications_coming_soon
 import basil.composeapp.generated.resources.settings_section_about
 import basil.composeapp.generated.resources.settings_section_notifications
+import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
@@ -52,6 +54,7 @@ fun SettingsScreen() {
         userName    = profileState.name,
         userEmail   = profileState.email,
         isSigningOut = settingsState.isSigningOut,
+        signOutError = settingsState.error,
         onSignOut    = settingsViewModel::onSignOut,
     )
 }
@@ -61,6 +64,7 @@ fun SettingsScreenContent(
     userName: String = "",
     userEmail: String = "",
     isSigningOut: Boolean = false,
+    signOutError: StringResource? = null,
     onSignOut: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
@@ -137,6 +141,13 @@ fun SettingsScreenContent(
         }
 
         SignOutRow(isSigningOut = isSigningOut, onSignOut = onSignOut)
+        signOutError?.let { errorRes ->
+            Text(
+                text  = stringResource(errorRes),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.error,
+            )
+        }
     }
 }
 
@@ -222,6 +233,18 @@ internal fun SettingsScreenSigningOutPreview() {
             userName     = "Gavin Dunne",
             userEmail    = "gavin@weekendware.io",
             isSigningOut = true,
+        )
+    }
+}
+
+@Preview
+@Composable
+internal fun SettingsScreenSignOutErrorPreview() {
+    BasilTheme {
+        SettingsScreenContent(
+            userName     = "Gavin Dunne",
+            userEmail    = "gavin@weekendware.io",
+            signOutError = Res.string.error_auth_failed,
         )
     }
 }
